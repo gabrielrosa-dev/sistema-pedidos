@@ -508,13 +508,35 @@ function productMatchesCategory(product, category) {
     return brandCategories[category] || false;
 }
 
+function normalizeSearchText(text) {
+    return text
+        .toLocaleLowerCase('pt-BR')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]/g, '');
+}
+
+function normalizeSearchWords(text) {
+    return text
+        .toLocaleLowerCase('pt-BR')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .split(/[^a-z0-9]+/)
+        .filter(Boolean);
+}
+
 function renderProducts(searchTerm = '') {
     productListEl.innerHTML = '';
     const savedQuantities = getSavedQuantities();
     const savedCnpj = localStorage.getItem('saved_cnpj');
-    const normalizedSearch = searchTerm.trim().toLocaleLowerCase();
+    const normalizedSearch = normalizeSearchText(searchTerm);
+    const searchWords = normalizeSearchWords(searchTerm);
     const visibleProducts = products
-        .filter(product => product.name.toLocaleLowerCase().includes(normalizedSearch) && productMatchesCategory(product, activeCategory))
+        .filter(product => {
+            const normalizedName = normalizeSearchText(product.name);
+            const matchesSearch = normalizedName.includes(normalizedSearch) || searchWords.every(word => normalizedName.includes(word));
+            return matchesSearch && productMatchesCategory(product, activeCategory);
+        })
         .sort((productA, productB) => {
             if (activeSort === 'price-asc') return productA.price - productB.price || productA.name.localeCompare(productB.name, 'pt-BR');
             return productA.name.localeCompare(productB.name, 'pt-BR');
