@@ -129,11 +129,18 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .btn-whatsapp span { margin-right: 6px; font-size: 1.15rem; }
 
 @media (max-width: 760px) {
-    body { padding-bottom: 355px; }
+    body { padding-bottom: 230px; }
     .header-content { min-height: 160px; }
     .product-grid { grid-template-columns: 1fr; }
-    .checkout-row { align-items: stretch; flex-direction: column; gap: 13px; }
-    .total-summary { text-align: left; }
+    .checkout-box { padding: 12px 16px; }
+    .checkout-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 8px 12px; margin-bottom: 8px; }
+    .checkout-field label, .payment-field label { margin-bottom: 4px; font-size: 0.72rem; }
+    .total-summary { text-align: right; }
+    .summary-label { margin-bottom: 2px; font-size: 0.68rem; }
+    .total-text { font-size: 1.2rem; white-space: nowrap; }
+    .cnpj-input { padding: 9px 10px; }
+    .payment-field { grid-column: 1 / -1; margin-bottom: 8px; }
+    .btn-whatsapp { padding: 10px 14px; }
     .cnpj-input { max-width: none; }
 }
 
@@ -143,7 +150,7 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
     .product-card { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 11px; }
     .product-controls label { display: none; }
     .product-controls input { width: 53px; }
-    .checkout-box { padding: 14px 12px; }
+    .checkout-box { padding: 10px 12px; }
     .product-detail-dialog { padding: 22px 16px; }
     .product-detail-actions { align-items: stretch; flex-direction: column; }
     .product-detail-actions .quantity-stepper { align-self: center; }
@@ -156,6 +163,5 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
     .quantity-stepper { grid-template-columns: 30px 50px 30px; gap: 3px; }
     .quantity-button { width: 30px; height: 30px; }
     .quantity-stepper input { width: 50px; }
-    .order-footer { align-items: stretch; flex-direction: column; }
-    .continue-button { width: auto; }
+    .continue-button { width: auto; padding: 9px 12px; font-size: 0.78rem; }
 }
