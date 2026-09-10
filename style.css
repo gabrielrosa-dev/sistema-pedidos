@@ -38,6 +38,8 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .search-field input { width: 100%; padding: 13px 0; border: 0; outline: 0; color: var(--ink); background: transparent; }
 .category-filters { display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
 .category-filter { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: #f8fbfa; color: var(--muted); cursor: pointer; font-size: 0.78rem; font-weight: 800; white-space: nowrap; transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.2s; }
+.sort-field { display: flex; align-items: center; gap: 10px; width: fit-content; margin-top: 14px; color: var(--muted); font-size: 0.8rem; font-weight: 800; }
+.sort-field select { padding: 9px 30px 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #f8fbfa; color: var(--ink); cursor: pointer; font-weight: 800; }
 .category-filter span { color: var(--accent-dark); font-size: 1rem; line-height: 1; }
 .category-filter:hover { border-color: #a8d9c7; color: var(--accent-dark); transform: translateY(-1px); }
 .category-filter.is-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); box-shadow: 0 0 0 2px rgba(19, 168, 117, 0.08); }

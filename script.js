@@ -374,6 +374,16 @@ const condicoesPagamento = [
     { nome: "20/30/40/50/60/70", boletos: 6 }
 ];
 
+const whatsappDestinatarios = {
+    padrao: '5541995922369',
+    vanderson: '5541988604367'
+};
+
+function getWhatsAppDestinatario() {
+    const destino = new URLSearchParams(window.location.search).get('destino');
+    return whatsappDestinatarios[destino] || whatsappDestinatarios.padrao;
+}
+
 const productListEl = document.getElementById('product-list');
 const totalValEl = document.getElementById('total-val');
 const minWarningEl = document.getElementById('min-warning');
@@ -382,8 +392,10 @@ const condicaoPagamentoEl = document.getElementById('condicao-pagamento');
 const checkoutBoxEl = document.querySelector('.checkout-box');
 const productSearchEl = document.getElementById('product-search');
 const productCountEl = document.getElementById('product-count');
+const productSortEl = document.getElementById('product-sort');
 const categoryFilterEls = document.querySelectorAll('.category-filter');
 let activeCategory = 'todos';
+let activeSort = 'name-asc';
 const orderPanelEl = document.getElementById('order-panel');
 const orderItemsEl = document.getElementById('order-items');
 const orderItemCountEl = document.getElementById('order-item-count');
@@ -492,7 +504,12 @@ function renderProducts(searchTerm = '') {
     const savedQuantities = getSavedQuantities();
     const savedCnpj = localStorage.getItem('saved_cnpj');
     const normalizedSearch = searchTerm.trim().toLocaleLowerCase();
-    const visibleProducts = products.filter(product => product.name.toLocaleLowerCase().includes(normalizedSearch) && productMatchesCategory(product, activeCategory));
+    const visibleProducts = products
+        .filter(product => product.name.toLocaleLowerCase().includes(normalizedSearch) && productMatchesCategory(product, activeCategory))
+        .sort((productA, productB) => {
+            if (activeSort === 'price-asc') return productA.price - productB.price || productA.name.localeCompare(productB.name, 'pt-BR');
+            return productA.name.localeCompare(productB.name, 'pt-BR');
+        });
 
     if (savedCnpj && cnpjEl) cnpjEl.value = savedCnpj;
 
@@ -691,6 +708,13 @@ if (productSearchEl) {
     productSearchEl.addEventListener('input', () => renderProducts(productSearchEl.value));
 }
 
+if (productSortEl) {
+    productSortEl.addEventListener('change', () => {
+        activeSort = productSortEl.value;
+        renderProducts(productSearchEl ? productSearchEl.value : '');
+    });
+}
+
 categoryFilterEls.forEach(filterButton => {
     filterButton.addEventListener('click', () => {
         activeCategory = filterButton.dataset.category;
@@ -778,7 +802,11 @@ function enviarPedido() {
 
     mensagem += `\n*VALOR TOTAL:* R$ ${total.toFixed(2).replace('.', ',')}`;
 
-    const numeroWhatsApp = '5541995922369';
+    const numeroWhatsApp = getWhatsAppDestinatario();
+    if (!numeroWhatsApp) {
+        alert('O WhatsApp deste link ainda não foi configurado.');
+        return;
+    }
     const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
     window.open(url, '_blank');
 }
