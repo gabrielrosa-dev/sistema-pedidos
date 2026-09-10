@@ -80,7 +80,7 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .floating-order-button:hover { background: #f0be49; transform: translateY(-1px); }
 .floating-order-button span { font-size: 1.1rem; }
 .order-is-open { overflow: hidden; }
-.order-panel { position: fixed; inset: 0; z-index: 20; display: flex; align-items: stretch; justify-content: flex-end; visibility: hidden; pointer-events: none; }
+.order-panel { position: fixed; inset: 0 0 var(--checkout-height, 0px); z-index: 20; display: flex; align-items: stretch; justify-content: flex-end; visibility: hidden; pointer-events: none; }
 .order-panel.is-open { visibility: visible; pointer-events: auto; }
 .order-panel-backdrop { position: absolute; inset: 0; background: rgba(16, 45, 43, 0.5); opacity: 0; transition: opacity 0.25s; }
 .order-panel.is-open .order-panel-backdrop { opacity: 1; }

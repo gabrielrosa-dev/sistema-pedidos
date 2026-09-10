@@ -413,6 +413,15 @@ const productDetailQuantityEl = document.getElementById('product-detail-quantity
 const addProductButtonEl = document.getElementById('add-product-button');
 let activeProductId = null;
 
+function atualizarAlturaCheckout() {
+    if (!checkoutBoxEl) return;
+    document.documentElement.style.setProperty('--checkout-height', `${checkoutBoxEl.offsetHeight}px`);
+}
+
+if (checkoutBoxEl && 'ResizeObserver' in window) {
+    new ResizeObserver(atualizarAlturaCheckout).observe(checkoutBoxEl);
+}
+
 function getProductDescription(product) {
     const name = product.name.toLocaleLowerCase();
     if (/sabonete|desodorante íntimo/.test(name)) return 'Produto de higiene e cuidado pessoal para uso diário. Confira a fragrância e a apresentação no nome do item.';
