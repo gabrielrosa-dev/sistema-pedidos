@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Varejinho | Catálogo de pedidos</title>
-    <link rel="icon" type="image/jpeg" href="logo.png.jpg">
+    <link rel="icon" type="image/jpeg" href="imagens/produtos/logo.png.jpg">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header class="site-header">
         <div class="header-content">
-            <img class="site-logo" src="logo.png.jpg" alt="Varejinho">
+            <img class="site-logo" src="imagens/produtos/logo.png.jpg" alt="Varejinho">
             <div>
                 <p class="eyebrow">Catálogo profissional</p>
                 <h1>Monte seu Pedido de Varejinho</h1>
@@ -19,6 +19,15 @@
             </div>
         </div>
     </header>
+
+    <section class="promotion-banner container" aria-labelledby="promotion-banner-title">
+        <div>
+            <p class="eyebrow">Ofertas especiais</p>
+            <h2 id="promotion-banner-title">Promoções do Mês</h2>
+            <p>Produtos selecionados com preço especial por tempo limitado.</p>
+        </div>
+        <button class="promotion-banner-button" type="button" id="open-promotions-button">Ver promoções <span aria-hidden="true">→</span></button>
+    </section>
 
     <main>
         <section class="catalog-toolbar container" aria-labelledby="catalog-title">
@@ -29,6 +38,7 @@
                 </div>
                 <span class="product-count" id="product-count">315 itens</span>
             </div>
+            <button class="back-to-catalog-button" type="button" id="back-to-catalog-button" hidden>← Voltar ao catálogo</button>
             <label class="search-field" for="product-search">
                 <span aria-hidden="true">⌕</span>
                 <input type="search" id="product-search" placeholder="Buscar por nome ou marca..." autocomplete="off">

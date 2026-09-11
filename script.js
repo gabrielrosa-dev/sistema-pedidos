@@ -291,7 +291,6 @@ const products = [
     { id: 289, name: "Pomada Massageadora MILAGROSA - 150 gr.", price: 5.99, image: "https://via.placeholder.com/60" },
     { id: 290, name: "Pomada massageadora TIRA COM A MÃO - 150 gr.", price: 5.99, image: "https://via.placeholder.com/60" },
     { id: 291, name: "Pomada massageadora CANELA DE VELHO PREMIUM - 150 gr.", price: 6.50, image: "https://via.placeholder.com/60" },
-    { id: 292, name: "Sebo de Carneiro - 150g. c/ Óleo de Argan", price: 5.99, image: "https://via.placeholder.com/60" },
     { id: 293, name: "Redutor de medidas Fisiofort Slim - 200 gr.", price: 5.99, image: "https://via.placeholder.com/60" },
     { id: 294, name: "Creme Hidratante Desodorante Corporal - Ureia - 150 gr.", price: 6.50, image: "https://via.placeholder.com/60" },
     { id: 295, name: "BODY SPLASH DESODORANTE COLONIA - 130 ML", price: 6.50, image: "https://via.placeholder.com/60" },
@@ -304,15 +303,7 @@ const products = [
     { id: 302, name: "ÓLEO DE COCO, REPARADOR DE PONTAS - 50 ML", price: 9.90, image: "https://via.placeholder.com/60" },
     { id: 303, name: "PODOX, PODOLOGIA PROFISSIONAL P/OS PÉS (Kit)", price: 18.90, image: "https://via.placeholder.com/60" },
     { id: 304, name: "TÔNICO CAPILAR CAVALO DE RAÇA - 30 ML", price: 9.99, image: "https://via.placeholder.com/60" },
-    { id: 305, name: "MULTI POLIVITAMINICO BARIATRICO C/ 60 CAPS. - CATARINENSE", price: 29.90, image: "https://via.placeholder.com/60" },
-    { id: 306, name: "ÔMEGA 3 - 1000 MG - C/120 CAPSULAS - CATARINENSE", price: 33.90, image: "https://via.placeholder.com/60" },
-    { id: 307, name: "POLIVITAMINICO KIDS - 150 ML - CATARINENSE", price: 15.99, image: "https://via.placeholder.com/60" },
-    { id: 308, name: "SAL AMARGO PO SACHE - CATARINENSE", price: 2.20, image: "https://via.placeholder.com/60" },
-    { id: 309, name: "AGUA MICELAR, COLAGENO E PANTENOL - 260 ML - MARY LIFE", price: 5.50, image: "https://via.placeholder.com/60" },
-    { id: 310, name: "BANHO SILICONIZADO, SUPER CONDICIONANTE - 300 ML - MARY LIFE", price: 7.90, image: "https://via.placeholder.com/60" },
-    { id: 311, name: "BTOX ÓLEO RECONSTRUTOR - 60 ML - MARY LIFE", price: 14.99, image: "https://via.placeholder.com/60" },
-    { id: 312, name: "BTOX ÓLEO RECONSTRUTOR - 50 ML - MARY LIFE", price: 9.99, image: "https://via.placeholder.com/60" },
-    { id: 313, name: "LISO ETERNO SPRAY CONDICIONANTE - 130 ML - MARY LIFE", price: 15.90, image: "https://via.placeholder.com/60" },
+    { id: 306, name: "ÔMEGA 3 - 1000 MG - C/120 CAPSULAS - CATARINENSE", price: 33.99, image: "https://via.placeholder.com/60" },
     { id: 314, name: "SUPREME ARGAN OIL - 60 ML - MARY LIFE", price: 14.99, image: "https://via.placeholder.com/60" },
     { id: 315, name: "SUPREME ARGAN OIL - 50 ML - MARY LIFE", price: 9.99, image: "https://via.placeholder.com/60" },
     { id: 316, name: "Sabonete intimo em Gel - Cereja", price: 3.90, image: "https://via.placeholder.com/60" },
@@ -336,15 +327,64 @@ const products = [
     { id: 334, name: "Desodorante Intimo - Algodão Doce", price: 5.50, image: "https://via.placeholder.com/60" },
     { id: 335, name: "Desodorante Intimo - Cheirosa Spray (Kit/Variados)", price: 5.50, image: "https://via.placeholder.com/60" },
     { id: 336, name: "Água Micelar 15 em 1 - Demaquilante Mary Life (260 mL)", price: 4.90, image: "https://via.placeholder.com/60" },
-    { id: 337, name: "Podox Spa para os Pés - Kit podologia profissional", price: 15.90, image: "https://via.placeholder.com/60" },
-    { id: 338, name: "Loção Milagrosa para os Pés - Desodorante (30 mL)", price: 3.30, image: "https://via.placeholder.com/60" },
-    { id: 339, name: "Body Splash Desodorante Colônia (130 mL - Várias fragrâncias)", price: 6.50, image: "https://via.placeholder.com/60" },
-    { id: 340, name: "Kit Capilar Bebeloo (Uva, Tutti-frutti, Melancia e Banana)", price: 22.90, image: "https://via.placeholder.com/60" },
     { id: 341, name: "Kit Capilar Profissional (Ameixa Negra, Vinagre de Maçã, Ômega e outras opções)", price: 21.90, image: "https://via.placeholder.com/60" },
     { id: 342, name: "Uso Eterno Termoativado - Spray capilar 20 benefícios Mary Life (130 mL)", price: 14.90, image: "https://via.placeholder.com/60" },
-    { id: 343, name: "Óleo de Coco Reparador - Bio Instinto (50 mL)", price: 9.90, image: "https://via.placeholder.com/60" },
-    { id: 344, name: "Óleo de Argan Supreme - Super Condicionante Multifuncional Mary Life (50 mL)", price: 9.90, image: "https://via.placeholder.com/60" }
+    { id: 344, name: "Óleo de Argan Supreme - Super Condicionante Multifuncional Mary Life (50 mL)", price: 9.90, image: "https://via.placeholder.com/60" },
+    { id: 345, name: "Bolsa Térmica não congelável - 350 gr. - TERMOGEL", price: null, image: "https://via.placeholder.com/60" },
+    { id: 346, name: "Coenzima Q10 e Vitamina E - Suplemento alimentar - c/ 60 caps - BIOCÊUTICA", price: null, image: "https://via.placeholder.com/60" },
+    { id: 347, name: "Colágeno Tipo II - Vitamina B12 e D3 - 60 capsulas - BIOCÊUTICA", price: null, image: "https://via.placeholder.com/60" },
+    { id: 348, name: "Colágeno Tipo II - 60 cápsulas - APIS NUTRI", price: null, image: "https://via.placeholder.com/60" },
+    { id: 349, name: "Soro fisiologico 100 ml Uniphar", price: null, image: "https://via.placeholder.com/60" },
+    { id: 350, name: "Soro fisiologico 250 ml Uniphar", price: null, image: "https://via.placeholder.com/60" },
+    { id: 351, name: "Soro fisiologico 500 ml Uniphar", price: null, image: "https://via.placeholder.com/60" },
+    { id: 352, name: "Termômetro Digital de Testa - BIOLAND", price: null, image: "https://via.placeholder.com/60" },
+    { id: 353, name: "Termometro Digital - BIOLAND", price: null, image: "https://via.placeholder.com/60" },
+    { id: 354, name: "KIT CABELO E CORPO KIDS", price: 23.90, image: "https://via.placeholder.com/60" }
 ];
+
+const promotions = [
+    [45, 79.90], [140, 119.90], [43, 149.90],
+    [1001, 89.90, "Inalador e Compressor Bioland (adultos e crianças)"],
+    [1002, 275.00, "Protetor Labial Vedis Calêndula (Caixa com 50 unidades)", 5.50],
+    [284, 7.39], [1003, 5.50, "Promoção das pomadas (Caixa com 12 unidades)"], [170, 89.90],
+    [291, 6.50], [286, 7.99], [248, 130.00, "Seringa de insulina de 1ml Medix com agulha 0,33x1,27 (Caixa com 100 unidades)"],
+    [1004, 149.90, "Seringa de insulina Sol-M 50UI com agulha 8mm x 0,3mm (Caixa com 100 unidades)"],
+    [1005, 59.90, "Seringa para insulina 1ml com agulha 13 x 0,45mm (Unidade)"], [287, 5.99],
+    [1006, 149.90, "Seringa de insulina 1ml com agulha 8x0,30mm Tkl (Caixa com 100 unidades)"], [118, 29.90],
+    [252, 1.59], [266, 399.00], [265, 499.00], [117, 22.90],
+    [1007, 22.90, "Luva de látex com pó Talge (Tamanho M - Caixa com 100 unidades)"],
+    [1008, 24.90, "Luva nitrílica rosa Talge (Tamanho P - Caixa com 100 unidades)"], [306, 31.99],
+    [217, 139.90], [216, 139.90], [72, 18.90], [160, 24.90], [139, 109.90], [42, 109.90],
+    [1009, 59.90, "Seringa de insulina de 1ml Tkl com agulha 0,45x13mm / 26G (Caixa com 100 unidades)"],
+    [123, 23.90], [205, 59.90], [1010, 129.90, "Seringa de insulina SR de 0,5ml com agulha 0,25x6mm (Caixa com 100 unidades)"],
+    [259, 2.49], [260, 3.89], [233, 11.90], [261, 4.99],
+    [1011, 8.99, "Soro Fisiológico 0,9% 1000ml Lbs"], [1012, 9.99, "Talco Mentolado LBS (30g)"],
+    [1013, 149.90, "Seringa de insulina SR de 1ml com agulha 0,25x0,6 (Caixa com 100 unidades - SR)"],
+    [141, 99.90], [1000, 22.90, "Kit Capilar Bebeloo (Uva, Tutti-frutti, Melancia ou Banana - Bio Instinto)"],
+    [301, 3.30], [1014, 13.90, "Luvas de Vinil Vabene (Tamanho P - Caixa com 100 unidades)"], [325, 4.50],
+    [344, 9.90], [322, 3.90], [321, 3.90], [320, 3.90], [318, 3.90], [327, 4.50], [317, 3.90],
+    [319, 3.90], [323, 3.90], [331, 5.50], [330, 5.50], [316, 3.90], [334, 5.50], [333, 5.50],
+    [332, 5.50], [328, 4.50], [329, 4.50], [324, 4.50], [303, 15.90], [302, 9.90], [336, 4.90],
+    [282, 21.90], [295, 6.50], [342, 14.90], [335, 5.50], [326, 4.50]
+].map(([productId, promoPrice, name, originalPrice]) => ({ productId, promoPrice, name, originalPrice }));
+
+promotions.forEach(promotion => {
+    const product = products.find(item => item.id === promotion.productId);
+    if (product) {
+        promotion.originalPrice = promotion.originalPrice ?? product.price;
+        product.promoPrice = promotion.promoPrice;
+        return;
+    }
+
+    products.push({
+        id: promotion.productId,
+        name: promotion.name,
+        price: promotion.originalPrice ?? promotion.promoPrice,
+        promoPrice: promotion.promoPrice,
+        image: "https://via.placeholder.com/60"
+    });
+    promotion.originalPrice = promotion.originalPrice ?? promotion.promoPrice;
+});
 
 const condicoesPagamento = [
     { nome: "À vista", boletos: 1 },
@@ -394,8 +434,12 @@ const productSearchEl = document.getElementById('product-search');
 const productCountEl = document.getElementById('product-count');
 const productSortEl = document.getElementById('product-sort');
 const categoryFilterEls = document.querySelectorAll('.category-filter');
+const catalogTitleEl = document.getElementById('catalog-title');
+const openPromotionsButtonEl = document.getElementById('open-promotions-button');
+const backToCatalogButtonEl = document.getElementById('back-to-catalog-button');
 let activeCategory = 'todos';
 let activeSort = 'name-asc';
+let promotionsOnly = false;
 const orderPanelEl = document.getElementById('order-panel');
 const orderItemsEl = document.getElementById('order-items');
 const orderItemCountEl = document.getElementById('order-item-count');
@@ -430,19 +474,53 @@ function getProductDescription(product) {
     return 'Produto disponível para pedido no catálogo Varejinho. Consulte a apresentação indicada no nome do item.';
 }
 
+function formatProductPrice(price) {
+    return price == null ? 'Sem estoque' : `R$ ${price.toFixed(2).replace('.', ',')}`;
+}
+
+function getProductPrice(product, quantity = 0) {
+    if (product.id === 306) return quantity >= 24 ? 31.99 : 33.99;
+    return product.promoPrice ?? product.price;
+}
+
+function formatPromotionPrice(product, quantity = 0) {
+    const originalPrice = product.price;
+    const promotionPrice = getProductPrice(product, quantity);
+    if (promotionPrice == null) return formatProductPrice(originalPrice);
+    const quantityNote = product.id === 306 ? '<small class="promotion-note">R$ 31,99 a partir de 24 un.</small>' : '';
+    if (originalPrice == null || originalPrice <= promotionPrice) return `<strong class="promo-price">${formatProductPrice(promotionPrice)}</strong>${quantityNote}`;
+    return `<del class="original-price">${formatProductPrice(originalPrice)}</del><strong class="promo-price">${formatProductPrice(promotionPrice)}</strong>${quantityNote}`;
+}
+
+function getPromotionNotice(product) {
+    return product.id === 306 ? '<span class="promotion-notice">Compre 24 ou mais e ganhe desconto: R$ 31,99 cada.</span>' : '';
+}
+
 function getSavedQuantities() {
-    return JSON.parse(localStorage.getItem('saved_quantities')) || {};
+    const savedQuantities = JSON.parse(localStorage.getItem('saved_quantities')) || {};
+    const unavailableIds = new Set(products.filter(product => product.price == null).map(product => String(product.id)));
+    let changed = false;
+
+    unavailableIds.forEach(productId => {
+        if (savedQuantities[productId] !== undefined) {
+            delete savedQuantities[productId];
+            changed = true;
+        }
+    });
+
+    if (changed) localStorage.setItem('saved_quantities', JSON.stringify(savedQuantities));
+    return savedQuantities;
 }
 
 function getSelectedProducts() {
     const savedQuantities = getSavedQuantities();
 
     return products
-        .filter(product => Number(savedQuantities[product.id]) > 0)
+        .filter(product => product.price != null && Number(savedQuantities[product.id]) > 0)
         .map(product => ({
             ...product,
             quantity: Number(savedQuantities[product.id]),
-            currentPrice: product.price
+            currentPrice: getProductPrice(product, Number(savedQuantities[product.id]))
         }));
 }
 
@@ -531,14 +609,17 @@ function renderProducts(searchTerm = '') {
     const savedCnpj = localStorage.getItem('saved_cnpj');
     const normalizedSearch = normalizeSearchText(searchTerm);
     const searchWords = normalizeSearchWords(searchTerm);
-    const visibleProducts = products
+    const visibleProducts = (promotionsOnly ? promotions.map(promotion => {
+        const product = products.find(item => item.id === promotion.productId);
+        return product ? { ...product, promotionName: promotion.name || product.name } : null;
+    }).filter(Boolean) : products)
         .filter(product => {
             const normalizedName = normalizeSearchText(product.name);
             const matchesSearch = normalizedName.includes(normalizedSearch) || searchWords.every(word => normalizedName.includes(word));
-            return matchesSearch && productMatchesCategory(product, activeCategory);
+            return matchesSearch && (promotionsOnly || productMatchesCategory(product, activeCategory));
         })
         .sort((productA, productB) => {
-            if (activeSort === 'price-asc') return productA.price - productB.price || productA.name.localeCompare(productB.name, 'pt-BR');
+            if (activeSort === 'price-asc') return (productA.price ?? Infinity) - (productB.price ?? Infinity) || productA.name.localeCompare(productB.name, 'pt-BR');
             return productA.name.localeCompare(productB.name, 'pt-BR');
         });
 
@@ -548,6 +629,9 @@ function renderProducts(searchTerm = '') {
         productCountEl.innerText = `${visibleProducts.length} ${visibleProducts.length === 1 ? 'item' : 'itens'}`;
     }
 
+    if (catalogTitleEl) catalogTitleEl.innerText = promotionsOnly ? 'Ofertas por tempo limitado' : 'Encontre o que precisa';
+    if (backToCatalogButtonEl) backToCatalogButtonEl.hidden = !promotionsOnly;
+
     if (visibleProducts.length === 0) {
         productListEl.innerHTML = '<div class="empty-state"><strong>Nenhum produto encontrado.</strong><br>Experimente buscar por outro nome ou marca.</div>';
         calculateTotal();
@@ -555,27 +639,30 @@ function renderProducts(searchTerm = '') {
     }
 
     visibleProducts.forEach(product => {
+        const isUnavailable = product.price == null;
+        const isPromotion = product.promoPrice != null;
         const savedQty = savedQuantities[product.id] !== undefined ? savedQuantities[product.id] : 0;
         const card = document.createElement('div');
-        card.className = 'product-card';
+        card.className = `product-card${isUnavailable ? ' product-card--unavailable' : ''}${isPromotion ? ' product-card--promotion' : ''}`;
         card.dataset.productId = product.id;
         card.addEventListener('click', event => {
-            if (event.target.closest('.product-controls')) return;
+            if (isUnavailable || event.target.closest('.product-controls')) return;
             abrirDetalhesProduto(product.id);
         });
         card.innerHTML = `
             <div class="product-info">
-                <div class="product-name">${product.name}</div>
-                <div class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
+                <div class="product-name">${product.promotionName || product.name}</div>
+                <div class="product-price">${promotionsOnly ? formatPromotionPrice(product, savedQty) : formatProductPrice(getProductPrice(product, savedQty))}</div>
+                ${getPromotionNotice(product)}
             </div>
-            <div class="product-controls">
+            ${isUnavailable ? '<div class="stock-status">Sem estoque</div>' : `<div class="product-controls">
                 <label for="qty-${product.id}" style="font-size:0.9rem; color:#666;">Qtd:</label>
                 <div class="quantity-stepper">
                     <button type="button" class="quantity-button" onclick="alterarQuantidadePedido(${product.id}, -1)" aria-label="Diminuir quantidade">−</button>
                     <input type="number" id="qty-${product.id}" min="0" value="${savedQty}" onchange="salvarEAtualizar(${product.id})" onkeyup="salvarEAtualizar(${product.id})" aria-label="Quantidade de ${product.name}">
                     <button type="button" class="quantity-button" onclick="alterarQuantidadePedido(${product.id}, 1)" aria-label="Aumentar quantidade">+</button>
                 </div>
-            </div>
+            </div>`}
         `;
         productListEl.appendChild(card);
     });
@@ -583,15 +670,23 @@ function renderProducts(searchTerm = '') {
     calculateTotal();
 }
 
+function atualizarPrecoExibido(productId, quantity) {
+    const product = products.find(item => item.id === productId);
+    const card = document.querySelector(`[data-product-id="${productId}"] .product-price`);
+    if (!product || !card) return;
+    card.innerHTML = promotionsOnly ? formatPromotionPrice(product, quantity) : formatProductPrice(getProductPrice(product, quantity));
+}
+
 function abrirDetalhesProduto(productId) {
     const product = products.find(item => item.id === productId);
-    if (!product) return;
+    if (!product || product.price == null) return;
 
     activeProductId = productId;
     const savedQuantities = getSavedQuantities();
     productDetailTitleEl.innerText = product.name;
     productDetailDescriptionEl.innerText = getProductDescription(product);
-    productDetailPriceEl.innerText = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
+    const detailQuantity = Math.max(1, Number(savedQuantities[productId]) || 1);
+    productDetailPriceEl.innerHTML = `${promotionsOnly ? formatPromotionPrice(product, detailQuantity) : formatProductPrice(getProductPrice(product, detailQuantity))}${getPromotionNotice(product)}`;
     productDetailQuantityEl.value = Math.max(1, Number(savedQuantities[productId]) || 1);
     productDetailPanelEl.classList.add('is-open');
     productDetailPanelEl.setAttribute('aria-hidden', 'false');
@@ -605,11 +700,18 @@ function fecharDetalhesProduto() {
 
 function alterarQuantidadeDetalhe(variation) {
     const currentQuantity = Math.max(1, Number(productDetailQuantityEl.value) || 1);
-    productDetailQuantityEl.value = Math.max(1, currentQuantity + variation);
+    const nextQuantity = Math.max(1, currentQuantity + variation);
+    productDetailQuantityEl.value = nextQuantity;
+    const product = products.find(item => item.id === activeProductId);
+    if (product) {
+        productDetailPriceEl.innerHTML = `${promotionsOnly ? formatPromotionPrice(product, nextQuantity) : formatProductPrice(getProductPrice(product, nextQuantity))}${getPromotionNotice(product)}`;
+    }
 }
 
 function adicionarProdutoDetalhes() {
     if (!activeProductId) return;
+    const product = products.find(item => item.id === activeProductId);
+    if (!product || product.price == null) return;
     const quantity = Math.max(1, parseInt(productDetailQuantityEl.value, 10) || 1);
     const savedQuantities = getSavedQuantities();
     savedQuantities[activeProductId] = quantity;
@@ -619,17 +721,22 @@ function adicionarProdutoDetalhes() {
 }
 
 function salvarEAtualizar(productId, inputElement) {
+    const product = products.find(item => item.id === productId);
     const input = inputElement || document.getElementById(`qty-${productId}`);
+    if (!product || product.price == null) return;
     let savedQuantities = JSON.parse(localStorage.getItem('saved_quantities')) || {};
     const quantity = Math.max(0, parseInt(input.value, 10) || 0);
     input.value = quantity;
     savedQuantities[productId] = quantity;
     localStorage.setItem('saved_quantities', JSON.stringify(savedQuantities));
+    atualizarPrecoExibido(productId, quantity);
     calculateTotal();
     renderOrderSummary();
 }
 
 function alterarQuantidadePedido(productId, variation) {
+    const product = products.find(item => item.id === productId);
+    if (!product || product.price == null) return;
     const savedQuantities = getSavedQuantities();
     const currentQuantity = Math.max(0, Number(savedQuantities[productId]) || 0);
     const nextQuantity = Math.max(0, currentQuantity + variation);
@@ -638,6 +745,7 @@ function alterarQuantidadePedido(productId, variation) {
 
     const catalogInput = document.getElementById(`qty-${productId}`);
     if (catalogInput) catalogInput.value = nextQuantity;
+    atualizarPrecoExibido(productId, nextQuantity);
 
     calculateTotal();
     renderOrderSummary();
@@ -652,7 +760,7 @@ function renderOrderSummary() {
         orderItemCountEl.innerText = `${selectedProducts.length} ${selectedProducts.length === 1 ? 'item' : 'itens'} selecionado${selectedProducts.length === 1 ? '' : 's'} · ${totalUnits} ${totalUnits === 1 ? 'unidade' : 'unidades'}`;
     }
     if (orderTotalEl) {
-        const orderTotal = selectedProducts.reduce((sum, product) => sum + product.quantity * product.currentPrice, 0);
+        const orderTotal = selectedProducts.reduce((sum, product) => sum + product.quantity * (product.currentPrice ?? 0), 0);
         orderTotalEl.innerText = orderTotal.toFixed(2).replace('.', ',');
     }
 
@@ -666,7 +774,7 @@ function renderOrderSummary() {
         <article class="order-item">
             <div class="order-item-info">
                 <strong>${product.name}</strong>
-                <span>Subtotal: R$ ${(product.quantity * product.currentPrice).toFixed(2).replace('.', ',')}</span>
+                <span>Subtotal: ${formatProductPrice(product.currentPrice == null ? null : product.quantity * product.currentPrice)}</span>
             </div>
             <div class="quantity-stepper" aria-label="Quantidade de ${product.name}">
                 <button type="button" class="quantity-button" onclick="alterarQuantidadePedido(${product.id}, -1)" aria-label="Diminuir quantidade">−</button>
@@ -739,6 +847,24 @@ if (productSearchEl) {
     productSearchEl.addEventListener('input', () => renderProducts(productSearchEl.value));
 }
 
+function abrirPromocoes() {
+    promotionsOnly = true;
+    activeCategory = 'todos';
+    if (productSearchEl) productSearchEl.value = '';
+    categoryFilterEls.forEach(button => button.classList.toggle('is-active', button.dataset.category === 'todos'));
+    renderProducts();
+    document.querySelector('.catalog-toolbar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function fecharPromocoes() {
+    promotionsOnly = false;
+    if (productSearchEl) productSearchEl.value = '';
+    renderProducts();
+}
+
+if (openPromotionsButtonEl) openPromotionsButtonEl.addEventListener('click', abrirPromocoes);
+if (backToCatalogButtonEl) backToCatalogButtonEl.addEventListener('click', fecharPromocoes);
+
 if (productSortEl) {
     productSortEl.addEventListener('change', () => {
         activeSort = productSortEl.value;
@@ -761,7 +887,7 @@ function calculateTotal() {
 
     products.forEach(product => {
         const qty = Math.max(0, Number(savedQuantities[product.id]) || 0);
-        total += qty * product.price;
+        total += qty * (getProductPrice(product, qty) ?? 0);
         if (qty > 0) itensSelecionados += qty;
     });
 
@@ -820,8 +946,8 @@ function enviarPedido() {
     products.forEach(product => {
         const qty = Math.max(0, Number(savedQuantities[product.id]) || 0);
         if (qty > 0) {
-            const subtotal = qty * product.price;
-            mensagem += `- ${product.name} | Qtd: ${qty} | Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
+            const subtotal = formatProductPrice(product.price == null ? null : qty * getProductPrice(product, qty));
+            mensagem += `- ${product.name} | Qtd: ${qty} | Subtotal: ${subtotal}\n`;
             itensCount++;
         }
     });
