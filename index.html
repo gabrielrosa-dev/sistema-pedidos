@@ -69,8 +69,9 @@
             <h2 id="product-detail-title">Produto</h2>
             <p id="product-detail-description" class="product-detail-description"></p>
             <strong id="product-detail-price" class="product-detail-price">R$ 0,00</strong>
+            <div id="product-detail-variants" class="product-detail-variants" hidden></div>
             <div class="product-detail-actions">
-                <div class="quantity-stepper" aria-label="Quantidade do produto">
+                <div class="quantity-stepper" id="detail-quantity-controls" aria-label="Quantidade do produto">
                     <button class="quantity-button" type="button" id="detail-decrease" aria-label="Diminuir quantidade">−</button>
                     <input id="product-detail-quantity" type="number" min="1" value="1" aria-label="Quantidade">
                     <button class="quantity-button" type="button" id="detail-increase" aria-label="Aumentar quantidade">+</button>

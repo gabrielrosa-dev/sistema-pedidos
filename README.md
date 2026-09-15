@@ -4,7 +4,7 @@ Catálogo estático de produtos para montagem de pedidos e envio pelo WhatsApp.
 
 ## Acesso
 
-https://gabrielrosa-dev.github.io/sistema-pedidos/
+[Abrir o catálogo](index.html)
 
 Também é possível abrir o arquivo `index.html` diretamente no navegador.
 
@@ -16,6 +16,8 @@ Também é possível abrir o arquivo `index.html` diretamente no navegador.
 - Preços promocionais aplicados ao pedido e ao WhatsApp.
 - Regra de desconto do Ômega 3: R$ 31,99 por unidade a partir de 24 unidades.
 - Controle de quantidades salvo no navegador.
+- Seleção de tamanho, cor, calibre, sabor e aroma por opção, com quantidades separadas no pedido e no WhatsApp.
+- Produtos com opções não detalhadas no catálogo permitem informar a opção manualmente.
 - Validação de CNPJ e condição de pagamento.
 - Envio do pedido pelo WhatsApp.
 

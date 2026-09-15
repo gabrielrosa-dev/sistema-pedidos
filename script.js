@@ -294,7 +294,7 @@ const products = [
     { id: 293, name: "Redutor de medidas Fisiofort Slim - 200 gr.", price: 5.99, image: "https://via.placeholder.com/60" },
     { id: 294, name: "Creme Hidratante Desodorante Corporal - Ureia - 150 gr.", price: 6.50, image: "https://via.placeholder.com/60" },
     { id: 295, name: "BODY SPLASH DESODORANTE COLONIA - 130 ML", price: 6.50, image: "https://via.placeholder.com/60" },
-    { id: 296, name: "DESODORANTE ÍNTIMO - 50 ML", price: 5.90, image: "https://via.placeholder.com/60" },
+    { id: 296, name: "DESODORANTE ÍNTIMO - 50 ML (Delicada, Algodão Doce, Morango & Chantilly, Cereja, Flores Delicadas, Rosa Mosqueta)", price: 5.50, image: "https://via.placeholder.com/60" },
     { id: 297, name: "SABONETE LÍQUIDO ÍNTIMO - 200 ML", price: 3.90, image: "https://via.placeholder.com/60" },
     { id: 298, name: "SABONETE LÍQUIDO ÍNTIMO BARBATIMÃO - 200 ML", price: 3.90, image: "https://via.placeholder.com/60" },
     { id: 299, name: "SABONETE LÍQUIDO ÍNTIMO BARBATIMÃO E AROEIRA - 200 ML", price: 3.90, image: "https://via.placeholder.com/60" },
@@ -306,25 +306,13 @@ const products = [
     { id: 306, name: "ÔMEGA 3 - 1000 MG - C/120 CAPSULAS - CATARINENSE", price: 33.99, image: "https://via.placeholder.com/60" },
     { id: 314, name: "SUPREME ARGAN OIL - 60 ML - MARY LIFE", price: 14.99, image: "https://via.placeholder.com/60" },
     { id: 315, name: "SUPREME ARGAN OIL - 50 ML - MARY LIFE", price: 9.99, image: "https://via.placeholder.com/60" },
-    { id: 316, name: "Sabonete intimo em Gel - Cereja", price: 3.90, image: "https://via.placeholder.com/60" },
-    { id: 317, name: "Sabonete intimo em Gel - Amora", price: 3.90, image: "https://via.placeholder.com/60" },
-    { id: 318, name: "Sabonete intimo em Gel - Barbatimão e Flor de Algodão", price: 3.90, image: "https://via.placeholder.com/60" },
-    { id: 319, name: "Sabonete intimo em Gel - Pétalas de Rosas", price: 3.90, image: "https://via.placeholder.com/60" },
-    { id: 320, name: "Sabonete intimo em Gel - Roma e Aroeira", price: 3.90, image: "https://via.placeholder.com/60" },
-    { id: 321, name: "Sabonete intimo em Gel - Rosa Mosqueta", price: 3.90, image: "https://via.placeholder.com/60" },
-    { id: 322, name: "Sabonete intimo em Gel - Vanilla", price: 3.90, image: "https://via.placeholder.com/60" },
-    { id: 323, name: "Sabonete intimo em Gel - Pêssego", price: 3.90, image: "https://via.placeholder.com/60" },
+    { id: 316, name: "SABONETE ÍNTIMO EM GEL (Cereja, Amora, Barbatimão e Flor de Algodão, Pétalas de Rosas, Roma e Aroeira, Rosa Mosqueta, Vanilla, Pêssego)", price: 3.90, image: "https://via.placeholder.com/60" },
     { id: 324, name: "Sabonete liquido intimo - Erva Doce (Aromas do Brasil)", price: 4.50, image: "https://via.placeholder.com/60" },
     { id: 325, name: "Sabonete Liquido Intimo - Menta (Aromas do Brasil)", price: 4.50, image: "https://via.placeholder.com/60" },
     { id: 326, name: "Sabonete liquido intimo infantil/juvenil - Bebeloo Tutti Frutti", price: 4.50, image: "https://via.placeholder.com/60" },
     { id: 327, name: "Sabonete Liquido Intimo - Morango com Champagne (Aromas do Brasil)", price: 4.50, image: "https://via.placeholder.com/60" },
     { id: 328, name: "Sabonete liquido intimo - Barbatimão e Aroeira (Aromas do Brasil)", price: 4.50, image: "https://via.placeholder.com/60" },
     { id: 329, name: "Sabonete liquido intimo infantil/juvenil - Bebeloo Uva", price: 4.50, image: "https://via.placeholder.com/60" },
-    { id: 330, name: "Desodorante Intimo - Cereja (Spray)", price: 5.50, image: "https://via.placeholder.com/60" },
-    { id: 331, name: "Desodorante Intimo - Morango e Chantilly", price: 5.50, image: "https://via.placeholder.com/60" },
-    { id: 332, name: "Desodorante Intimo - Flores Delicadas", price: 5.50, image: "https://via.placeholder.com/60" },
-    { id: 333, name: "Desodorante Intimo - Rosa Mosqueta (Spray)", price: 5.50, image: "https://via.placeholder.com/60" },
-    { id: 334, name: "Desodorante Intimo - Algodão Doce", price: 5.50, image: "https://via.placeholder.com/60" },
     { id: 335, name: "Desodorante Intimo - Cheirosa Spray (Kit/Variados)", price: 5.50, image: "https://via.placeholder.com/60" },
     { id: 336, name: "Água Micelar 15 em 1 - Demaquilante Mary Life (260 mL)", price: 4.90, image: "https://via.placeholder.com/60" },
     { id: 341, name: "Kit Capilar Profissional (Ameixa Negra, Vinagre de Maçã, Ômega e outras opções)", price: 21.90, image: "https://via.placeholder.com/60" },
@@ -419,6 +407,37 @@ const whatsappDestinatarios = {
     vanderson: '5541988604367'
 };
 
+const productVariants = {
+    65: { label: 'Cor', options: ['Preto', 'Azul', 'Verde', 'Amarelo', 'Rosa'] },
+    66: { label: 'Cor', options: ['Preta', 'Lilás', 'Azul', 'Rosa', 'Bege'] },
+    82: { label: 'Tamanho', options: ['14', '16', '18', '20', '22', '24'] },
+    113: { label: 'Tamanho', options: ['M', 'G'] },
+    119: { label: 'Cor', options: ['Preto', 'Rosa', 'Verde', 'Vermelho'] },
+    169: { label: 'Sabor', options: [], allowCustom: true, customLabel: 'Digite o sabor' },
+    153: { label: 'Tamanho', options: ['6½', '7', '7½', '8', '8½'] },
+    163: { label: 'Tamanho', options: ['P', 'M', 'G'] },
+    161: { label: 'Tamanho', options: ['P', 'M', 'G'] },
+    162: { label: 'Tamanho', options: ['PP', 'P', 'M', 'G'] },
+    194: { label: 'Tamanho', options: ['P', 'M', 'G', 'GG'] },
+    282: { label: 'Linha', options: ['B-Tox', 'Liso c/ Força', 'Ameixa Negra', 'Cacheamos', 'Loiro Perfeito', 'Ômega 3', 'Nutrecôco', 'Cavalo de Raça', 'Chuva de Verniz', 'Descansa Cabelo', 'Mandioca', 'Óleo de Argan', 'Hialurônico'] },
+    283: { label: 'Aroma', options: ['Tutti Frutti', 'Uva', 'Melancia', 'Banana'] },
+    295: { label: 'Aroma', options: ['Belle Rose', 'Ameixa', 'Vanilla', 'Morango c/ Champagne'] },
+    296: { label: 'Aroma', options: ['Delicada', 'Algodão Doce', 'Morango & Chantilly', 'Cereja', 'Flores Delicadas', 'Rosa Mosqueta', 'Kit/Variados'] },
+    297: { label: 'Aroma', options: ['Maracujá / Erva Doce', 'Frutas Vermelhas'] },
+    300: { label: 'Aroma', options: ['Uva', 'Tutti-Frutti'] },
+    316: { label: 'Aroma', options: ['Cereja', 'Amora', 'Barbatimão e Flor de Algodão', 'Pétalas de Rosas', 'Roma e Aroeira', 'Rosa Mosqueta', 'Vanilla', 'Pêssego'] },
+    354: { label: 'Tipo', options: ['Shampoo', 'Condicionador', 'Sabonete líquido', 'Colônia'] },
+    1000: { label: 'Aroma', options: ['Uva', 'Tutti-frutti', 'Melancia', 'Banana'] },
+    341: { label: 'Aroma', options: ['Ameixa Negra', 'Vinagre de Maçã', 'Ômega'], allowCustom: true, customLabel: 'Digite outro aroma' },
+    335: { label: 'Opção', options: [], allowCustom: true, customLabel: 'Digite a opção' }
+};
+
+const mergedIntimateDeodorantIds = new Set([330, 331, 332, 333, 334, 335]);
+const mergedIntimateGelIds = new Set([317, 318, 319, 320, 321, 322, 323]);
+const mergedProductIds = new Set([...mergedIntimateDeodorantIds, ...mergedIntimateGelIds]);
+const excludedSoapIds = new Set([324, 325, 326, 327, 328, 329]);
+const hiddenCatalogProductIds = new Set([...mergedProductIds, ...excludedSoapIds]);
+
 function getWhatsAppDestinatario() {
     const destino = new URLSearchParams(window.location.search).get('destino');
     return whatsappDestinatarios[destino] || whatsappDestinatarios.padrao;
@@ -453,9 +472,75 @@ const productDetailPanelEl = document.getElementById('product-detail-panel');
 const productDetailTitleEl = document.getElementById('product-detail-title');
 const productDetailDescriptionEl = document.getElementById('product-detail-description');
 const productDetailPriceEl = document.getElementById('product-detail-price');
+const productDetailVariantsEl = document.getElementById('product-detail-variants');
 const productDetailQuantityEl = document.getElementById('product-detail-quantity');
 const addProductButtonEl = document.getElementById('add-product-button');
 let activeProductId = null;
+
+function getProductVariantConfig(productId) {
+    return productVariants[productId] || null;
+}
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[character]));
+}
+
+function encodeVariantOption(option) {
+    return encodeURIComponent(option).replace(/'/g, '%27');
+}
+
+function getSavedVariants() {
+    const savedVariants = JSON.parse(localStorage.getItem('saved_variants')) || {};
+    const savedQuantities = JSON.parse(localStorage.getItem('saved_quantities')) || {};
+    const legacyOptions = { 330: 'Cereja', 331: 'Morango & Chantilly', 332: 'Flores Delicadas', 333: 'Rosa Mosqueta', 334: 'Algodão Doce', 335: 'Kit/Variados' };
+    const legacyGelOptions = { 317: 'Amora', 318: 'Barbatimão e Flor de Algodão', 319: 'Pétalas de Rosas', 320: 'Roma e Aroeira', 321: 'Rosa Mosqueta', 322: 'Vanilla', 323: 'Pêssego' };
+    let migrated = false;
+
+    Object.entries(legacyOptions).forEach(([productId, option]) => {
+        const quantity = Math.max(0, Number(savedQuantities[productId]) || 0);
+        if (quantity > 0) {
+            savedVariants[296] = savedVariants[296] || {};
+            savedVariants[296][option] = (Number(savedVariants[296][option]) || 0) + quantity;
+            delete savedQuantities[productId];
+            migrated = true;
+        }
+    });
+
+    Object.entries(legacyGelOptions).forEach(([productId, option]) => {
+        const quantity = Math.max(0, Number(savedQuantities[productId]) || 0);
+        if (quantity > 0) {
+            savedVariants[316] = savedVariants[316] || {};
+            savedVariants[316][option] = (Number(savedVariants[316][option]) || 0) + quantity;
+            delete savedQuantities[productId];
+            migrated = true;
+        }
+    });
+
+    if (migrated) {
+        localStorage.setItem('saved_variants', JSON.stringify(savedVariants));
+        localStorage.setItem('saved_quantities', JSON.stringify(savedQuantities));
+    }
+
+    return savedVariants;
+}
+
+function getVariantQuantity(productId, option) {
+    const savedVariants = getSavedVariants();
+    return Math.max(0, Number(savedVariants[productId]?.[option]) || 0);
+}
+
+function getProductQuantity(productId, savedQuantities = getSavedQuantities()) {
+    const variantConfig = getProductVariantConfig(productId);
+    if (!variantConfig) return Math.max(0, Number(savedQuantities[productId]) || 0);
+    const savedVariants = getSavedVariants();
+    return Object.values(savedVariants[productId] || {}).reduce((total, quantity) => total + Math.max(0, Number(quantity) || 0), 0);
+}
 
 function atualizarAlturaCheckout() {
     if (!checkoutBoxEl) return;
@@ -508,20 +593,39 @@ function getSavedQuantities() {
         }
     });
 
+    excludedSoapIds.forEach(productId => {
+        if (savedQuantities[productId] !== undefined) {
+            delete savedQuantities[productId];
+            changed = true;
+        }
+    });
+
     if (changed) localStorage.setItem('saved_quantities', JSON.stringify(savedQuantities));
     return savedQuantities;
 }
 
 function getSelectedProducts() {
     const savedQuantities = getSavedQuantities();
+    const savedVariants = getSavedVariants();
 
-    return products
-        .filter(product => product.price != null && Number(savedQuantities[product.id]) > 0)
-        .map(product => ({
-            ...product,
-            quantity: Number(savedQuantities[product.id]),
-            currentPrice: getProductPrice(product, Number(savedQuantities[product.id]))
-        }));
+    return products.filter(product => !hiddenCatalogProductIds.has(product.id)).flatMap(product => {
+        if (product.price == null) return [];
+        const variantConfig = getProductVariantConfig(product.id);
+        if (variantConfig) {
+            const variantOptions = [...new Set([...variantConfig.options, ...Object.keys(savedVariants[product.id] || {})])];
+            return variantOptions
+                .filter(option => Number(savedVariants[product.id]?.[option]) > 0)
+                .map(option => ({
+                    ...product,
+                    variant: option,
+                    variantLabel: variantConfig.label,
+                    quantity: Number(savedVariants[product.id][option]),
+                    currentPrice: getProductPrice(product, Number(savedVariants[product.id][option]))
+                }));
+        }
+        const quantity = Number(savedQuantities[product.id]) || 0;
+        return quantity > 0 ? [{ ...product, quantity, currentPrice: getProductPrice(product, quantity) }] : [];
+    });
 }
 
 function mascaraCNPJ(input) {
@@ -613,6 +717,7 @@ function renderProducts(searchTerm = '') {
         const product = products.find(item => item.id === promotion.productId);
         return product ? { ...product, promotionName: promotion.name || product.name } : null;
     }).filter(Boolean) : products)
+        .filter(product => !hiddenCatalogProductIds.has(product.id))
         .filter(product => {
             const normalizedName = normalizeSearchText(product.name);
             const matchesSearch = normalizedName.includes(normalizedSearch) || searchWords.every(word => normalizedName.includes(word));
@@ -641,7 +746,8 @@ function renderProducts(searchTerm = '') {
     visibleProducts.forEach(product => {
         const isUnavailable = product.price == null;
         const isPromotion = product.promoPrice != null;
-        const savedQty = savedQuantities[product.id] !== undefined ? savedQuantities[product.id] : 0;
+        const variantConfig = getProductVariantConfig(product.id);
+        const savedQty = getProductQuantity(product.id, savedQuantities);
         const card = document.createElement('div');
         card.className = `product-card${isUnavailable ? ' product-card--unavailable' : ''}${isPromotion ? ' product-card--promotion' : ''}`;
         card.dataset.productId = product.id;
@@ -655,7 +761,9 @@ function renderProducts(searchTerm = '') {
                 <div class="product-price">${promotionsOnly ? formatPromotionPrice(product, savedQty) : formatProductPrice(getProductPrice(product, savedQty))}</div>
                 ${getPromotionNotice(product)}
             </div>
-            ${isUnavailable ? '<div class="stock-status">Sem estoque</div>' : `<div class="product-controls">
+            ${isUnavailable ? '<div class="stock-status">Sem estoque</div>' : variantConfig ? `<div class="product-controls">
+                <button type="button" class="variant-choice-button" onclick="abrirDetalhesProduto(${product.id})">Escolher opções${savedQty ? ` (${savedQty})` : ''}</button>
+            </div>` : `<div class="product-controls">
                 <label for="qty-${product.id}" style="font-size:0.9rem; color:#666;">Qtd:</label>
                 <div class="quantity-stepper">
                     <button type="button" class="quantity-button" onclick="alterarQuantidadePedido(${product.id}, -1)" aria-label="Diminuir quantidade">−</button>
@@ -683,11 +791,34 @@ function abrirDetalhesProduto(productId) {
 
     activeProductId = productId;
     const savedQuantities = getSavedQuantities();
+    const variantConfig = getProductVariantConfig(productId);
+    const savedVariantOptions = variantConfig ? Object.keys(getSavedVariants()[productId] || {}) : [];
     productDetailTitleEl.innerText = product.name;
     productDetailDescriptionEl.innerText = getProductDescription(product);
     const detailQuantity = Math.max(1, Number(savedQuantities[productId]) || 1);
     productDetailPriceEl.innerHTML = `${promotionsOnly ? formatPromotionPrice(product, detailQuantity) : formatProductPrice(getProductPrice(product, detailQuantity))}${getPromotionNotice(product)}`;
     productDetailQuantityEl.value = Math.max(1, Number(savedQuantities[productId]) || 1);
+    document.getElementById('detail-quantity-controls').hidden = Boolean(variantConfig);
+    if (productDetailVariantsEl) {
+        productDetailVariantsEl.hidden = !variantConfig;
+        productDetailVariantsEl.innerHTML = variantConfig ? `
+            <div class="variant-heading"><strong>Escolha ${variantConfig.label.toLocaleLowerCase()} e quantidade</strong><span>Você pode combinar opções</span></div>
+            <div class="variant-list">
+                ${[...new Set([...variantConfig.options, ...savedVariantOptions])].map(option => `
+                    <label class="variant-row">
+                        <span>${escapeHtml(option)}</span>
+                        <input type="number" min="0" value="${getVariantQuantity(productId, option)}" data-variant-option="${escapeHtml(option)}" aria-label="Quantidade ${escapeHtml(option)}">
+                    </label>
+                `).join('')}
+                ${variantConfig.allowCustom ? `
+                    <label class="variant-custom-row">
+                        <input type="text" data-variant-custom-name placeholder="${variantConfig.customLabel}" aria-label="${variantConfig.customLabel}">
+                        <input type="number" min="0" value="0" data-variant-custom-quantity aria-label="Quantidade da opção personalizada">
+                    </label>
+                ` : ''}
+            </div>
+        ` : '';
+    }
     productDetailPanelEl.classList.add('is-open');
     productDetailPanelEl.setAttribute('aria-hidden', 'false');
 }
@@ -712,9 +843,31 @@ function adicionarProdutoDetalhes() {
     if (!activeProductId) return;
     const product = products.find(item => item.id === activeProductId);
     if (!product || product.price == null) return;
-    const quantity = Math.max(1, parseInt(productDetailQuantityEl.value, 10) || 1);
+    const variantConfig = getProductVariantConfig(activeProductId);
     const savedQuantities = getSavedQuantities();
-    savedQuantities[activeProductId] = quantity;
+    if (variantConfig) {
+        const selectedVariants = {};
+        productDetailVariantsEl.querySelectorAll('[data-variant-option]').forEach(input => {
+            const quantity = Math.max(0, parseInt(input.value, 10) || 0);
+            input.value = quantity;
+            if (quantity > 0) selectedVariants[input.dataset.variantOption] = quantity;
+        });
+        const customNameInput = productDetailVariantsEl.querySelector('[data-variant-custom-name]');
+        const customQuantityInput = productDetailVariantsEl.querySelector('[data-variant-custom-quantity]');
+        const customName = customNameInput?.value.trim();
+        const customQuantity = Math.max(0, parseInt(customQuantityInput?.value, 10) || 0);
+        if (customName && customQuantity > 0) selectedVariants[customName] = customQuantity;
+        if (Object.keys(selectedVariants).length === 0) {
+            alert(`Informe a quantidade de pelo menos uma opção de ${variantConfig.label.toLocaleLowerCase()}.`);
+            return;
+        }
+        const savedVariants = getSavedVariants();
+        savedVariants[activeProductId] = selectedVariants;
+        localStorage.setItem('saved_variants', JSON.stringify(savedVariants));
+    } else {
+        const quantity = Math.max(1, parseInt(productDetailQuantityEl.value, 10) || 1);
+        savedQuantities[activeProductId] = quantity;
+    }
     localStorage.setItem('saved_quantities', JSON.stringify(savedQuantities));
     renderProducts(productSearchEl ? productSearchEl.value : '');
     fecharDetalhesProduto();
@@ -737,6 +890,10 @@ function salvarEAtualizar(productId, inputElement) {
 function alterarQuantidadePedido(productId, variation) {
     const product = products.find(item => item.id === productId);
     if (!product || product.price == null) return;
+    if (getProductVariantConfig(productId)) {
+        abrirDetalhesProduto(productId);
+        return;
+    }
     const savedQuantities = getSavedQuantities();
     const currentQuantity = Math.max(0, Number(savedQuantities[productId]) || 0);
     const nextQuantity = Math.max(0, currentQuantity + variation);
@@ -747,6 +904,31 @@ function alterarQuantidadePedido(productId, variation) {
     if (catalogInput) catalogInput.value = nextQuantity;
     atualizarPrecoExibido(productId, nextQuantity);
 
+    calculateTotal();
+    renderOrderSummary();
+}
+
+function salvarVarianteEAtualizar(productId, option, input) {
+    option = decodeURIComponent(option);
+    const savedVariants = getSavedVariants();
+    const quantity = Math.max(0, parseInt(input.value, 10) || 0);
+    input.value = quantity;
+    savedVariants[productId] = savedVariants[productId] || {};
+    if (quantity > 0) savedVariants[productId][option] = quantity;
+    else delete savedVariants[productId][option];
+    localStorage.setItem('saved_variants', JSON.stringify(savedVariants));
+    renderProducts(productSearchEl ? productSearchEl.value : '');
+    calculateTotal();
+}
+
+function alterarQuantidadeVariante(productId, option, variation) {
+    option = decodeURIComponent(option);
+    const nextQuantity = Math.max(0, getVariantQuantity(productId, option) + variation);
+    const savedVariants = getSavedVariants();
+    savedVariants[productId] = savedVariants[productId] || {};
+    if (nextQuantity > 0) savedVariants[productId][option] = nextQuantity;
+    else delete savedVariants[productId][option];
+    localStorage.setItem('saved_variants', JSON.stringify(savedVariants));
     calculateTotal();
     renderOrderSummary();
 }
@@ -773,13 +955,13 @@ function renderOrderSummary() {
     orderItemsEl.innerHTML = selectedProducts.map(product => `
         <article class="order-item">
             <div class="order-item-info">
-                <strong>${product.name}</strong>
+                <strong>${product.name}${product.variant ? ` <small>${escapeHtml(product.variantLabel)}: ${escapeHtml(product.variant)}</small>` : ''}</strong>
                 <span>Subtotal: ${formatProductPrice(product.currentPrice == null ? null : product.quantity * product.currentPrice)}</span>
             </div>
             <div class="quantity-stepper" aria-label="Quantidade de ${product.name}">
-                <button type="button" class="quantity-button" onclick="alterarQuantidadePedido(${product.id}, -1)" aria-label="Diminuir quantidade">−</button>
-                <input type="number" min="0" value="${product.quantity}" onchange="salvarEAtualizar(${product.id}, this)" aria-label="Quantidade de ${product.name}">
-                <button type="button" class="quantity-button" onclick="alterarQuantidadePedido(${product.id}, 1)" aria-label="Aumentar quantidade">+</button>
+                <button type="button" class="quantity-button" onclick="${product.variant ? `alterarQuantidadeVariante(${product.id}, '${encodeVariantOption(product.variant)}', -1)` : `alterarQuantidadePedido(${product.id}, -1)`}" aria-label="Diminuir quantidade">−</button>
+                <input type="number" min="0" value="${product.quantity}" onchange="${product.variant ? `salvarVarianteEAtualizar(${product.id}, '${encodeVariantOption(product.variant)}', this)` : `salvarEAtualizar(${product.id}, this)`}" aria-label="Quantidade de ${product.name}${product.variant ? ` ${product.variant}` : ''}">
+                <button type="button" class="quantity-button" onclick="${product.variant ? `alterarQuantidadeVariante(${product.id}, '${encodeVariantOption(product.variant)}', 1)` : `alterarQuantidadePedido(${product.id}, 1)`}" aria-label="Aumentar quantidade">+</button>
             </div>
         </article>
     `).join('');
@@ -881,15 +1063,9 @@ categoryFilterEls.forEach(filterButton => {
 });
 
 function calculateTotal() {
-    let total = 0;
-    let itensSelecionados = 0;
-    const savedQuantities = getSavedQuantities();
-
-    products.forEach(product => {
-        const qty = Math.max(0, Number(savedQuantities[product.id]) || 0);
-        total += qty * (getProductPrice(product, qty) ?? 0);
-        if (qty > 0) itensSelecionados += qty;
-    });
+    const selectedProducts = getSelectedProducts();
+    const total = selectedProducts.reduce((sum, product) => sum + product.quantity * (product.currentPrice ?? 0), 0);
+    const itensSelecionados = selectedProducts.reduce((sum, product) => sum + product.quantity, 0);
 
     if (totalValEl) totalValEl.innerText = total.toFixed(2).replace('.', ',');
     if (floatingTotalEl) floatingTotalEl.innerText = total.toFixed(2).replace('.', ',');
@@ -942,14 +1118,11 @@ function enviarPedido() {
     let mensagem = `*NOVO PEDIDO - VAREJINHO*\n\n*CNPJ:* ${cnpjValue}\n*Condição de Pagamento:* ${condicaoPagamento}\n\n*Itens do Pedido:*\n`;
     let itensCount = 0;
 
-    const savedQuantities = getSavedQuantities();
-    products.forEach(product => {
-        const qty = Math.max(0, Number(savedQuantities[product.id]) || 0);
-        if (qty > 0) {
-            const subtotal = formatProductPrice(product.price == null ? null : qty * getProductPrice(product, qty));
-            mensagem += `- ${product.name} | Qtd: ${qty} | Subtotal: ${subtotal}\n`;
-            itensCount++;
-        }
+    getSelectedProducts().forEach(product => {
+        const variantText = product.variant ? ` | ${product.variantLabel}: ${product.variant}` : '';
+        const subtotal = formatProductPrice(product.price == null ? null : product.quantity * product.currentPrice);
+        mensagem += `- ${product.name}${variantText} | Qtd: ${product.quantity} | Subtotal: ${subtotal}\n`;
+        itensCount++;
     });
 
     if (itensCount === 0) {
