@@ -3,11 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#172554">
     <title>Varejinho | Catálogo de pedidos</title>
     <link rel="icon" type="image/jpeg" href="imagens/produtos/logo.png.jpg">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="imagens/produtos/logo.png.jpg">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <div class="app-install-banner" id="app-install-banner" hidden>
+        <img class="app-install-logo" src="imagens/produtos/logo.png.jpg" alt="Logo do Varejinho">
+        <div class="app-install-copy">
+            <strong>Instalar o Varejinho</strong>
+            <span>Baixe como aplicativo no celular</span>
+        </div>
+        <button type="button" id="install-app-button" class="app-install-button">Instalar</button>
+    </div>
 
     <header class="site-header">
         <div class="header-content">
@@ -39,10 +51,12 @@
                 <span class="product-count" id="product-count">315 itens</span>
             </div>
             <button class="back-to-catalog-button" type="button" id="back-to-catalog-button" hidden>← Voltar ao catálogo</button>
-            <label class="search-field" for="product-search">
-                <span aria-hidden="true">⌕</span>
-                <input type="search" id="product-search" placeholder="Buscar por nome ou marca..." autocomplete="off">
-            </label>
+            <div class="search-row">
+                <label class="search-field" for="product-search">
+                    <span aria-hidden="true">⌕</span>
+                    <input type="search" id="product-search" placeholder="Buscar por nome ou marca..." autocomplete="off">
+                </label>
+            </div>
             <div class="category-filters" role="group" aria-label="Filtrar produtos por categoria">
                 <button class="category-filter is-active" type="button" data-category="todos"><span aria-hidden="true">▦</span> Todos</button>
                 <button class="category-filter" type="button" data-category="catarinense"><span aria-hidden="true">✚</span> Catarinense</button>
@@ -128,7 +142,7 @@
                 </select>
             </div>
 
-            <button class="btn-whatsapp" onclick="enviarPedido()"><span aria-hidden="true">↗</span> Enviar pedido para GABRIEL </button>
+            <button class="btn-whatsapp" onclick="enviarPedido()"><span aria-hidden="true">↗</span> Enviar pedido pelo WhatsApp</button>
         </div>
     </div>
 

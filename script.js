@@ -153,10 +153,10 @@ const products = [
     { id: 151, name: "Levedo de Cerveja - 400 cápsulas - APIS NUTRI", price: 23.90, image: "https://via.placeholder.com/60" },
     { id: 152, name: "Liso eterno spray - Condicionante Termoativado - 130 ml. - MARY LIFE", price: 13.90, image: "https://via.placeholder.com/60" },
     { id: 153, name: "Luvas estéril (6½, 7, 7½, 8, 8½)", price: 1.90, image: "https://via.placeholder.com/60" },
-    { id: 154, name: "Luvas latex de procedimento c/ 100 PP", price: 23.90, image: "https://via.placeholder.com/60" },
-    { id: 155, name: "Luvas latex de procedimento c/ 100 P", price: 23.90, image: "https://via.placeholder.com/60" },
-    { id: 156, name: "Luvas latex de procedimento c/100 M", price: 23.90, image: "https://via.placeholder.com/60" },
-    { id: 157, name: "Luvas latex de procedimento c/100 G", price: 23.90, image: "https://via.placeholder.com/60" },
+    { id: 154, name: "Luvas latex de procedimento c/100 (Marca: Talge)", price: 23.90, image: "https://via.placeholder.com/60" },
+    { id: 155, name: "Luvas latex de procedimento c/100 (Marca: Talge)", price: 23.90, image: "https://via.placeholder.com/60" },
+    { id: 156, name: "Luvas latex de procedimento c/100 (Marca: Talge)", price: 23.90, image: "https://via.placeholder.com/60" },
+    { id: 157, name: "Luvas latex de procedimento c/100 (Marca: Talge)", price: 23.90, image: "https://via.placeholder.com/60" },
     { id: 158, name: "Luva p/Procedimento - Nitrilo - G - Black", price: 27.90, image: "https://via.placeholder.com/60" },
     { id: 159, name: "Luva p/ Procedimento - Nitrilo - M - Black", price: 27.90, image: "https://via.placeholder.com/60" },
     { id: 160, name: "Luva p/ Procedimento - Nitrilo P - Black", price: 27.90, image: "https://via.placeholder.com/60" },
@@ -334,6 +334,7 @@ const promotions = [
     [45, 79.90], [140, 119.90], [43, 149.90],
     [1001, 89.90, "Inalador e Compressor Bioland (adultos e crianças)"],
     [1002, 275.00, "Protetor Labial Vedis Calêndula (Caixa com 50 unidades)", 5.50],
+    [283, 22.90, "KIT CAPILAR BEBELO (Shampoo, Condicionador, Mascara e Spray)", 23.90],
     [284, 7.39], [1003, 5.50, "Promoção das pomadas (Caixa com 12 unidades)"], [170, 89.90],
     [291, 6.50], [286, 7.99], [248, 130.00, "Seringa de insulina de 1ml Medix com agulha 0,33x1,27 (Caixa com 100 unidades)"],
     [1004, 149.90, "Seringa de insulina Sol-M 50UI com agulha 8mm x 0,3mm (Caixa com 100 unidades)"],
@@ -348,8 +349,7 @@ const promotions = [
     [259, 2.49], [260, 3.89], [233, 11.90], [261, 4.99],
     [1011, 8.99, "Soro Fisiológico 0,9% 1000ml Lbs"], [1012, 9.99, "Talco Mentolado LBS (30g)"],
     [1013, 149.90, "Seringa de insulina SR de 1ml com agulha 0,25x0,6 (Caixa com 100 unidades - SR)"],
-    [141, 99.90], [1000, 22.90, "Kit Capilar Bebeloo (Uva, Tutti-frutti, Melancia ou Banana - Bio Instinto)"],
-    [301, 3.30], [1014, 13.90, "Luvas de Vinil Vabene (Tamanho P - Caixa com 100 unidades)"], [325, 4.50],
+    [141, 99.90], [301, 3.30], [1014, 13.90, "Luvas de Vinil Vabene (Tamanho P - Caixa com 100 unidades)"], [325, 4.50],
     [344, 9.90], [322, 3.90], [321, 3.90], [320, 3.90], [318, 3.90], [327, 4.50], [317, 3.90],
     [319, 3.90], [323, 3.90], [331, 5.50], [330, 5.50], [316, 3.90], [334, 5.50], [333, 5.50],
     [332, 5.50], [328, 4.50], [329, 4.50], [324, 4.50], [303, 15.90], [302, 9.90], [336, 4.90],
@@ -374,32 +374,28 @@ promotions.forEach(promotion => {
     promotion.originalPrice = promotion.originalPrice ?? promotion.promoPrice;
 });
 
+const duplicateBebeloProductIds = new Set([1000]);
+products.splice(0, products.length, ...products.filter(product => {
+    const name = (product.name || '').toLocaleLowerCase();
+    return !duplicateBebeloProductIds.has(product.id) && !name.includes('bebeloo');
+}));
+
 const condicoesPagamento = [
-    { nome: "À vista", boletos: 1 },
-    { nome: "3 dias", boletos: 1 },
-    { nome: "7 dias", boletos: 1 },
-    { nome: "21 dias", boletos: 1 },
-    { nome: "28 dias", boletos: 1 },
-    { nome: "35 dias", boletos: 1 },
-    { nome: "42 dias", boletos: 1 },
+    { nome: "Pix", boletos: 1 },
+    { nome: "7", boletos: 1 },
+    { nome: "14", boletos: 1 },
+    { nome: "21", boletos: 1 },
+    { nome: "28", boletos: 1 },
+    { nome: "35", boletos: 1 },
     { nome: "7/14", boletos: 2 },
-    { nome: "15/30", boletos: 2 },
+    { nome: "14/21", boletos: 2 },
     { nome: "21/28", boletos: 2 },
-    { nome: "21/42", boletos: 2 },
     { nome: "28/35", boletos: 2 },
-    { nome: "35/42", boletos: 2 },
-    { nome: "35/55", boletos: 2 },
     { nome: "7/14/21", boletos: 3 },
     { nome: "14/21/28", boletos: 3 },
     { nome: "21/28/35", boletos: 3 },
-    { nome: "28/35/42", boletos: 3 },
     { nome: "7/14/21/28", boletos: 4 },
-    { nome: "14/21/28/35", boletos: 4 },
-    { nome: "21/28/35/42", boletos: 4 },
-    { nome: "30/40/50/60", boletos: 4 },
-    { nome: "21/28/35/42/49", boletos: 5 },
-    { nome: "10/20/30/40/50", boletos: 5 },
-    { nome: "20/30/40/50/60/70", boletos: 6 }
+    { nome: "14/21/28/35", boletos: 4 }
 ];
 
 const whatsappDestinatarios = {
@@ -415,6 +411,7 @@ const productVariants = {
     119: { label: 'Cor', options: ['Preto', 'Rosa', 'Verde', 'Vermelho'] },
     169: { label: 'Sabor', options: [], allowCustom: true, customLabel: 'Digite o sabor' },
     153: { label: 'Tamanho', options: ['6½', '7', '7½', '8', '8½'] },
+    154: { label: 'Tamanho', options: ['PP', 'P', 'M', 'G'] },
     163: { label: 'Tamanho', options: ['P', 'M', 'G'] },
     161: { label: 'Tamanho', options: ['P', 'M', 'G'] },
     162: { label: 'Tamanho', options: ['PP', 'P', 'M', 'G'] },
@@ -436,12 +433,38 @@ const mergedIntimateDeodorantIds = new Set([330, 331, 332, 333, 334, 335]);
 const mergedIntimateGelIds = new Set([317, 318, 319, 320, 321, 322, 323]);
 const mergedProductIds = new Set([...mergedIntimateDeodorantIds, ...mergedIntimateGelIds]);
 const excludedSoapIds = new Set([324, 325, 326, 327, 328, 329]);
-const hiddenCatalogProductIds = new Set([...mergedProductIds, ...excludedSoapIds]);
+const hiddenCatalogProductIds = new Set([...mergedProductIds, ...excludedSoapIds, 155, 156, 157, 1000]);
 
 function getWhatsAppDestinatario() {
     const destino = new URLSearchParams(window.location.search).get('destino');
     return whatsappDestinatarios[destino] || whatsappDestinatarios.padrao;
 }
+
+const appInstallBannerEl = document.getElementById('app-install-banner');
+const installAppButtonEl = document.getElementById('install-app-button');
+let deferredInstallPrompt = null;
+
+if ('beforeinstallprompt' in window) {
+    window.addEventListener('beforeinstallprompt', event => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        if (appInstallBannerEl) appInstallBannerEl.hidden = false;
+    });
+}
+
+if (installAppButtonEl) {
+    installAppButtonEl.addEventListener('click', async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        if (appInstallBannerEl) appInstallBannerEl.hidden = true;
+    });
+}
+
+window.addEventListener('appinstalled', () => {
+    if (appInstallBannerEl) appInstallBannerEl.hidden = true;
+});
 
 const productListEl = document.getElementById('product-list');
 const totalValEl = document.getElementById('total-val');
@@ -566,6 +589,13 @@ function formatProductPrice(price) {
 function getProductPrice(product, quantity = 0) {
     if (product.id === 306) return quantity >= 24 ? 31.99 : 33.99;
     return product.promoPrice ?? product.price;
+}
+
+function formatVisibleProductPrice(product, quantity = 0) {
+    if (product.promoPrice != null && product.price != null && product.promoPrice < product.price) {
+        return formatPromotionPrice(product, quantity);
+    }
+    return formatProductPrice(getProductPrice(product, quantity));
 }
 
 function formatPromotionPrice(product, quantity = 0) {
@@ -758,7 +788,7 @@ function renderProducts(searchTerm = '') {
         card.innerHTML = `
             <div class="product-info">
                 <div class="product-name">${product.promotionName || product.name}</div>
-                <div class="product-price">${promotionsOnly ? formatPromotionPrice(product, savedQty) : formatProductPrice(getProductPrice(product, savedQty))}</div>
+                <div class="product-price">${formatVisibleProductPrice(product, savedQty)}</div>
                 ${getPromotionNotice(product)}
             </div>
             ${isUnavailable ? '<div class="stock-status">Sem estoque</div>' : variantConfig ? `<div class="product-controls">
@@ -782,7 +812,7 @@ function atualizarPrecoExibido(productId, quantity) {
     const product = products.find(item => item.id === productId);
     const card = document.querySelector(`[data-product-id="${productId}"] .product-price`);
     if (!product || !card) return;
-    card.innerHTML = promotionsOnly ? formatPromotionPrice(product, quantity) : formatProductPrice(getProductPrice(product, quantity));
+    card.innerHTML = formatVisibleProductPrice(product, quantity);
 }
 
 function abrirDetalhesProduto(productId) {
@@ -796,7 +826,7 @@ function abrirDetalhesProduto(productId) {
     productDetailTitleEl.innerText = product.name;
     productDetailDescriptionEl.innerText = getProductDescription(product);
     const detailQuantity = Math.max(1, Number(savedQuantities[productId]) || 1);
-    productDetailPriceEl.innerHTML = `${promotionsOnly ? formatPromotionPrice(product, detailQuantity) : formatProductPrice(getProductPrice(product, detailQuantity))}${getPromotionNotice(product)}`;
+    productDetailPriceEl.innerHTML = `${formatVisibleProductPrice(product, detailQuantity)}${getPromotionNotice(product)}`;
     productDetailQuantityEl.value = Math.max(1, Number(savedQuantities[productId]) || 1);
     document.getElementById('detail-quantity-controls').hidden = Boolean(variantConfig);
     if (productDetailVariantsEl) {

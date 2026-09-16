@@ -1,0 +1,24 @@
+{
+  "name": "Varejinho - Catálogo de pedidos",
+  "short_name": "Varejinho",
+  "description": "Catálogo de pedidos da Varejinho",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#172554",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "imagens/produtos/logo.png.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "imagens/produtos/logo.png.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
