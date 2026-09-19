@@ -85,13 +85,36 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
     transform: translateY(-1px);
     box-shadow: 0 8px 18px rgba(47, 111, 237, 0.08);
 }
-.category-filters { display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
-.category-filter { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: #f8faff; color: var(--muted); cursor: pointer; font-size: 0.78rem; font-weight: 800; white-space: nowrap; transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.2s; }
+.category-filters { display: flex; gap: 10px; margin-top: 14px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; }
+.category-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 11px 16px;
+    border: 1px solid rgba(47, 111, 237, 0.15);
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ffffff 0%, #edf4ff 100%);
+    color: var(--accent-dark);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    box-shadow: 0 5px 14px rgba(47, 111, 237, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
 .sort-field { display: flex; align-items: center; gap: 10px; width: fit-content; margin-top: 14px; color: var(--muted); font-size: 0.8rem; font-weight: 800; }
 .sort-field select { padding: 9px 30px 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #f8faff; color: var(--ink); cursor: pointer; font-weight: 800; }
 .category-filter span { color: var(--accent-dark); font-size: 1rem; line-height: 1; }
-.category-filter:hover { border-color: #9bbcf7; color: var(--accent-dark); transform: translateY(-1px); }
-.category-filter.is-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); box-shadow: 0 0 0 2px rgba(47, 111, 237, 0.08); }
+.category-filter:hover { border-color: rgba(47, 111, 237, 0.4); transform: translateY(-1px); box-shadow: 0 8px 18px rgba(47, 111, 237, 0.12); }
+.category-filter.is-active {
+    border-color: rgba(47, 111, 237, 0.7);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(29, 78, 216, 0.24);
+}
+.category-filter.is-active span { color: #fff; }
 .catalog-hint { margin: 10px 0 0; color: var(--muted); font-size: 0.82rem; }
 
 .app-install-banner {
@@ -108,12 +131,14 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
     border-radius: 14px;
     background: linear-gradient(135deg, rgba(47, 111, 237, 0.08), rgba(125, 211, 252, 0.14));
     box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+    box-sizing: border-box;
 }
-.app-install-logo { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; }
-.app-install-copy { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.app-install-logo { width: 48px; height: 48px; flex-shrink: 0; border-radius: 12px; object-fit: cover; }
+.app-install-copy { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
 .app-install-copy strong { color: var(--ink); font-size: 0.9rem; }
 .app-install-copy span { color: var(--muted); font-size: 0.75rem; }
 .app-install-button {
+    flex-shrink: 0;
     padding: 10px 14px;
     border: 0;
     border-radius: 10px;
@@ -123,6 +148,29 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
     font-weight: 800;
 }
 .app-install-button:hover { background: var(--accent-dark); }
+
+.catalog-desktop-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin: 12px 0 10px;
+}
+.desktop-download-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border: 1px solid rgba(47, 111, 237, 0.18);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #eef4ff 100%);
+    color: var(--accent-dark);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 800;
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
+}
+.desktop-download-link:hover {
+    background: var(--accent-soft);
+}
 
 .catalog-pdf-links {
     display: flex;
@@ -234,6 +282,8 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .order-item-info strong { display: block; overflow: hidden; font-size: 0.85rem; line-height: 1.3; display: -webkit-box; display: box; -webkit-box-orient: vertical; box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .order-item-info strong small { display: block; margin-top: 3px; color: var(--muted); font-size: 0.76rem; font-weight: 700; }
 .order-item-info span { display: block; margin-top: 5px; color: var(--accent-dark); font-size: 0.9rem; font-weight: 900; }
+.order-item-info .order-price-current { display: inline-block; color: #b91c1c; font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
+.order-item-info .order-price-old { display: inline-block; margin-left: 6px; color: #94a3b8; text-decoration: line-through; font-weight: 700; }
 .quantity-stepper { display: grid; grid-template-columns: 34px 56px 34px; align-items: center; gap: 4px; }
 .quantity-button { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--accent-soft); color: var(--accent-dark); cursor: pointer; font-size: 1.25rem; font-weight: 800; line-height: 1; }
 .quantity-button:hover { border-color: var(--accent); background: #cdddfb; }

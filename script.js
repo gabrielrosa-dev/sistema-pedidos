@@ -153,13 +153,8 @@ const products = [
     { id: 151, name: "Levedo de Cerveja - 400 cápsulas - APIS NUTRI", price: 23.90, image: "https://via.placeholder.com/60" },
     { id: 152, name: "Liso eterno spray - Condicionante Termoativado - 130 ml. - MARY LIFE", price: 13.90, image: "https://via.placeholder.com/60" },
     { id: 153, name: "Luvas estéril (6½, 7, 7½, 8, 8½)", price: 1.90, image: "https://via.placeholder.com/60" },
-    { id: 154, name: "Luvas latex de procedimento c/100 (Marca: Talge)", price: 23.90, image: "https://via.placeholder.com/60" },
-    { id: 155, name: "Luvas latex de procedimento c/100 (Marca: Talge)", price: 23.90, image: "https://via.placeholder.com/60" },
-    { id: 156, name: "Luvas latex de procedimento c/100 (Marca: Talge)", price: 23.90, image: "https://via.placeholder.com/60" },
-    { id: 157, name: "Luvas latex de procedimento c/100 (Marca: Talge)", price: 23.90, image: "https://via.placeholder.com/60" },
-    { id: 158, name: "Luva p/Procedimento - Nitrilo - G - Black", price: 27.90, image: "https://via.placeholder.com/60" },
-    { id: 159, name: "Luva p/ Procedimento - Nitrilo - M - Black", price: 27.90, image: "https://via.placeholder.com/60" },
-    { id: 160, name: "Luva p/ Procedimento - Nitrilo P - Black", price: 27.90, image: "https://via.placeholder.com/60" },
+    { id: 154, name: "Luvas latex de procedimento c/100 com pó (Marca: Talge)", price: 23.90, promoPrice: 22.90, image: "https://via.placeholder.com/60" },
+    { id: 158, name: "Luva p/ Procedimento - Nitrilo - Black", price: 27.90, promoPrice: 24.90, image: "https://via.placeholder.com/60" },
     { id: 161, name: "Luva p/ Procedimento - Nitrilo - P/M/G - Azul", price: 25.90, image: "https://via.placeholder.com/60" },
     { id: 162, name: "LUVA P/PROCEDIMENTO NITRILICA - PP,P,M,G - ROSA", price: 27.90, image: "https://via.placeholder.com/60" },
     { id: 163, name: "Luva Silicone (Vinil) Tamanho P,M,G - Medix", price: 16.90, image: "https://via.placeholder.com/60" },
@@ -341,9 +336,10 @@ const promotions = [
     [1005, 59.90, "Seringa para insulina 1ml com agulha 13 x 0,45mm (Unidade)"], [287, 5.99],
     [1006, 149.90, "Seringa de insulina 1ml com agulha 8x0,30mm Tkl (Caixa com 100 unidades)"], [118, 29.90],
     [252, 1.59], [266, 399.00], [265, 499.00], [117, 22.90],
-    [1007, 22.90, "Luva de látex com pó Talge (Tamanho M - Caixa com 100 unidades)"],
+    [154, 22.90, "Luvas latex de procedimento c/100 com pó (Marca: Talge)", 23.90],
+    [158, 24.90, "Luva p/ Procedimento - Nitrilo - Black", 27.90],
     [1008, 24.90, "Luva nitrílica rosa Talge (Tamanho P - Caixa com 100 unidades)"], [306, 31.99],
-    [217, 139.90], [216, 139.90], [72, 18.90], [160, 24.90], [139, 109.90], [42, 109.90],
+    [217, 139.90], [216, 139.90], [72, 18.90], [139, 109.90], [42, 109.90],
     [1009, 59.90, "Seringa de insulina de 1ml Tkl com agulha 0,45x13mm / 26G (Caixa com 100 unidades)"],
     [123, 23.90], [205, 59.90], [1010, 129.90, "Seringa de insulina SR de 0,5ml com agulha 0,25x6mm (Caixa com 100 unidades)"],
     [259, 2.49], [260, 3.89], [233, 11.90], [261, 4.99],
@@ -410,11 +406,12 @@ const productVariants = {
     113: { label: 'Tamanho', options: ['M', 'G'] },
     119: { label: 'Cor', options: ['Preto', 'Rosa', 'Verde', 'Vermelho'] },
     169: { label: 'Sabor', options: [], allowCustom: true, customLabel: 'Digite o sabor' },
-    153: { label: 'Tamanho', options: ['6½', '7', '7½', '8', '8½'] },
+    153: { label: 'Tamanho', options: ['PP', 'P', 'M', 'G'] },
     154: { label: 'Tamanho', options: ['PP', 'P', 'M', 'G'] },
-    163: { label: 'Tamanho', options: ['P', 'M', 'G'] },
-    161: { label: 'Tamanho', options: ['P', 'M', 'G'] },
+    158: { label: 'Tamanho', options: ['P', 'M', 'G'] },
+    161: { label: 'Tamanho', options: ['PP', 'P', 'M', 'G'] },
     162: { label: 'Tamanho', options: ['PP', 'P', 'M', 'G'] },
+    163: { label: 'Tamanho', options: ['PP', 'P', 'M', 'G'] },
     194: { label: 'Tamanho', options: ['P', 'M', 'G', 'GG'] },
     282: { label: 'Linha', options: ['B-Tox', 'Liso c/ Força', 'Ameixa Negra', 'Cacheamos', 'Loiro Perfeito', 'Ômega 3', 'Nutrecôco', 'Cavalo de Raça', 'Chuva de Verniz', 'Descansa Cabelo', 'Mandioca', 'Óleo de Argan', 'Hialurônico'] },
     283: { label: 'Aroma', options: ['Tutti Frutti', 'Uva', 'Melancia', 'Banana'] },
@@ -441,30 +438,37 @@ function getWhatsAppDestinatario() {
 }
 
 const appInstallBannerEl = document.getElementById('app-install-banner');
-const installAppButtonEl = document.getElementById('install-app-button');
 let deferredInstallPrompt = null;
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+function showInstallNotification() {
+    if (!appInstallBannerEl) return;
+    appInstallBannerEl.hidden = false;
+
+    const installManualText = isIOS
+        ? 'No iPhone/iPad: toque no botão de compartilhar e escolha “Adicionar à Tela de Início”.'
+        : 'No computador: use o menu do navegador e escolha “Instalar” ou “Adicionar à área de trabalho”.';
+
+    const copyEl = appInstallBannerEl.querySelector('.app-install-copy span');
+    if (copyEl) copyEl.textContent = installManualText;
+}
 
 if ('beforeinstallprompt' in window) {
     window.addEventListener('beforeinstallprompt', event => {
         event.preventDefault();
         deferredInstallPrompt = event;
-        if (appInstallBannerEl) appInstallBannerEl.hidden = false;
-    });
-}
-
-if (installAppButtonEl) {
-    installAppButtonEl.addEventListener('click', async () => {
-        if (!deferredInstallPrompt) return;
-        deferredInstallPrompt.prompt();
-        await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        if (appInstallBannerEl) appInstallBannerEl.hidden = true;
+        showInstallNotification();
     });
 }
 
 window.addEventListener('appinstalled', () => {
     if (appInstallBannerEl) appInstallBannerEl.hidden = true;
 });
+
+if (!isStandalone && appInstallBannerEl) {
+    showInstallNotification();
+}
 
 const productListEl = document.getElementById('product-list');
 const totalValEl = document.getElementById('total-val');
@@ -580,6 +584,13 @@ function getProductDescription(product) {
     if (/capilar|shampoo|condicionante|mary life|bio instinto|body splash|óleo|oleo|manteiga|creme/.test(name)) return 'Produto para cuidados pessoais, com apresentação e características descritas no nome do item.';
     if (/podox|pés|pedicure|podologia/.test(name)) return 'Produto para cuidados dos pés e rotina de podologia profissional.';
     return 'Produto disponível para pedido no catálogo Varejinho. Consulte a apresentação indicada no nome do item.';
+}
+
+function formatMoney(value) {
+    return value == null ? 'Sem estoque' : new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(value);
 }
 
 function formatProductPrice(price) {
@@ -982,10 +993,17 @@ function renderOrderSummary() {
         return;
     }
 
-    orderItemsEl.innerHTML = selectedProducts.map(product => `
+    orderItemsEl.innerHTML = selectedProducts.map(product => {
+        const hasPromo = product.promoPrice != null && product.price != null && product.promoPrice < product.price;
+        const promoLabel = hasPromo
+            ? `Preço unit.: <span class="order-price-current">${formatProductPrice(product.promoPrice)}</span> <span class="order-price-old">${formatProductPrice(product.price)}</span>`
+            : `Preço unit.: ${formatProductPrice(product.currentPrice ?? product.price)}`;
+
+        return `
         <article class="order-item">
             <div class="order-item-info">
                 <strong>${product.name}${product.variant ? ` <small>${escapeHtml(product.variantLabel)}: ${escapeHtml(product.variant)}</small>` : ''}</strong>
+                <span>${promoLabel}</span>
                 <span>Subtotal: ${formatProductPrice(product.currentPrice == null ? null : product.quantity * product.currentPrice)}</span>
             </div>
             <div class="quantity-stepper" aria-label="Quantidade de ${product.name}">
@@ -994,7 +1012,15 @@ function renderOrderSummary() {
                 <button type="button" class="quantity-button" onclick="${product.variant ? `alterarQuantidadeVariante(${product.id}, '${encodeVariantOption(product.variant)}', 1)` : `alterarQuantidadePedido(${product.id}, 1)`}" aria-label="Aumentar quantidade">+</button>
             </div>
         </article>
-    `).join('');
+    `;
+    }).join('');
+}
+
+function limparPedido() {
+    const keysToClear = ['saved_quantities', 'saved_variants', 'saved_pagamento'];
+    keysToClear.forEach(key => localStorage.removeItem(key));
+    renderProducts(productSearchEl ? productSearchEl.value : '');
+    calculateTotal();
 }
 
 function abrirPedido() {
@@ -1145,13 +1171,18 @@ function enviarPedido() {
         return;
     }
 
-    let mensagem = `*NOVO PEDIDO - VAREJINHO*\n\n*CNPJ:* ${cnpjValue}\n*Condição de Pagamento:* ${condicaoPagamento}\n\n*Itens do Pedido:*\n`;
+    let mensagem = `*NOVO PEDIDO - RUN TRAINING*\n\n*CNPJ:* ${cnpjValue}\n*Condição de Pagamento:* ${condicaoPagamento}\n\n*Itens do Pedido:*`;
     let itensCount = 0;
 
     getSelectedProducts().forEach(product => {
         const variantText = product.variant ? ` | ${product.variantLabel}: ${product.variant}` : '';
-        const subtotal = formatProductPrice(product.price == null ? null : product.quantity * product.currentPrice);
-        mensagem += `- ${product.name}${variantText} | Qtd: ${product.quantity} | Subtotal: ${subtotal}\n`;
+        const unitPrice = product.currentPrice ?? product.price ?? 0;
+        const isPromotion = product.price != null && product.promoPrice != null && product.promoPrice < product.price;
+        const unidadeTexto = isPromotion
+            ? ` | Unit.: *${formatMoney(unitPrice)}*`
+            : ` | Unit.: ${formatMoney(unitPrice)}`;
+        const subtotal = formatMoney(product.quantity * unitPrice);
+        mensagem += `\n• ${product.name}${variantText}${unidadeTexto} | Qtd: ${product.quantity} | Subtotal: ${subtotal}`;
         itensCount++;
     });
 
@@ -1160,7 +1191,7 @@ function enviarPedido() {
         return;
     }
 
-    mensagem += `\n*VALOR TOTAL:* R$ ${total.toFixed(2).replace('.', ',')}`;
+    mensagem += `\n\n*VALOR TOTAL:* ${formatMoney(total)}`;
 
     const numeroWhatsApp = getWhatsAppDestinatario();
     if (!numeroWhatsApp) {
@@ -1169,9 +1200,24 @@ function enviarPedido() {
     }
     const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
     window.open(url, '_blank');
+    limparPedido();
 }
 
 if (viewOrderButtonEl) viewOrderButtonEl.addEventListener('click', abrirPedido);
+
+document.getElementById('desktop-download-button')?.addEventListener('click', () => {
+    const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Run Training - Catálogo de pedidos</title></head><body>${document.body.innerHTML}</body></html>`;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'run-training-catalogo.html';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+});
+
 document.querySelectorAll('[data-close-order]').forEach(element => {
     element.addEventListener('click', fecharPedido);
 });

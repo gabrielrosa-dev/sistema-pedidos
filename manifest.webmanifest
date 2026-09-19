@@ -1,7 +1,7 @@
 {
-  "name": "Varejinho - Catálogo de pedidos",
-  "short_name": "Varejinho",
-  "description": "Catálogo de pedidos da Varejinho",
+  "name": "Run Training - Catálogo de pedidos",
+  "short_name": "Run Training",
+  "description": "Catálogo de pedidos da Run Training",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f5f7fb",
