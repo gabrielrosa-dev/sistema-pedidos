@@ -1,10 +1,10 @@
-const CACHE_NAME = 'run-training-v2';
+const CACHE_NAME = 'run-training-v3';
 const APP_SHELL = [
     './',
     './index.html',
     './style.css',
     './script.js',
-    './manifest.webmanifest'
+    './manifest.json'
 ];
 
 self.addEventListener('install', event => {

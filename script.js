@@ -439,43 +439,34 @@ function getWhatsAppDestinatario() {
 
 const appInstallBannerEl = document.getElementById('app-install-banner');
 const installAppButtonEl = document.getElementById('install-app-button');
+const dismissInstallButtonEl = document.getElementById('dismiss-install-button');
 let deferredInstallPrompt = null;
+const installDismissedKey = 'run-training-install-dismissed';
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const isAndroid = /Android/i.test(navigator.userAgent);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
 function showInstallNotification() {
     if (!appInstallBannerEl) return;
     appInstallBannerEl.hidden = false;
 
-    const installManualText = isIOS
-        ? 'No iPhone/iPad: toque em compartilhar e escolha “Adicionar à Tela de Início”.'
-        : 'Toque no botão para instalar ou use o menu do navegador e escolha “Instalar”.';
-
     const copyEl = appInstallBannerEl.querySelector('.app-install-copy span');
-    if (copyEl) copyEl.textContent = installManualText;
+    if (copyEl && isIOS) copyEl.textContent = 'No iPhone/iPad: toque em compartilhar e escolha “Adicionar à Tela de Início”.';
+    if (installAppButtonEl) installAppButtonEl.hidden = isIOS;
 }
 
-function showManualInstallInstructions() {
-    const copyEl = appInstallBannerEl?.querySelector('.app-install-copy span');
-    if (copyEl) {
-        copyEl.textContent = isIOS
-            ? 'No iPhone/iPad: toque em compartilhar e escolha “Adicionar à Tela de Início”.'
-            : isAndroid
-                ? 'No Samsung: abra o menu ⋮ do Chrome e escolha “Adicionar à tela inicial” ou “Instalar aplicativo”.'
-                : 'Abra o menu do navegador e escolha “Instalar” ou “Adicionar à área de trabalho”.';
-    }
-    if (installAppButtonEl) installAppButtonEl.textContent = 'Ver instruções';
+function hideInstallNotification(savePreference = false) {
+    if (appInstallBannerEl) appInstallBannerEl.hidden = true;
+    if (savePreference) localStorage.setItem(installDismissedKey, 'true');
 }
 
 window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();
     deferredInstallPrompt = event;
-    showInstallNotification();
+    if (!isStandalone && !localStorage.getItem(installDismissedKey)) showInstallNotification();
 });
 
 window.addEventListener('appinstalled', () => {
-    if (appInstallBannerEl) appInstallBannerEl.hidden = true;
+    hideInstallNotification();
 });
 
 if ('serviceWorker' in navigator && /^https?:$/.test(window.location.protocol)) {
@@ -483,25 +474,17 @@ if ('serviceWorker' in navigator && /^https?:$/.test(window.location.protocol)) 
 }
 
 installAppButtonEl?.addEventListener('click', async () => {
-    if (!deferredInstallPrompt) {
-        showManualInstallInstructions();
-        return;
-    }
+    if (!deferredInstallPrompt) return;
 
     deferredInstallPrompt.prompt();
     const { outcome } = await deferredInstallPrompt.userChoice;
-    if (outcome === 'accepted' && appInstallBannerEl) appInstallBannerEl.hidden = true;
+    if (outcome === 'accepted') hideInstallNotification();
     deferredInstallPrompt = null;
 });
 
-function hideInstallNotificationOnScroll() {
-    if (window.scrollY > 8 && appInstallBannerEl) appInstallBannerEl.hidden = true;
-    if (window.scrollY > 8) window.removeEventListener('scroll', hideInstallNotificationOnScroll);
-}
+dismissInstallButtonEl?.addEventListener('click', () => hideInstallNotification(true));
 
-window.addEventListener('scroll', hideInstallNotificationOnScroll, { passive: true });
-
-if (!isStandalone && appInstallBannerEl) {
+if (!isStandalone && !localStorage.getItem(installDismissedKey) && isIOS && appInstallBannerEl) {
     showInstallNotification();
 }
 

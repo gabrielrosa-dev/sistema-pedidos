@@ -151,6 +151,8 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
     transition: background 0.2s, transform 0.2s;
 }
 .app-install-button:hover { background: var(--accent-dark); transform: translateY(-1px); }
+.app-install-dismiss { flex-shrink: 0; padding: 10px 8px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.78rem; font-weight: 800; white-space: nowrap; }
+.app-install-dismiss:hover { color: var(--ink); }
 @keyframes install-banner-enter {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -331,6 +333,7 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
     .promotion-banner-button { width: 100%; justify-content: center; }
     .app-install-banner { align-items: flex-start; }
     .app-install-button { align-self: center; padding: 9px 11px; font-size: 0.76rem; }
+    .app-install-dismiss { align-self: center; padding: 9px 4px; font-size: 0.72rem; }
     .catalog-toolbar-top { flex-direction: column; align-items: stretch; }
     .toolbar-heading { justify-content: space-between; }
     .search-row { flex-direction: column; align-items: stretch; }
