@@ -438,6 +438,7 @@ function getWhatsAppDestinatario() {
 }
 
 const appInstallBannerEl = document.getElementById('app-install-banner');
+const installAppButtonEl = document.getElementById('install-app-button');
 let deferredInstallPrompt = null;
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
@@ -447,11 +448,21 @@ function showInstallNotification() {
     appInstallBannerEl.hidden = false;
 
     const installManualText = isIOS
-        ? 'No iPhone/iPad: toque no botão de compartilhar e escolha “Adicionar à Tela de Início”.'
-        : 'No computador: use o menu do navegador e escolha “Instalar” ou “Adicionar à área de trabalho”.';
+        ? 'No iPhone/iPad: toque em compartilhar e escolha “Adicionar à Tela de Início”.'
+        : 'Toque no botão para instalar ou use o menu do navegador e escolha “Instalar”.';
 
     const copyEl = appInstallBannerEl.querySelector('.app-install-copy span');
     if (copyEl) copyEl.textContent = installManualText;
+}
+
+function showManualInstallInstructions() {
+    const copyEl = appInstallBannerEl?.querySelector('.app-install-copy span');
+    if (copyEl) {
+        copyEl.textContent = isIOS
+            ? 'No iPhone/iPad: toque em compartilhar e escolha “Adicionar à Tela de Início”.'
+            : 'Abra o menu do navegador e escolha “Instalar” ou “Adicionar à área de trabalho”.';
+    }
+    if (installAppButtonEl) installAppButtonEl.textContent = 'Como instalar';
 }
 
 if ('beforeinstallprompt' in window) {
@@ -465,6 +476,25 @@ if ('beforeinstallprompt' in window) {
 window.addEventListener('appinstalled', () => {
     if (appInstallBannerEl) appInstallBannerEl.hidden = true;
 });
+
+installAppButtonEl?.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) {
+        showManualInstallInstructions();
+        return;
+    }
+
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted' && appInstallBannerEl) appInstallBannerEl.hidden = true;
+    deferredInstallPrompt = null;
+});
+
+function hideInstallNotificationOnScroll() {
+    if (window.scrollY > 8 && appInstallBannerEl) appInstallBannerEl.hidden = true;
+    if (window.scrollY > 8) window.removeEventListener('scroll', hideInstallNotificationOnScroll);
+}
+
+window.addEventListener('scroll', hideInstallNotificationOnScroll, { passive: true });
 
 if (!isStandalone && appInstallBannerEl) {
     showInstallNotification();
@@ -1182,7 +1212,7 @@ function enviarPedido() {
             ? ` | Unit.: *${formatMoney(unitPrice)}*`
             : ` | Unit.: ${formatMoney(unitPrice)}`;
         const subtotal = formatMoney(product.quantity * unitPrice);
-        mensagem += `\n • ${product.name}${variantText}${unidadeTexto} | Qtd: ${product.quantity} | Subtotal: ${subtotal}`;
+        mensagem += `\n• ${product.name}${variantText}${unidadeTexto} | Qtd: ${product.quantity} | Subtotal: ${subtotal}`;
         itensCount++;
     });
 
