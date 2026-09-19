@@ -441,7 +441,7 @@ const appInstallBannerEl = document.getElementById('app-install-banner');
 const installAppButtonEl = document.getElementById('install-app-button');
 const dismissInstallButtonEl = document.getElementById('dismiss-install-button');
 let deferredInstallPrompt = null;
-const installDismissedKey = 'run-training-install-dismissed';
+const installDismissedKey = 'run-training-install-dismissed-v2';
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
@@ -450,8 +450,19 @@ function showInstallNotification() {
     appInstallBannerEl.hidden = false;
 
     const copyEl = appInstallBannerEl.querySelector('.app-install-copy span');
-    if (copyEl && isIOS) copyEl.textContent = 'No iPhone/iPad: toque em compartilhar e escolha “Adicionar à Tela de Início”.';
-    if (installAppButtonEl) installAppButtonEl.hidden = isIOS;
+    if (isIOS) {
+        if (copyEl) copyEl.textContent = 'No iPhone/iPad: toque em compartilhar e escolha “Adicionar à Tela de Início”.';
+        if (installAppButtonEl) installAppButtonEl.hidden = true;
+        return;
+    }
+
+    if (copyEl && !deferredInstallPrompt) {
+        copyEl.textContent = 'Instale o catálogo pelo menu do navegador para acessá-lo como aplicativo.';
+    }
+    if (installAppButtonEl) {
+        installAppButtonEl.hidden = false;
+        installAppButtonEl.textContent = 'Instalar';
+    }
 }
 
 function hideInstallNotification(savePreference = false) {
@@ -474,7 +485,12 @@ if ('serviceWorker' in navigator && /^https?:$/.test(window.location.protocol)) 
 }
 
 installAppButtonEl?.addEventListener('click', async () => {
-    if (!deferredInstallPrompt) return;
+    if (!deferredInstallPrompt) {
+        const copyEl = appInstallBannerEl?.querySelector('.app-install-copy span');
+        if (copyEl) copyEl.textContent = 'Abra o menu do navegador e escolha “Instalar” ou “Adicionar à tela inicial”.';
+        installAppButtonEl.textContent = 'Ver instruções';
+        return;
+    }
 
     deferredInstallPrompt.prompt();
     const { outcome } = await deferredInstallPrompt.userChoice;
@@ -484,7 +500,7 @@ installAppButtonEl?.addEventListener('click', async () => {
 
 dismissInstallButtonEl?.addEventListener('click', () => hideInstallNotification(true));
 
-if (!isStandalone && !localStorage.getItem(installDismissedKey) && isIOS && appInstallBannerEl) {
+if (!isStandalone && !localStorage.getItem(installDismissedKey) && appInstallBannerEl) {
     showInstallNotification();
 }
 
