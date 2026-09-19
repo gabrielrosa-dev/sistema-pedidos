@@ -532,6 +532,7 @@ const selectedUnitsEl = document.getElementById('selected-units');
 const productDetailPanelEl = document.getElementById('product-detail-panel');
 const productDetailTitleEl = document.getElementById('product-detail-title');
 const productDetailDescriptionEl = document.getElementById('product-detail-description');
+const productDetailImageEl = document.getElementById('product-detail-image');
 const productDetailPriceEl = document.getElementById('product-detail-price');
 const productDetailVariantsEl = document.getElementById('product-detail-variants');
 const productDetailQuantityEl = document.getElementById('product-detail-quantity');
@@ -871,6 +872,14 @@ function abrirDetalhesProduto(productId) {
     const savedVariantOptions = variantConfig ? Object.keys(getSavedVariants()[productId] || {}) : [];
     productDetailTitleEl.innerText = product.name;
     productDetailDescriptionEl.innerText = getProductDescription(product);
+    if (productDetailImageEl) {
+        productDetailImageEl.src = product.image;
+        productDetailImageEl.alt = `Imagem de ${product.name}`;
+        productDetailImageEl.onerror = () => {
+            productDetailImageEl.onerror = null;
+            productDetailImageEl.src = 'assets/images/branding/logo.png.jpg';
+        };
+    }
     const detailQuantity = Math.max(1, Number(savedQuantities[productId]) || 1);
     productDetailPriceEl.innerHTML = `${formatVisibleProductPrice(product, detailQuantity)}${getPromotionNotice(product)}`;
     productDetailQuantityEl.value = Math.max(1, Number(savedQuantities[productId]) || 1);

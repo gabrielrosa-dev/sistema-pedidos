@@ -246,6 +246,7 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .product-detail-dialog { position: relative; width: min(480px, calc(100% - 28px)); max-height: calc(100vh - 28px); overflow-y: auto; padding: 28px; border-radius: 20px; background: var(--surface); box-shadow: 0 24px 60px rgba(23, 37, 84, 0.24); transform: translateY(15px) scale(0.98); transition: transform 0.2s; }
 .product-detail-panel.is-open .product-detail-dialog { transform: translateY(0) scale(1); }
 .product-detail-close { position: absolute; top: 16px; right: 16px; z-index: 1; }
+.product-detail-image { display: block; width: min(100%, 260px); height: 190px; margin: 0 auto 20px; border-radius: 14px; background: #f8faff; object-fit: contain; }
 .product-detail-dialog h2 { max-width: calc(100% - 40px); margin-bottom: 10px; }
 .product-detail-description { margin-bottom: 16px; color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
 .product-detail-price { display: block; margin-bottom: 20px; color: var(--accent-dark); font-size: 1.8rem; font-weight: 900; letter-spacing: 0.01em; }
