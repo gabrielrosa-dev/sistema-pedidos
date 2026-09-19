@@ -1182,7 +1182,7 @@ function enviarPedido() {
             ? ` | Unit.: *${formatMoney(unitPrice)}*`
             : ` | Unit.: ${formatMoney(unitPrice)}`;
         const subtotal = formatMoney(product.quantity * unitPrice);
-        mensagem += `\n• ${product.name}${variantText}${unidadeTexto} | Qtd: ${product.quantity} | Subtotal: ${subtotal}`;
+        mensagem += `\n • ${product.name}${variantText}${unidadeTexto} | Qtd: ${product.quantity} | Subtotal: ${subtotal}`;
         itensCount++;
     });
 
