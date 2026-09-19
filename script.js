@@ -441,6 +441,7 @@ const appInstallBannerEl = document.getElementById('app-install-banner');
 const installAppButtonEl = document.getElementById('install-app-button');
 let deferredInstallPrompt = null;
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isAndroid = /Android/i.test(navigator.userAgent);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
 function showInstallNotification() {
@@ -460,22 +461,26 @@ function showManualInstallInstructions() {
     if (copyEl) {
         copyEl.textContent = isIOS
             ? 'No iPhone/iPad: toque em compartilhar e escolha “Adicionar à Tela de Início”.'
-            : 'Abra o menu do navegador e escolha “Instalar” ou “Adicionar à área de trabalho”.';
+            : isAndroid
+                ? 'No Samsung: abra o menu ⋮ do Chrome e escolha “Adicionar à tela inicial” ou “Instalar aplicativo”.'
+                : 'Abra o menu do navegador e escolha “Instalar” ou “Adicionar à área de trabalho”.';
     }
-    if (installAppButtonEl) installAppButtonEl.textContent = 'Como instalar';
+    if (installAppButtonEl) installAppButtonEl.textContent = 'Ver instruções';
 }
 
-if ('beforeinstallprompt' in window) {
-    window.addEventListener('beforeinstallprompt', event => {
-        event.preventDefault();
-        deferredInstallPrompt = event;
-        showInstallNotification();
-    });
-}
+window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    showInstallNotification();
+});
 
 window.addEventListener('appinstalled', () => {
     if (appInstallBannerEl) appInstallBannerEl.hidden = true;
 });
+
+if ('serviceWorker' in navigator && /^https?:$/.test(window.location.protocol)) {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+}
 
 installAppButtonEl?.addEventListener('click', async () => {
     if (!deferredInstallPrompt) {
