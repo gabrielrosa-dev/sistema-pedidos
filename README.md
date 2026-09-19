@@ -21,16 +21,42 @@ Também é possível abrir o arquivo `index.html` diretamente no navegador.
 - Validação de CNPJ e condição de pagamento.
 - Envio do pedido pelo WhatsApp.
 
-## Estrutura principal
+## Estrutura do projeto
 
-- `index.html`: estrutura da página.
-- `script.js`: produtos, promoções e regras do pedido.
-- `style.css`: estilos visuais e responsividade.
-- `imagens/produtos/`: imagens dos produtos e do catálogo.
+```text
+index.html                         Entrada do site
+manifest.json                      Configuração do PWA
+service-worker.js                  Cache e funcionamento offline
+assets/
+	css/style.css                    Estilos e responsividade
+	js/app.js                        Produtos, regras e interações
+	images/branding/                 Logo e imagens institucionais
+	images/products/                 Fotos dos produtos
+	pwa/                              Ícones do aplicativo
+docs/pdf/                          Catálogos e listas em PDF
+```
 
 ## Imagens dos produtos
 
-Coloque as imagens futuras em `imagens/produtos/`. Para associar uma imagem a um produto, atualize o campo `image` correspondente no array `products`, em `script.js`.
+Cada produto já possui um link preparado no formato:
+
+```text
+assets/images/products/produto-ID.jpg
+```
+
+Para adicionar a foto do produto de ID `154`, por exemplo, coloque o arquivo com este nome:
+
+```text
+assets/images/products/produto-154.jpg
+```
+
+Não é necessário editar o código. O catálogo exibirá automaticamente a imagem quando o arquivo existir. Enquanto a foto não for adicionada, o cartão usará o logo como fallback.
+
+Use `.jpg` como padrão. Caso precise usar outro formato, altere a extensão no campo `image` do produto em `assets/js/app.js`.
+
+## Arquivos PWA
+
+O `manifest.json` e o `service-worker.js` ficam na raiz de propósito: essa posição mantém o escopo correto quando o projeto é publicado em uma subpasta do GitHub Pages.
 
 ## Observação
 

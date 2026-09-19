@@ -1,9 +1,12 @@
-const CACHE_NAME = 'run-training-v3';
+const CACHE_NAME = 'run-training-v4';
 const APP_SHELL = [
     './',
     './index.html',
-    './style.css',
-    './script.js',
+    './assets/css/style.css',
+    './assets/js/app.js',
+    './assets/images/branding/logo.png.jpg',
+    './assets/pwa/pwa-icon-192.png',
+    './assets/pwa/pwa-icon-512.png',
     './manifest.json'
 ];
 
