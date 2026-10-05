@@ -322,7 +322,9 @@ const products = [
     { id: 351, name: "Soro fisiologico 500 ml Uniphar", price: null, image: "assets/images/products/produto-351.jpg" },
     { id: 352, name: "Termômetro Digital de Testa - BIOLAND", price: null, image: "assets/images/products/produto-352.jpg" },
     { id: 353, name: "Termometro Digital - BIOLAND", price: null, image: "assets/images/products/produto-353.jpg" },
-    { id: 354, name: "KIT CABELO E CORPO KIDS", price: 23.90, image: "assets/images/products/produto-354.jpg" }
+    { id: 354, name: "KIT CABELO E CORPO KIDS", price: 23.90, image: "assets/images/products/produto-354.jpg" },
+    { id: 355, name: "Vitamina AZ Mulher 60 caps ", price: 7.50, image: "assets/images/products/produto-355.jpg" },
+    { id: 356, name: "Vitamina AZ Homem 60 caps ", price: 7.50, image: "assets/images/products/produto-356.jpg" }
 ];
 
 const promotions = [
