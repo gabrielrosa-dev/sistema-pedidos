@@ -341,7 +341,7 @@ const promotions = [
     [1008, 24.90, "Luva nitrílica rosa Talge (Tamanho P - Caixa com 100 unidades)"], [306, 31.99],
     [217, 129.90], [216, 139.90], [72, 18.90], [139, 109.90], [42, 109.90],
     [1009, 59.90, "Seringa de insulina de 1ml Tkl com agulha 0,45x13mm / 26G (Caixa com 100 unidades)"],
-    [123, 23.90], [205, 59.90], [1010, 129.90, "Seringa de insulina SR de 0,5ml com agulha 0,25x6mm (Caixa com 100 unidades)"],
+    [123, 23.90], [205, 59.90],
     [259, 2.49], [260, 3.89], [233, 11.90], [261, 4.99],
     [1011, 8.99, "Soro Fisiológico 0,9% 1000ml Lbs"], [1012, 9.99, "Talco Mentolado LBS (30g)"],
     [1013, 149.90, "Seringa de insulina SR de 1ml com agulha 0,25x0,6 (Caixa com 100 unidades - SR)"],
