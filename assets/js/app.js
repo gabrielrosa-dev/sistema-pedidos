@@ -332,7 +332,7 @@ const promotions = [
     [1001, 89.90, "Inalador e Compressor Bioland (adultos e crianças)"],
     [1002, 275.00, "Protetor Labial Vedis Calêndula (Caixa com 50 unidades)", 5.50],
     [283, 22.90, "KIT CAPILAR BEBELO (Shampoo, Condicionador, Mascara e Spray)", 23.90],
-    [284, 7.39], [1003, 5.50, "Pomadas - (Caixa com 12 unidades) - Valor Caixa: 66,00"], [170, 89.90],
+    [284, 7.39], [1003, 66.00, "Pomadas - (Caixa com 12 unidades) - Valor Unidade: 5,50"], [170, 89.90],
     [291, 6.50], [286, 7.99], [248, 130.00, "Seringa de insulina de 1ml Medix com agulha 0,33x1,27 (Caixa com 100 unidades)"],
     [1004, 149.90, "Seringa de insulina Sol-M 50UI com agulha 8mm x 0,3mm (Caixa com 100 unidades)"],
     [1005, 59.90, "Seringa para insulina 1ml com agulha 13 x 0,45mm (Unidade) SR"], [287, 5.99],
