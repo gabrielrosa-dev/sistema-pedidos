@@ -4,7 +4,7 @@ Catálogo estático de produtos para montagem de pedidos e envio pelo WhatsApp.
 
 ## Acesso
 
-[Abrir o catálogo](index.html)
+[Abrir o catálogo](https://gabrielrosa-dev.github.io/sistema-pedidos/)
 
 Também é possível abrir o arquivo `index.html` diretamente no navegador.
 
