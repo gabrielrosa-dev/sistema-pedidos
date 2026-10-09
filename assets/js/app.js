@@ -332,7 +332,7 @@ const promotions = [
     [1001, 89.90, "Inalador e Compressor Bioland (adultos e crianças)"],
     [1002, 275.00, "Protetor Labial Vedis Calêndula (Caixa com 50 unidades)", 5.50],
     [283, 22.90, "KIT CAPILAR BEBELO (Shampoo, Condicionador, Mascara e Spray)", 23.90],
-    [284, 7.39], [1003, 5.50, "Promoção das pomadas (Caixa com 12 unidades)"], [170, 89.90],
+    [284, 7.39], [1003, 5.50, "Pomadas - (Caixa com 12 unidades) - Valor Caixa: 66,00"], [170, 89.90],
     [291, 6.50], [286, 7.99], [248, 130.00, "Seringa de insulina de 1ml Medix com agulha 0,33x1,27 (Caixa com 100 unidades)"],
     [1004, 149.90, "Seringa de insulina Sol-M 50UI com agulha 8mm x 0,3mm (Caixa com 100 unidades)"],
     [1005, 59.90, "Seringa para insulina 1ml com agulha 13 x 0,45mm (Unidade) SR"], [287, 5.99],
@@ -424,6 +424,7 @@ const productVariants = {
     316: { label: 'Aroma', options: ['Cereja', 'Amora', 'Barbatimão e Flor de Algodão', 'Pétalas de Rosas', 'Roma e Aroeira', 'Rosa Mosqueta', 'Vanilla', 'Pêssego'] },
     354: { label: 'Tipo', options: ['Shampoo', 'Condicionador', 'Sabonete líquido', 'Colônia'] },
     1000: { label: 'Aroma', options: ['Uva', 'Tutti-frutti', 'Melancia', 'Banana'] },
+    1003: {label: 'Tipo', options: ['Canela de Velho', 'Tira com a Mão', 'Fisiofort Verde', 'Fisiofort Slim', 'Milagrosa', 'Sebo de Carneiro', 'Sebo de Carneiro', 'Creme Dermessence 10% Ureia'] },
     341: { label: 'Aroma', options: ['Ameixa Negra', 'Vinagre de Maçã', 'Ômega'], allowCustom: true, customLabel: 'Digite outro aroma' },
     335: { label: 'Opção', options: [], allowCustom: true, customLabel: 'Digite a opção' }
 };
