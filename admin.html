@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#172554">
+    <title>Run Training | Administração</title>
+    <link rel="icon" type="image/jpeg" href="assets/images/branding/logo.png.jpg">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-page">
+    <header class="admin-header">
+        <a class="admin-brand" href="index.html">
+            <img src="assets/images/branding/logo.png.jpg" alt="">
+            <span>Run Training <small>PAINEL ADMINISTRATIVO</small></span>
+        </a>
+        <a class="admin-catalog-link" href="index.html">← Voltar ao catálogo</a>
+    </header>
+
+    <main class="admin-main">
+        <section class="admin-login-card" id="admin-login">
+            <p class="eyebrow">Área restrita</p>
+            <h1>Acesso administrativo</h1>
+            <p class="admin-intro">Entre com seu acesso individual para consultar seu histórico de vendas.</p>
+            <form id="admin-login-form">
+                <label for="admin-email">E-mail</label>
+                <input id="admin-email" name="email" type="email" autocomplete="username" required>
+                <label for="admin-password">Senha</label>
+                <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+                <button class="admin-primary-button" type="submit" id="admin-login-button">Entrar</button>
+            </form>
+            <p class="admin-message" id="admin-login-message" role="alert"></p>
+        </section>
+
+        <section class="admin-dashboard" id="admin-dashboard" hidden>
+            <div class="admin-dashboard-heading">
+                <div>
+                    <p class="eyebrow">Visão geral</p>
+                    <h1>Histórico de vendas</h1>
+                    <p class="admin-intro">Vendas exibidas somente para a conta administrativa autenticada.</p>
+                </div>
+                <div class="admin-user-area">
+                    <span id="admin-display-name"></span>
+                    <button class="admin-secondary-button" id="admin-logout-button" type="button">Sair</button>
+                </div>
+            </div>
+
+            <form class="admin-filters" id="sales-filter-form">
+                <label>
+                    Data inicial
+                    <input id="filter-start-date" type="date">
+                </label>
+                <label>
+                    Data final
+                    <input id="filter-end-date" type="date">
+                </label>
+                <label class="admin-search-filter">
+                    CNPJ
+                    <input id="filter-search" type="search" placeholder="Buscar por CNPJ..." autocomplete="off">
+                </label>
+                <button class="admin-primary-button" type="submit">Filtrar</button>
+                <button class="admin-secondary-button" id="clear-filters-button" type="button">Limpar</button>
+            </form>
+
+            <div class="admin-summary-grid">
+                <article class="admin-summary-card">
+                    <span>Vendas no período</span>
+                    <strong id="summary-count">0</strong>
+                </article>
+                <article class="admin-summary-card">
+                    <span>Valor vendido</span>
+                    <strong id="summary-total">R$ 0,00</strong>
+                </article>
+                <article class="admin-summary-card admin-commission-card">
+                    <span>Comissão total · 5%</span>
+                    <strong id="summary-commission">R$ 0,00</strong>
+                </article>
+            </div>
+
+            <p class="admin-message" id="admin-data-message" role="status"></p>
+            <div class="admin-table-wrap">
+                <table class="admin-sales-table">
+                    <thead>
+                        <tr>
+                            <th>Data da venda</th>
+                            <th>CNPJ</th>
+                            <th>Valor</th>
+                            <th>Comissão · 5%</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-table-body"></tbody>
+                </table>
+                <p class="admin-empty-state" id="sales-empty-state" hidden>Nenhuma venda encontrada com esses filtros.</p>
+            </div>
+            <nav class="admin-pagination" aria-label="Paginação do histórico">
+                <button class="admin-secondary-button" id="previous-page-button" type="button">← Anterior</button>
+                <span id="page-indicator">Página 1</span>
+                <button class="admin-secondary-button" id="next-page-button" type="button">Próxima →</button>
+            </nav>
+            <p class="admin-disclaimer">Os pedidos são registrados quando enviados pelo catálogo ao WhatsApp. A data exibida é a do envio, não uma confirmação de pagamento.</p>
+        </section>
+    </main>
+
+    <script src="assets/js/sheets-config.js"></script>
+    <script src="assets/js/sheets-client.js"></script>
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>

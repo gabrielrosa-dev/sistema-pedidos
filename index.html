@@ -34,6 +34,7 @@
                 <h1>Monte seu pedido da Run Training</h1>
                 <p class="header-subtitle">Preços finais com impostos e envio direto pelo WhatsApp</p>
             </div>
+            <a class="admin-entry-button" href="admin.html" aria-label="Acessar o painel administrativo">Admin</a>
         </div>
     </header>
 
@@ -137,14 +138,14 @@
                 <div class="total-summary">
                     <span class="summary-label">Resumo do pedido</span>
                     <div class="total-text">Total: R$ <span id="total-val">0,00</span></div>
-                    <div id="min-warning" class="warning">Pedido mínimo: R$ 250,00</div>
+                    <div id="min-warning" class="warning">Pedido mínimo: R$ 300,00</div>
                 </div>
             </div>
 
             <div class="payment-field">
                 <label for="condicao-pagamento">Condição de pagamento</label>
                 <select id="condicao-pagamento" class="cnpj-input" style="max-width: 100%;">
-                    <option value="">Atingir mínimo de R$ 250,00 para liberar opções</option>
+                    <option value="">Atingir mínimo de R$ 300,00 para liberar opções</option>
                 </select>
             </div>
 
@@ -152,6 +153,8 @@
         </div>
     </div>
 
+    <script src="assets/js/sheets-config.js"></script>
+    <script src="assets/js/sheets-client.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 </html>

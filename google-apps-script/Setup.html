@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <style>
+        body { color: #17243a; font: 14px Arial, sans-serif; }
+        h2 { font-size: 17px; }
+        p { color: #64748b; line-height: 1.45; }
+        label { display: block; margin: 12px 0 5px; font-weight: 700; }
+        input { box-sizing: border-box; width: 100%; padding: 9px; border: 1px solid #cbd5e1; border-radius: 6px; }
+        button { width: 100%; margin-top: 18px; padding: 10px; border: 0; border-radius: 6px; background: #2f6fed; color: white; font-weight: 700; cursor: pointer; }
+        button:disabled { opacity: .6; cursor: wait; }
+        #message { min-height: 38px; margin-top: 12px; white-space: pre-wrap; }
+        .error { color: #b91c1c; }
+    </style>
+</head>
+<body>
+    <h2>Configurar acesso administrativo</h2>
+    <p>Cria a aba de vendas e guarda apenas hashes das senhas no projeto. Use senhas fortes e diferentes.</p>
+    <form id="setup-form">
+        <label for="gabriel-email">E-mail do Gabriel</label>
+        <input id="gabriel-email" type="email" required autocomplete="off">
+        <label for="gabriel-password">Senha do Gabriel (mínimo 10 caracteres)</label>
+        <input id="gabriel-password" type="password" minlength="10" required autocomplete="new-password">
+        <label for="vanderson-email">E-mail do Vanderson</label>
+        <input id="vanderson-email" type="email" required autocomplete="off">
+        <label for="vanderson-password">Senha do Vanderson (mínimo 10 caracteres)</label>
+        <input id="vanderson-password" type="password" minlength="10" required autocomplete="new-password">
+        <button id="save-button" type="submit">Salvar configuração</button>
+    </form>
+    <div id="message" role="status"></div>
+    <script>
+        document.getElementById('setup-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const button = document.getElementById('save-button');
+            const message = document.getElementById('message');
+            button.disabled = true;
+            message.className = '';
+            message.textContent = 'Configurando...';
+            google.script.run
+                .withSuccessHandler(function (result) {
+                    message.textContent = result;
+                    button.disabled = false;
+                })
+                .withFailureHandler(function (error) {
+                    message.className = 'error';
+                    message.textContent = error.message || 'Não foi possível salvar a configuração.';
+                    button.disabled = false;
+                })
+                .saveInitialConfiguration({
+                    gabrielEmail: document.getElementById('gabriel-email').value,
+                    gabrielPassword: document.getElementById('gabriel-password').value,
+                    vandersonEmail: document.getElementById('vanderson-email').value,
+                    vandersonPassword: document.getElementById('vanderson-password').value
+                });
+        });
+    </script>
+</body>
+</html>

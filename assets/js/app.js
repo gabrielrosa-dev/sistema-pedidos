@@ -1192,7 +1192,8 @@ function calculateTotal() {
     return total;
 }
 
-function enviarPedido() {
+async function enviarPedido() {
+    if (window.enviandoPedido) return;
     const cnpjValue = cnpjEl.value.trim();
     if (!cnpjValue) {
         alert('Por favor, preencha o campo CNPJ antes de enviar o pedido.');
@@ -1246,8 +1247,43 @@ function enviarPedido() {
         return;
     }
     const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
-    window.open(url, '_blank');
-    limparPedido();
+
+    const salesRecord = {
+        seller_key: new URLSearchParams(window.location.search).get('destino') === 'vanderson' ? 'vanderson' : 'gabriel',
+        cnpj: cnpjValue,
+        total: Math.round(total * 100) / 100,
+        payment_condition: condicaoPagamento,
+        items: getSelectedProducts().map(product => ({
+            name: product.name,
+            quantity: product.quantity,
+            unit_price: Math.round((product.currentPrice ?? product.price ?? 0) * 100) / 100,
+            variant: product.variant || null
+        }))
+    };
+
+    const whatsappWindow = window.open(url, '_blank');
+    window.enviandoPedido = true;
+    let saleSaved = false;
+
+    try {
+        const saveResult = typeof window.recordAdminSale === 'function'
+            ? await window.recordAdminSale(salesRecord)
+            : { saved: false, reason: 'A integração com o banco de vendas ainda não foi configurada.' };
+
+        if (!saveResult.saved) throw new Error(saveResult.reason);
+        saleSaved = true;
+    } catch (error) {
+        const message = error && error.message ? error.message : 'Erro desconhecido ao salvar o pedido.';
+        const notice = whatsappWindow
+            ? 'O pedido foi aberto no WhatsApp, mas não foi registrado no histórico'
+            : 'O pedido não foi registrado no histórico; o WhatsApp será aberto nesta aba';
+        alert(`${notice}: ${message}`);
+    } finally {
+        window.enviandoPedido = false;
+    }
+
+    if (!whatsappWindow) window.location.href = url;
+    if (saleSaved) limparPedido();
 }
 
 if (viewOrderButtonEl) viewOrderButtonEl.addEventListener('click', abrirPedido);
