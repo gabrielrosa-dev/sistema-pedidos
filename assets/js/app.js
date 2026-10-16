@@ -1265,6 +1265,9 @@ async function enviarPedido() {
         }))
     };
 
+    const whatsappWindow = window.open(url, '_blank');
+    if (whatsappWindow) whatsappWindow.opener = null;
+
     window.enviandoPedido = true;
     let saleSaved = false;
 
@@ -1277,13 +1280,16 @@ async function enviarPedido() {
         saleSaved = true;
     } catch (error) {
         const message = error && error.message ? error.message : 'Erro desconhecido ao salvar o pedido.';
-        alert(`O pedido não foi registrado no histórico; o WhatsApp será aberto nesta aba: ${message}`);
+        const destination = whatsappWindow
+            ? 'O WhatsApp foi aberto em outra aba'
+            : 'O WhatsApp será aberto nesta aba porque o navegador bloqueou a nova aba';
+        alert(`${destination}, mas o pedido não foi registrado no histórico: ${message}`);
     } finally {
         window.enviandoPedido = false;
     }
 
     if (saleSaved) limparPedido();
-    window.location.href = url;
+    if (!whatsappWindow) window.location.href = url;
 }
 
 if (viewOrderButtonEl) viewOrderButtonEl.addEventListener('click', abrirPedido);

@@ -49,12 +49,6 @@
     }
 
     function openOrderMirror(sale) {
-        const mirrorWindow = window.open('', '_blank');
-        if (!mirrorWindow) {
-            setMessage(dataMessage, 'O navegador bloqueou a janela do espelho. Permita pop-ups para este site e tente novamente.', true);
-            return;
-        }
-
         const itemRows = sale.items.length
             ? sale.items.map(item => {
                 const variant = item.variant ? ` <small>${escapeHtml(item.variant)}</small>` : '';
@@ -80,12 +74,11 @@
             ? '<p class="note">O valor total foi ajustado manualmente no painel; os valores dos itens representam o pedido original.</p>'
             : '';
 
-        mirrorWindow.document.open();
-        mirrorWindow.document.write(`<!DOCTYPE html>
+        const mirrorHtml = `<!DOCTYPE html>
             <html lang="pt-BR">
             <head>
                 <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
                 <title>Espelho do pedido ${orderId}</title>
                 <style>
                     * { box-sizing: border-box; }
@@ -140,8 +133,16 @@
                     <button class="print-button" type="button" onclick="window.print()">Imprimir / Salvar como PDF</button>
                 </main>
             </body>
-            </html>`);
-        mirrorWindow.document.close();
+            </html>`;
+        const mirrorUrl = URL.createObjectURL(new Blob([mirrorHtml], { type: 'text/html;charset=utf-8' }));
+        const mirrorWindow = window.open(mirrorUrl, '_blank');
+        if (!mirrorWindow) {
+            URL.revokeObjectURL(mirrorUrl);
+            setMessage(dataMessage, 'O navegador bloqueou a janela do espelho. Permita pop-ups para este site e tente novamente.', true);
+            return;
+        }
+        mirrorWindow.opener = null;
+        mirrorWindow.addEventListener('load', () => URL.revokeObjectURL(mirrorUrl), { once: true });
     }
 
     function parseMoneyInput(value) {
