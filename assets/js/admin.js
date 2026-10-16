@@ -89,8 +89,9 @@
                 <title>Espelho do pedido ${orderId}</title>
                 <style>
                     * { box-sizing: border-box; }
-                    body { margin: 0; padding: 32px 16px; color: #17243a; background: #f1f5fb; font: 15px/1.5 Arial, sans-serif; }
-                    main { width: min(800px, 100%); margin: 0 auto; padding: 36px; background: #fff; border: 1px solid #dbe3ee; border-radius: 12px; }
+                    html { width: 100%; }
+                    body { width: 100%; min-height: 100vh; margin: 0; padding: 32px 16px; color: #17243a; background: #f1f5fb; font: 15px/1.5 Arial, sans-serif; }
+                    main { width: min(800px, 100%); min-width: 0; margin: 0 auto; padding: 36px; background: #fff; border: 1px solid #dbe3ee; border-radius: 12px; }
                     header { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; padding-bottom: 20px; border-bottom: 2px solid #172554; }
                     h1 { margin: 0; color: #172554; font-size: 25px; }
                     header p { margin: 4px 0 0; color: #64748b; }
@@ -98,9 +99,13 @@
                     .details { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin: 24px 0; }
                     .details span { display: block; color: #64748b; font-size: 12px; }
                     .details strong { display: block; overflow-wrap: anywhere; }
-                    table { width: 100%; border-collapse: collapse; }
+                    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
                     th, td { padding: 11px 9px; border-bottom: 1px solid #e2e8f0; text-align: left; }
                     th { color: #64748b; background: #f8fafc; font-size: 11px; text-transform: uppercase; }
+                    th:first-child, td:first-child { width: 40%; overflow-wrap: anywhere; }
+                    th:nth-child(2), td:nth-child(2) { width: 12%; }
+                    th:nth-child(3), td:nth-child(3) { width: 22%; }
+                    th:nth-child(4), td:nth-child(4) { width: 26%; }
                     td small { display: block; color: #64748b; }
                     .number { text-align: right; white-space: nowrap; }
                     tfoot td { border: 0; font-weight: bold; }
@@ -108,8 +113,8 @@
                     .total-value { color: #172554; font-size: 20px; }
                     .note { margin: 24px 0 0; color: #64748b; font-size: 12px; }
                     .print-button { display: block; margin: 22px auto 0; padding: 11px 18px; border: 0; border-radius: 8px; background: #2f6fed; color: #fff; cursor: pointer; font-size: 14px; font-weight: bold; }
-                    @media (max-width: 540px) { main { padding: 22px 14px; } header { flex-direction: column; } th, td { padding: 9px 5px; font-size: 12px; } }
-                    @media print { body { padding: 0; background: #fff; } main { width: 100%; padding: 0; border: 0; } .print-button { display: none; } }
+                    @media (max-width: 540px) { body { min-height: 100dvh; padding: 0; background: #fff; } main { width: 100%; min-height: 100dvh; padding: 22px 12px; border: 0; border-radius: 0; } header { flex-direction: column; } th, td { padding: 9px 4px; font-size: 11px; } th { font-size: 9px; } .number { font-size: 10px; } .details { gap: 12px; } }
+                    @media print { body { min-height: 0; padding: 0; background: #fff; } main { width: 100%; min-height: 0; padding: 0; border: 0; } .print-button { display: none; } }
                 </style>
             </head>
             <body>

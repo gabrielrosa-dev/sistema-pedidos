@@ -26,7 +26,7 @@
 .admin-message.is-success { color: #166534; }
 .admin-dashboard-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
 .admin-dashboard-heading .admin-intro { margin: 0; }
-.admin-user-area { display: flex; align-items: center; gap: 12px; color: #475569; font-size: .86rem; font-weight: 800; }
+.admin-user-area { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; color: #475569; font-size: .86rem; font-weight: 800; }
 .admin-filters { display: grid; grid-template-columns: 1fr 1fr minmax(220px, 2fr) auto auto; align-items: end; gap: 12px; margin-bottom: 18px; padding: 17px; border: 1px solid #e0e7f1; border-radius: 14px; background: #fff; box-shadow: 0 8px 24px rgba(15,23,42,.04); }
 .admin-filters label { min-width: 0; }
 .admin-filters input { display: block; margin: 6px 0 0; }

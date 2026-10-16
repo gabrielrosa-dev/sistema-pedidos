@@ -56,37 +56,6 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .search-field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.12); }
 .search-field span { font-size: 1.5rem; line-height: 1; transform: rotate(-20deg); }
 .search-field input { width: 100%; padding: 13px 0; border: 0; outline: 0; color: var(--ink); background: transparent; }
-.catalog-pdf-links {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-    gap: 8px;
-    margin-top: 8px;
-    margin-bottom: 0;
-}
-.catalog-pdf-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: auto;
-    min-width: 120px;
-    padding: 9px 12px;
-    border: 1px solid rgba(47, 111, 237, 0.14);
-    border-radius: 10px;
-    background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
-    color: var(--accent-dark);
-    text-decoration: none;
-    font-size: 0.76rem;
-    font-weight: 800;
-    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.catalog-pdf-link:hover {
-    border-color: rgba(47, 111, 237, 0.35);
-    background: var(--accent-soft);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(47, 111, 237, 0.08);
-}
 .category-filters { display: flex; gap: 10px; margin-top: 14px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; }
 .category-filter {
     display: inline-flex;
@@ -158,61 +127,6 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 @keyframes install-banner-enter {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-.catalog-desktop-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin: 12px 0 10px;
-}
-.desktop-download-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 16px;
-    border: 1px solid rgba(47, 111, 237, 0.18);
-    border-radius: 10px;
-    background: linear-gradient(180deg, #ffffff 0%, #eef4ff 100%);
-    color: var(--accent-dark);
-    text-decoration: none;
-    font-size: 0.8rem;
-    font-weight: 800;
-    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
-}
-.desktop-download-link:hover {
-    background: var(--accent-soft);
-}
-
-.catalog-pdf-links {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 8px;
-    margin-top: 12px;
-    margin-bottom: 8px;
-}
-.catalog-pdf-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-width: 120px;
-    padding: 9px 12px;
-    border: 1px solid rgba(47, 111, 237, 0.14);
-    border-radius: 10px;
-    background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
-    color: var(--accent-dark);
-    text-decoration: none;
-    font-size: 0.76rem;
-    font-weight: 800;
-    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.catalog-pdf-link:hover {
-    border-color: rgba(47, 111, 237, 0.35);
-    background: var(--accent-soft);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(47, 111, 237, 0.08);
 }
 
 .product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -345,7 +259,6 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
     .catalog-toolbar-top { flex-direction: column; align-items: stretch; }
     .toolbar-heading { justify-content: space-between; }
     .search-row { flex-direction: column; align-items: stretch; }
-    .catalog-pdf-links { justify-content: flex-end; }
     .checkout-box { padding: 12px 16px; }
     .checkout-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; gap: 8px 12px; margin-bottom: 8px; }
     .checkout-field label, .payment-field label { margin-bottom: 4px; font-size: 0.72rem; }

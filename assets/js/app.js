@@ -444,12 +444,16 @@ const appInstallBannerEl = document.getElementById('app-install-banner');
 const installAppButtonEl = document.getElementById('install-app-button');
 const dismissInstallButtonEl = document.getElementById('dismiss-install-button');
 let deferredInstallPrompt = null;
-const installDismissedKey = 'run-training-install-dismissed-v2';
+const installDismissedKey = 'run-training-install-dismissed';
+const appInstalledKey = 'run-training-app-installed';
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
 function showInstallNotification() {
-    if (!appInstallBannerEl) return;
+    if (!appInstallBannerEl
+        || isStandalone
+        || localStorage.getItem(appInstalledKey)
+        || sessionStorage.getItem(installDismissedKey)) return;
     appInstallBannerEl.hidden = false;
 
     const copyEl = appInstallBannerEl.querySelector('.app-install-copy span');
@@ -470,16 +474,17 @@ function showInstallNotification() {
 
 function hideInstallNotification(savePreference = false) {
     if (appInstallBannerEl) appInstallBannerEl.hidden = true;
-    if (savePreference) localStorage.setItem(installDismissedKey, 'true');
+    if (savePreference) sessionStorage.setItem(installDismissedKey, 'true');
 }
 
 window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();
     deferredInstallPrompt = event;
-    if (!isStandalone && !localStorage.getItem(installDismissedKey)) showInstallNotification();
+    showInstallNotification();
 });
 
 window.addEventListener('appinstalled', () => {
+    localStorage.setItem(appInstalledKey, 'true');
     hideInstallNotification();
 });
 
@@ -495,15 +500,14 @@ installAppButtonEl?.addEventListener('click', async () => {
         return;
     }
 
-    deferredInstallPrompt.prompt();
-    const { outcome } = await deferredInstallPrompt.userChoice;
-    if (outcome === 'accepted') hideInstallNotification();
+    const installPrompt = deferredInstallPrompt;
     deferredInstallPrompt = null;
+    await installPrompt.prompt();
 });
 
 dismissInstallButtonEl?.addEventListener('click', () => hideInstallNotification(true));
 
-if (!isStandalone && !localStorage.getItem(installDismissedKey) && appInstallBannerEl) {
+if (!isStandalone && !localStorage.getItem(appInstalledKey) && appInstallBannerEl) {
     showInstallNotification();
 }
 
@@ -1246,7 +1250,7 @@ async function enviarPedido() {
         alert('O WhatsApp deste link ainda não foi configurado.');
         return;
     }
-    const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
+    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
 
     const salesRecord = {
         seller_key: new URLSearchParams(window.location.search).get('destino') === 'vanderson' ? 'vanderson' : 'gabriel',
@@ -1261,7 +1265,6 @@ async function enviarPedido() {
         }))
     };
 
-    const whatsappWindow = window.open(url, '_blank');
     window.enviandoPedido = true;
     let saleSaved = false;
 
@@ -1274,32 +1277,16 @@ async function enviarPedido() {
         saleSaved = true;
     } catch (error) {
         const message = error && error.message ? error.message : 'Erro desconhecido ao salvar o pedido.';
-        const notice = whatsappWindow
-            ? 'O pedido foi aberto no WhatsApp, mas não foi registrado no histórico'
-            : 'O pedido não foi registrado no histórico; o WhatsApp será aberto nesta aba';
-        alert(`${notice}: ${message}`);
+        alert(`O pedido não foi registrado no histórico; o WhatsApp será aberto nesta aba: ${message}`);
     } finally {
         window.enviandoPedido = false;
     }
 
-    if (!whatsappWindow) window.location.href = url;
     if (saleSaved) limparPedido();
+    window.location.href = url;
 }
 
 if (viewOrderButtonEl) viewOrderButtonEl.addEventListener('click', abrirPedido);
-
-document.getElementById('desktop-download-button')?.addEventListener('click', () => {
-    const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Run Training - Catálogo de pedidos</title></head><body>${document.body.innerHTML}</body></html>`;
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'run-training-catalogo.html';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-});
 
 document.querySelectorAll('[data-close-order]').forEach(element => {
     element.addEventListener('click', fecharPedido);
