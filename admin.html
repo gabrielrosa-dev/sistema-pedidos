@@ -100,11 +100,69 @@
                 <button class="admin-secondary-button" id="next-page-button" type="button">Próxima →</button>
             </nav>
             <p class="admin-disclaimer">Os pedidos são registrados quando enviados pelo catálogo ao WhatsApp. A data exibida é a do envio, não uma confirmação de pagamento.</p>
+
+            <section class="admin-inventory" aria-labelledby="inventory-title">
+                <div class="admin-section-heading">
+                    <div>
+                        <p class="eyebrow">Catálogo</p>
+                        <h2 id="inventory-title">Disponibilidade dos produtos</h2>
+                        <p class="admin-intro">Altere a disponibilidade e cadastre o preço dos produtos que ainda não têm valor no catálogo.</p>
+                    </div>
+                    <div class="inventory-summary" id="inventory-summary" aria-live="polite"></div>
+                </div>
+                <div class="inventory-toolbar">
+                    <label class="inventory-search">
+                        Buscar produto
+                        <input id="inventory-search" type="search" placeholder="Digite o nome do produto..." autocomplete="off">
+                    </label>
+                    <label class="inventory-filter">
+                        Exibir
+                        <select id="inventory-filter">
+                            <option value="all">Todos os produtos</option>
+                            <option value="available">Disponíveis</option>
+                            <option value="unavailable">Indisponíveis</option>
+                        </select>
+                    </label>
+                </div>
+                <p class="admin-message" id="inventory-message" role="status"></p>
+                <div class="inventory-list" id="inventory-list" role="list"></div>
+                <p class="admin-empty-state" id="inventory-empty-state" hidden>Nenhum produto encontrado. Abra o catálogo para sincronizar a lista de produtos.</p>
+            </section>
+
+            <section class="admin-catalog-import" aria-labelledby="catalog-import-title">
+                <div class="admin-section-heading">
+                    <div>
+                        <p class="eyebrow">Atualização em lote</p>
+                        <h2 id="catalog-import-title">Importar lista de produtos em PDF</h2>
+                        <p class="admin-intro">Atualize nomes e preços, inclua produtos novos e remova os que não estiverem na lista.</p>
+                    </div>
+                </div>
+                <form id="catalog-import-form" class="catalog-import-form">
+                    <label for="catalog-import-file">Arquivo PDF</label>
+                    <div class="catalog-import-controls">
+                        <input id="catalog-import-file" type="file" accept="application/pdf,.pdf" required>
+                        <button class="admin-primary-button" id="catalog-import-analyze" type="submit">Analisar lista</button>
+                    </div>
+                </form>
+                <p class="catalog-import-warning">A importação substitui o catálogo atual. Produtos ausentes no PDF serão excluídos; confira a prévia antes de confirmar.</p>
+                <p class="admin-message" id="catalog-import-message" role="status"></p>
+                <div class="catalog-import-preview" id="catalog-import-preview" hidden>
+                    <h3 id="catalog-import-filename"></h3>
+                    <div class="catalog-import-summary" id="catalog-import-summary"></div>
+                    <div class="catalog-import-lists" id="catalog-import-lists"></div>
+                    <label class="catalog-import-confirmation">
+                        <input id="catalog-import-delete-confirmation" type="checkbox">
+                        Entendo que produtos ausentes nesta lista serão removidos do catálogo.
+                    </label>
+                    <button class="admin-danger-button" id="catalog-import-confirm" type="button" disabled>Confirmar importação</button>
+                </div>
+            </section>
         </section>
     </main>
 
     <script src="assets/js/sheets-config.js"></script>
     <script src="assets/js/sheets-client.js"></script>
+    <script src="assets/js/catalog-data.js"></script>
     <script src="assets/js/admin.js"></script>
 </body>
 </html>

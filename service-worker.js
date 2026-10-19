@@ -1,4 +1,4 @@
-const CACHE_NAME = 'run-training-v13';
+const CACHE_NAME = 'run-training-v17';
 const APP_SHELL = [
     './',
     './index.html',
@@ -6,6 +6,7 @@ const APP_SHELL = [
     './assets/css/style.css',
     './assets/css/admin.css',
     './assets/js/app.js',
+    './assets/js/catalog-data.js',
     './assets/js/admin.js',
     './assets/js/sheets-config.js',
     './assets/js/sheets-client.js',

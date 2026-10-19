@@ -1,4 +1,9 @@
 const SALES_SHEET_NAME = 'Vendas';
+const AVAILABILITY_SHEET_NAME = 'Disponibilidade';
+const LEGACY_AVAILABILITY_SHEET_NAME = 'Produtos';
+const AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço'];
+const LEGACY_AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível'];
+const CATALOG_IMPORT_ACTIVE_PROPERTY = 'CATALOG_IMPORT_ACTIVE';
 const SALES_HEADERS = [
     'ID',
     'Administrador',
@@ -119,9 +124,241 @@ function handleRequest(operation, payload) {
             return updateSaleTotal(payload);
         case 'deleteSale':
             return deleteSale(payload);
+        case 'syncAvailability':
+            return syncAvailability(payload.products);
+        case 'availability':
+            return listAvailability(payload.token);
+        case 'updateProductAvailability':
+            return updateProductAvailability(payload);
+        case 'importCatalog':
+            return importCatalog(payload);
         default:
             throw new Error('Operação desconhecida.');
     }
+}
+
+function syncAvailability(products) {
+    if (!Array.isArray(products) || products.length > 1000) {
+        throw new Error('A lista de produtos enviada pelo catálogo é inválida.');
+    }
+
+    const normalizedProducts = products.map(product => {
+        const id = Number(product.id);
+        const name = String(product.name || '').trim();
+        if (!Number.isSafeInteger(id) || id < 1 || !name || name.length > 250) {
+            throw new Error('A lista de produtos contém dados inválidos.');
+        }
+        return {
+            id: id,
+            name: name,
+            forceUnavailable: product.forceUnavailable === true
+        };
+    });
+    if (new Set(normalizedProducts.map(product => product.id)).size !== normalizedProducts.length) {
+        throw new Error('A lista de produtos contém identificadores repetidos.');
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+        const sheet = getAvailabilitySheet();
+        const lastRow = sheet.getLastRow();
+        const existingRows = lastRow > 1
+            ? sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).getValues()
+            : [];
+        const rowById = new Map(existingRows.map(row => [Number(row[0]), {
+            name: String(row[1] || ''),
+            available: row[2] !== false,
+            price: normalizeAvailabilityPrice(row[3])
+        }]));
+        const importedCatalogActive = PropertiesService.getScriptProperties()
+            .getProperty(CATALOG_IMPORT_ACTIVE_PROPERTY) === 'true';
+        const rows = [];
+        normalizedProducts.forEach(product => {
+            const existing = rowById.get(product.id);
+            if (importedCatalogActive && !existing) return;
+            rowById.delete(product.id);
+            const price = existing ? existing.price : null;
+            const available = product.forceUnavailable && price === null
+                ? false
+                : existing ? existing.available : true;
+            rows.push([
+                product.id,
+                importedCatalogActive && existing.name ? existing.name : product.name,
+                available,
+                price
+            ]);
+        });
+        existingRows.forEach(row => {
+            const id = Number(row[0]);
+            if (rowById.has(id)) {
+                rows.push([id, String(row[1]), row[2] !== false, normalizeAvailabilityPrice(row[3])]);
+                rowById.delete(id);
+            }
+        });
+
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).clearContent();
+        if (rows.length) sheet.getRange(2, 1, rows.length, AVAILABILITY_HEADERS.length).setValues(rows);
+        return {
+            availability: Object.fromEntries(rows.map(row => [String(row[0]), row[2]])),
+            prices: Object.fromEntries(rows.filter(row => row[3] !== null).map(row => [String(row[0]), row[3]])),
+            catalog: rows.map(row => ({
+                id: row[0],
+                name: row[1],
+                available: row[2],
+                price: normalizeAvailabilityPrice(row[3])
+            })),
+            imported: importedCatalogActive
+        };
+    } finally {
+        lock.releaseLock();
+    }
+}
+
+function importCatalog(payload) {
+    getSessionAdminKey(payload.token);
+    if (!Array.isArray(payload.products) || payload.products.length === 0 || payload.products.length > 900) {
+        throw new Error('A lista importada está vazia ou excede o limite de produtos.');
+    }
+
+    const products = payload.products.map(product => {
+        const id = Number(product.id);
+        const name = String(product.name || '').trim();
+        const price = Number(product.price);
+        if (!Number.isSafeInteger(id) || id < 1 || !name || name.length > 250
+            || !Number.isFinite(price) || price <= 0 || price > 1000000000
+            || typeof product.available !== 'boolean') {
+            throw new Error('A lista importada contém produto, preço ou disponibilidade inválidos.');
+        }
+        return {
+            id: id,
+            name: name,
+            available: product.available,
+            price: Math.round((price + Number.EPSILON) * 100) / 100
+        };
+    });
+    if (new Set(products.map(product => product.id)).size !== products.length) {
+        throw new Error('A lista importada contém códigos de produto repetidos.');
+    }
+    const normalizedNames = products.map(product => product.name
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, ''));
+    if (new Set(normalizedNames).size !== products.length) {
+        throw new Error('A lista importada contém produtos com nomes repetidos.');
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+        const sheet = getAvailabilitySheet();
+        const rows = products.map(product => [
+            product.id,
+            product.name,
+            product.available,
+            product.price
+        ]);
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).clearContent();
+        sheet.getRange(2, 1, rows.length, AVAILABILITY_HEADERS.length).setValues(rows);
+        PropertiesService.getScriptProperties().setProperty(CATALOG_IMPORT_ACTIVE_PROPERTY, 'true');
+    } finally {
+        lock.releaseLock();
+    }
+    return { importedCount: products.length };
+}
+
+function listAvailability(token) {
+    getSessionAdminKey(token);
+    const sheet = getAvailabilitySheet();
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) return [];
+    return sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).getValues()
+        .filter(row => Number.isSafeInteger(Number(row[0])) && String(row[1]).trim())
+        .map(row => ({
+            id: Number(row[0]),
+            name: String(row[1]),
+            available: row[2] !== false,
+            price: normalizeAvailabilityPrice(row[3])
+        }))
+        .sort((first, second) => first.name.localeCompare(second.name, 'pt-BR'));
+}
+
+function updateProductAvailability(payload) {
+    getSessionAdminKey(payload.token);
+    const productId = Number(payload.productId);
+    if (!Number.isSafeInteger(productId) || productId < 1 || typeof payload.available !== 'boolean') {
+        throw new Error('A disponibilidade informada é inválida.');
+    }
+    const priceProvided = payload.price !== undefined && payload.price !== null && String(payload.price).trim() !== '';
+    const submittedPrice = priceProvided ? Number(payload.price) : null;
+    const price = submittedPrice === null
+        ? null
+        : Math.round((submittedPrice + Number.EPSILON) * 100) / 100;
+    if (priceProvided && (!Number.isFinite(price) || price <= 0 || price > 1000000000)) {
+        throw new Error('Informe um preço válido maior que zero.');
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+        const sheet = getAvailabilitySheet();
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) throw new Error('O catálogo ainda não foi sincronizado.');
+        const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+        const rowIndex = ids.findIndex(row => Number(row[0]) === productId);
+        if (rowIndex === -1) throw new Error('O produto não foi encontrado. Atualize o catálogo e tente novamente.');
+        const rowNumber = rowIndex + 2;
+        const currentPrice = normalizeAvailabilityPrice(sheet.getRange(rowNumber, 4).getValues()[0][0]);
+        const savedPrice = priceProvided ? price : currentPrice;
+        if (payload.available && savedPrice === null) {
+            throw new Error('Informe e salve um preço antes de marcar o produto como disponível.');
+        }
+        sheet.getRange(rowNumber, 3, 1, 2).setValues([[
+            payload.available,
+            priceProvided ? price : currentPrice
+        ]]);
+        return { productId: productId, available: payload.available, price: savedPrice };
+    } finally {
+        lock.releaseLock();
+    }
+}
+
+function getAvailabilitySheet() {
+    const spreadsheetId = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
+    if (!spreadsheetId) throw new Error('Configure primeiro a planilha de vendas.');
+    const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+    let sheet = spreadsheet.getSheetByName(AVAILABILITY_SHEET_NAME);
+    if (!sheet) {
+        sheet = spreadsheet.getSheetByName(LEGACY_AVAILABILITY_SHEET_NAME);
+        if (sheet) {
+            sheet.setName(AVAILABILITY_SHEET_NAME);
+        } else {
+            sheet = spreadsheet.insertSheet(AVAILABILITY_SHEET_NAME);
+        }
+    }
+    if (sheet.getLastRow() === 0) {
+        sheet.getRange(1, 1, 1, AVAILABILITY_HEADERS.length).setValues([AVAILABILITY_HEADERS]);
+        sheet.setFrozenRows(1);
+        sheet.autoResizeColumns(1, AVAILABILITY_HEADERS.length);
+    } else {
+        const headers = sheet.getRange(1, 1, 1, AVAILABILITY_HEADERS.length).getDisplayValues()[0];
+        const hasCurrentHeaders = AVAILABILITY_HEADERS.every((header, index) => headers[index] === header);
+        const hasLegacyHeaders = LEGACY_AVAILABILITY_HEADERS.every((header, index) => headers[index] === header);
+        if (hasLegacyHeaders && !headers[3]) {
+            sheet.getRange(1, 4).setValue(AVAILABILITY_HEADERS[3]);
+        } else if (!hasCurrentHeaders) {
+            throw new Error('Os cabeçalhos da aba Disponibilidade não correspondem ao formato esperado.');
+        }
+    }
+    return sheet;
+}
+
+function normalizeAvailabilityPrice(value) {
+    if (value === null || value === undefined || String(value).trim() === '') return null;
+    const price = Number(value);
+    return Number.isFinite(price) && price > 0 ? Math.round((price + Number.EPSILON) * 100) / 100 : null;
 }
 
 function loginAdmin(payload) {
@@ -331,9 +568,6 @@ function ensureSalesSheetSchema(sheet) {
 
     sheet.getRange(1, 1, 1, SALES_HEADERS.length).setValues([SALES_HEADERS]);
     sheet.setFrozenRows(1);
-    sheet.getRange('C:C').setNumberFormat('@');
-    sheet.getRange('D:D').setNumberFormat('dd/mm/yyyy hh:mm');
-    sheet.getRange('E:F').setNumberFormat('"R$" #,##0.00');
     sheet.autoResizeColumns(1, SALES_HEADERS.length);
 }
 

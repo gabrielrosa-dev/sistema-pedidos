@@ -87,6 +87,8 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 }
 .category-filter.is-active span { color: #fff; }
 .catalog-hint { margin: 10px 0 0; color: var(--muted); font-size: 0.82rem; }
+.stock-sync-message { margin-top: 14px; margin-bottom: 0; color: var(--muted); font-size: .82rem; }
+.stock-sync-message.is-error { color: #b91c1c; }
 
 .app-install-banner {
     position: sticky;

@@ -93,6 +93,18 @@
             page,
             pageSize
         }),
+        syncProductAvailability: products => request('syncAvailability', { products }),
+        importCatalog: products => request('importCatalog', {
+            token: getToken(),
+            products
+        }),
+        fetchAvailability: () => request('availability', { token: getToken() }),
+        updateProductAvailability: (productId, available, price) => request('updateProductAvailability', {
+            token: getToken(),
+            productId,
+            available,
+            price
+        }),
         updateSaleTotal: (saleId, total) => request('updateSaleTotal', {
             token: getToken(),
             saleId,

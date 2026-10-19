@@ -8,10 +8,23 @@
     const filterForm = document.getElementById('sales-filter-form');
     const tableBody = document.getElementById('sales-table-body');
     const emptyState = document.getElementById('sales-empty-state');
+    const inventoryList = document.getElementById('inventory-list');
+    const inventoryMessage = document.getElementById('inventory-message');
+    const inventoryEmptyState = document.getElementById('inventory-empty-state');
+    const inventorySearch = document.getElementById('inventory-search');
+    const inventoryFilter = document.getElementById('inventory-filter');
+    const catalogImportForm = document.getElementById('catalog-import-form');
+    const catalogImportFile = document.getElementById('catalog-import-file');
+    const catalogImportPreview = document.getElementById('catalog-import-preview');
+    const catalogImportConfirmation = document.getElementById('catalog-import-delete-confirmation');
+    const catalogImportConfirmButton = document.getElementById('catalog-import-confirm');
     const pageSize = 30;
     const sheets = window.runTrainingSheets;
     let currentPage = 0;
     let resultCount = 0;
+    let inventoryProducts = [];
+    let catalogImportPlan = null;
+    let importedCatalogActive = false;
 
     function setMessage(element, message, isError) {
         element.textContent = message;
@@ -195,8 +208,376 @@
         loginPanel.hidden = true;
         dashboard.hidden = false;
         document.getElementById('admin-display-name').textContent = profile.displayName;
+        loadInventory();
         loadSales();
     }
+
+    async function loadInventory() {
+        inventoryList.replaceChildren();
+        inventoryEmptyState.hidden = true;
+        setMessage(inventoryMessage, 'Carregando produtos...', false);
+        try {
+            const catalogProducts = window.RUN_TRAINING_CATALOG.products
+                .filter(product => !window.RUN_TRAINING_CATALOG.hiddenCatalogProductIds.has(product.id))
+                .map(product => ({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image,
+                    forceUnavailable: product.price == null
+                }));
+            const result = await sheets.syncProductAvailability(catalogProducts);
+            importedCatalogActive = result.imported === true;
+            if (importedCatalogActive) {
+                const productsById = new Map(catalogProducts.map(product => [product.id, product]));
+                inventoryProducts = result.catalog.map(product => {
+                    const original = productsById.get(Number(product.id));
+                    const price = Number(product.price);
+                    const hasPrice = Number.isFinite(price) && price > 0;
+                    return {
+                        id: Number(product.id),
+                        name: product.name,
+                        image: original ? original.image : 'assets/images/branding/logo.png.jpg',
+                        price: hasPrice ? price : null,
+                        catalogPrice: hasPrice ? price : null,
+                        hasPrice,
+                        available: product.available === true
+                    };
+                });
+            } else {
+                inventoryProducts = catalogProducts.map(product => {
+                    const override = Number(result.prices[String(product.id)]);
+                    const price = Number.isFinite(override) && override > 0 ? override : product.price;
+                    const hasPrice = Number.isFinite(Number(price)) && Number(price) > 0;
+                    return {
+                        ...product,
+                        price: hasPrice ? Number(price) : null,
+                        catalogPrice: hasPrice ? Number(price) : null,
+                        hasPrice,
+                        available: result.availability[String(product.id)] !== false
+                    };
+                });
+            }
+            renderInventory();
+            setMessage(inventoryMessage, '', false);
+        } catch (error) {
+            setMessage(inventoryMessage, `Não foi possível carregar os produtos: ${error.message}`, true);
+        }
+    }
+
+    function renderInventory() {
+        const search = inventorySearch.value.trim().toLocaleLowerCase('pt-BR');
+        const filter = inventoryFilter.value;
+        const filteredProducts = inventoryProducts.filter(product => {
+            const matchesSearch = product.name.toLocaleLowerCase('pt-BR').includes(search);
+            const matchesFilter = filter === 'all'
+                || (filter === 'available' && product.available)
+                || (filter === 'unavailable' && !product.available);
+            return matchesSearch && matchesFilter;
+        });
+        const availableCount = inventoryProducts.filter(product => product.available).length;
+        const unavailableCount = inventoryProducts.length - availableCount;
+        const summary = document.getElementById('inventory-summary');
+        summary.replaceChildren();
+        [
+            { label: `${availableCount} disponíveis`, className: 'inventory-count' },
+            { label: `${unavailableCount} indisponíveis`, className: 'inventory-count inventory-count--unavailable' }
+        ].forEach(item => {
+            const badge = document.createElement('span');
+            badge.className = item.className;
+            badge.textContent = item.label;
+            summary.appendChild(badge);
+        });
+
+        inventoryList.replaceChildren();
+        filteredProducts.forEach(product => {
+            const row = document.createElement('article');
+            row.className = 'inventory-product';
+            row.setAttribute('role', 'listitem');
+
+            const info = document.createElement('div');
+            info.className = 'inventory-product-info';
+            const name = document.createElement('strong');
+            name.className = 'inventory-product-name';
+            name.textContent = product.name;
+            const id = document.createElement('span');
+            id.className = 'inventory-product-id';
+            id.textContent = `Código ${product.id}`;
+            info.append(name, id);
+
+            const actions = document.createElement('div');
+            actions.className = 'inventory-product-actions';
+            if (product.catalogPrice == null) {
+                const priceField = document.createElement('label');
+                priceField.className = 'inventory-price-field';
+                priceField.textContent = 'Preço';
+                const priceInput = document.createElement('input');
+                priceInput.type = 'number';
+                priceInput.min = '0.01';
+                priceInput.step = '0.01';
+                priceInput.inputMode = 'decimal';
+                priceInput.placeholder = '0,00';
+                priceInput.value = product.hasPrice ? product.price.toFixed(2) : '';
+                priceInput.setAttribute('aria-label', `Preço de ${product.name}`);
+                priceField.appendChild(priceInput);
+                actions.appendChild(priceField);
+
+                const savePriceButton = document.createElement('button');
+                savePriceButton.type = 'button';
+                savePriceButton.className = 'admin-primary-button inventory-toggle';
+                savePriceButton.textContent = product.hasPrice ? 'Salvar preço' : 'Salvar preço e ativar';
+                savePriceButton.addEventListener('click', () => saveProductPrice(product, priceInput, savePriceButton));
+                actions.appendChild(savePriceButton);
+            }
+
+            const status = document.createElement('span');
+            status.className = `inventory-status${product.available ? '' : ' inventory-status--unavailable'}`;
+            status.textContent = product.available ? 'Disponível' : 'Indisponível';
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = `admin-secondary-button inventory-toggle${product.available ? ' inventory-toggle--unavailable' : ''}`;
+            toggle.textContent = product.available ? 'Marcar indisponível' : 'Marcar disponível';
+            toggle.disabled = !product.hasPrice;
+            if (product.hasPrice) toggle.addEventListener('click', () => updateInventoryProduct(product, toggle));
+            actions.append(status, toggle);
+            row.append(info, actions);
+            inventoryList.appendChild(row);
+        });
+        inventoryEmptyState.hidden = filteredProducts.length > 0;
+    }
+
+    async function updateInventoryProduct(product, button) {
+        const nextAvailability = !product.available;
+        button.disabled = true;
+        setMessage(inventoryMessage, 'Salvando disponibilidade...', false);
+        try {
+            await sheets.updateProductAvailability(product.id, nextAvailability);
+            product.available = nextAvailability;
+            renderInventory();
+            setMessage(inventoryMessage, `${product.name}: ${nextAvailability ? 'disponível' : 'indisponível'}.`, false);
+        } catch (error) {
+            button.disabled = false;
+            setMessage(inventoryMessage, `Não foi possível atualizar ${product.name}: ${error.message}`, true);
+        }
+    }
+
+    async function saveProductPrice(product, input, button) {
+        const price = Number(input.value.replace(',', '.'));
+        if (!Number.isFinite(price) || price <= 0) {
+            setMessage(inventoryMessage, `Informe um preço válido para ${product.name}.`, true);
+            input.focus();
+            return;
+        }
+
+        const shouldActivate = !product.hasPrice;
+        button.disabled = true;
+        setMessage(inventoryMessage, 'Salvando preço...', false);
+        try {
+            const result = await sheets.updateProductAvailability(
+                product.id,
+                shouldActivate ? true : product.available,
+                price
+            );
+            product.price = result.price;
+            product.catalogPrice = result.price;
+            product.hasPrice = true;
+            product.available = result.available;
+            renderInventory();
+            setMessage(
+                inventoryMessage,
+                `${product.name}: preço ${formatMoney(result.price)} salvo${shouldActivate ? ' e produto ativado' : ''}.`,
+                false
+            );
+        } catch (error) {
+            button.disabled = false;
+            setMessage(inventoryMessage, `Não foi possível salvar o preço de ${product.name}: ${error.message}`, true);
+        }
+    }
+
+    function normalizeCatalogName(name) {
+        return String(name)
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLocaleLowerCase('pt-BR')
+            .replace(/[^a-z0-9]/g, '');
+    }
+
+    function buildCatalogImportPlan(pdfProducts) {
+        const byName = new Map();
+        inventoryProducts.forEach(product => {
+            const key = normalizeCatalogName(product.name);
+            if (byName.has(key)) {
+                throw new Error(`Há mais de um produto atual com o nome "${product.name}". Resolva a duplicidade antes de importar.`);
+            }
+            byName.set(key, product);
+        });
+
+        const uniqueProducts = new Map();
+        let duplicateCount = 0;
+        pdfProducts.forEach(product => {
+            const key = normalizeCatalogName(product.name);
+            const previous = uniqueProducts.get(key);
+            if (previous) {
+                if (previous.price !== product.price) {
+                    throw new Error(`O produto "${product.name}" aparece mais de uma vez no PDF com preços diferentes.`);
+                }
+                duplicateCount += 1;
+                return;
+            }
+            uniqueProducts.set(key, product);
+        });
+
+        const usedIds = new Set();
+        let nextId = Math.max(
+            0,
+            ...window.RUN_TRAINING_CATALOG.products.map(product => Number(product.id) || 0),
+            ...inventoryProducts.map(product => Number(product.id) || 0)
+        ) + 1;
+        const products = [...uniqueProducts.entries()].map(([key, product]) => {
+            const existing = byName.get(key);
+            if (existing) usedIds.add(existing.id);
+            const hasExistingPrice = existing && existing.hasPrice;
+            return {
+                id: existing ? existing.id : nextId++,
+                name: product.name,
+                price: product.price,
+                available: existing ? (hasExistingPrice ? existing.available : true) : true,
+                image: existing && existing.image ? existing.image : 'assets/images/branding/logo.png.jpg',
+                catalogPrice: product.price,
+                hasPrice: true,
+                previousName: existing ? existing.name : '',
+                previousPrice: existing && existing.hasPrice ? existing.price : null,
+                isNew: !existing
+            };
+        });
+        const removed = inventoryProducts.filter(product => !usedIds.has(product.id));
+        const changed = products.filter(product => !product.isNew
+            && (product.name !== product.previousName || product.price !== product.previousPrice));
+        return { products, removed, changed, duplicateCount };
+    }
+
+    function appendImportList(container, title, items, getText, className) {
+        if (!items.length) return;
+        const details = document.createElement('details');
+        const summary = document.createElement('summary');
+        summary.textContent = `${title} (${items.length})`;
+        const list = document.createElement('ul');
+        items.forEach(item => {
+            const row = document.createElement('li');
+            row.textContent = getText(item);
+            list.appendChild(row);
+        });
+        if (className) details.className = className;
+        details.append(summary, list);
+        container.appendChild(details);
+    }
+
+    function renderCatalogImportPreview(fileName, plan) {
+        document.getElementById('catalog-import-filename').textContent = fileName;
+        const summary = document.getElementById('catalog-import-summary');
+        summary.replaceChildren();
+        [
+            { label: `${plan.products.length} produtos na nova lista`, className: 'catalog-import-count' },
+            { label: `${plan.changed.length} produtos com nome ou preço alterado`, className: 'catalog-import-count' },
+            { label: `${plan.products.filter(product => product.isNew).length} novos produtos`, className: 'catalog-import-count catalog-import-count--added' },
+            { label: `${plan.removed.length} produtos serão removidos`, className: 'catalog-import-count catalog-import-count--removed' }
+        ].forEach(item => {
+            const badge = document.createElement('span');
+            badge.className = item.className;
+            badge.textContent = item.label;
+            summary.appendChild(badge);
+        });
+        if (plan.duplicateCount) {
+            const note = document.createElement('p');
+            note.className = 'admin-message';
+            note.textContent = `${plan.duplicateCount} repetição(ões) idêntica(s) no PDF será(ão) ignorada(s).`;
+            summary.appendChild(note);
+        }
+
+        const lists = document.getElementById('catalog-import-lists');
+        lists.replaceChildren();
+        appendImportList(
+            lists,
+            'Alterados',
+            plan.changed,
+            product => `${product.previousName} → ${product.name} · ${formatMoney(product.previousPrice || 0)} → ${formatMoney(product.price)}`
+        );
+        appendImportList(
+            lists,
+            'Novos',
+            plan.products.filter(product => product.isNew),
+            product => `${product.name} · ${formatMoney(product.price)}`
+        );
+        appendImportList(lists, 'Removidos', plan.removed, product => product.name, 'catalog-import-list--removed');
+        catalogImportPreview.hidden = false;
+        catalogImportConfirmation.checked = false;
+        catalogImportConfirmButton.disabled = true;
+    }
+
+    catalogImportFile.addEventListener('change', () => {
+        catalogImportPlan = null;
+        catalogImportPreview.hidden = true;
+        catalogImportConfirmation.checked = false;
+        setMessage(document.getElementById('catalog-import-message'), '', false);
+    });
+
+    catalogImportForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const file = catalogImportFile.files[0];
+        if (!file) {
+            setMessage(document.getElementById('catalog-import-message'), 'Selecione um arquivo PDF.', true);
+            return;
+        }
+        const analyzeButton = document.getElementById('catalog-import-analyze');
+        analyzeButton.disabled = true;
+        catalogImportPlan = null;
+        catalogImportPreview.hidden = true;
+        catalogImportConfirmation.checked = false;
+        catalogImportConfirmButton.disabled = true;
+        setMessage(document.getElementById('catalog-import-message'), 'Lendo e validando o PDF...', false);
+        try {
+            const { extractCatalogPdf } = await import('./catalog-import.js');
+            const products = await extractCatalogPdf(file);
+            catalogImportPlan = buildCatalogImportPlan(products);
+            renderCatalogImportPreview(file.name, catalogImportPlan);
+            setMessage(document.getElementById('catalog-import-message'), 'Confira os produtos alterados, novos e removidos antes de confirmar.', false);
+        } catch (error) {
+            setMessage(document.getElementById('catalog-import-message'), `Não foi possível analisar o PDF: ${error.message}`, true);
+        } finally {
+            analyzeButton.disabled = false;
+        }
+    });
+
+    catalogImportConfirmation.addEventListener('change', () => {
+        catalogImportConfirmButton.disabled = !catalogImportConfirmation.checked || !catalogImportPlan;
+    });
+
+    catalogImportConfirmButton.addEventListener('click', async () => {
+        if (!catalogImportPlan || !catalogImportConfirmation.checked) return;
+        const plan = catalogImportPlan;
+        catalogImportConfirmButton.disabled = true;
+        setMessage(document.getElementById('catalog-import-message'), 'Salvando o novo catálogo...', false);
+        try {
+            const result = await sheets.importCatalog(plan.products.map(product => ({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                available: product.available
+            })));
+            catalogImportPlan = null;
+            catalogImportPreview.hidden = true;
+            catalogImportForm.reset();
+            await loadInventory();
+            setMessage(
+                document.getElementById('catalog-import-message'),
+                `Catálogo atualizado: ${Number(result.importedCount).toLocaleString('pt-BR')} produtos importados.`,
+                false
+            );
+        } catch (error) {
+            setMessage(document.getElementById('catalog-import-message'), `Não foi possível importar o catálogo: ${error.message}`, true);
+            catalogImportConfirmButton.disabled = false;
+        }
+    });
 
     async function loadSales() {
         setMessage(dataMessage, 'Carregando vendas...', false);
@@ -284,6 +665,9 @@
         currentPage = 0;
         loadSales();
     });
+
+    inventorySearch.addEventListener('input', renderInventory);
+    inventoryFilter.addEventListener('change', renderInventory);
 
     document.getElementById('clear-filters-button').addEventListener('click', () => {
         filterForm.reset();
