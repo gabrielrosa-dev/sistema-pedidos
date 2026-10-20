@@ -1,4 +1,4 @@
-const CACHE_NAME = 'run-training-v17';
+const CACHE_NAME = 'run-training-v18';
 const APP_SHELL = [
     './',
     './index.html',

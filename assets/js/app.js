@@ -938,12 +938,16 @@ async function enviarPedido() {
         alert('O WhatsApp deste link ainda não foi configurado.');
         return;
     }
-    const isMobileOuTablet = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
-        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isMobileOuTablet = isAndroid || isIOS || navigator.maxTouchPoints > 1
+        || window.matchMedia('(pointer: coarse)').matches;
     const textoCodificado = encodeURIComponent(mensagem);
-    const url = isMobileOuTablet
-        ? `https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`
-        : `https://web.whatsapp.com/send?phone=${numeroWhatsApp}&text=${textoCodificado}`;
+    const linkWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`;
+    const url = isAndroid
+        ? `intent://send?phone=${numeroWhatsApp}&text=${textoCodificado}#Intent;scheme=whatsapp;S.browser_fallback_url=${encodeURIComponent(linkWhatsApp)};end`
+        : isMobileOuTablet
+            ? `whatsapp://send?phone=${numeroWhatsApp}&text=${textoCodificado}`
+            : `https://web.whatsapp.com/send?phone=${numeroWhatsApp}&text=${textoCodificado}`;
 
     const salesRecord = {
         seller_key: new URLSearchParams(window.location.search).get('destino') === 'vanderson' ? 'vanderson' : 'gabriel',
@@ -958,8 +962,15 @@ async function enviarPedido() {
         }))
     };
 
-    const whatsappWindow = window.open(url, '_blank');
-    if (whatsappWindow) whatsappWindow.opener = null;
+    // Deep links devem ser abertos durante o clique para o navegador permitir a troca para o app.
+    let whatsappWindow = null;
+    if (isMobileOuTablet) {
+        window.location.href = url;
+        whatsappWindow = true;
+    } else {
+        whatsappWindow = window.open(url, '_blank');
+        if (whatsappWindow) whatsappWindow.opener = null;
+    }
 
     window.enviandoPedido = true;
     let saleSaved = false;
@@ -974,7 +985,7 @@ async function enviarPedido() {
     } catch (error) {
         const message = error && error.message ? error.message : 'Erro desconhecido ao salvar o pedido.';
         const destination = whatsappWindow
-            ? 'O WhatsApp foi aberto em outra aba'
+            ? 'O WhatsApp foi aberto'
             : 'O WhatsApp será aberto nesta aba porque o navegador bloqueou a nova aba';
         alert(`${destination}, mas o pedido não foi registrado no histórico: ${message}`);
     } finally {
