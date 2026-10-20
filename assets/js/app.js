@@ -938,7 +938,12 @@ async function enviarPedido() {
         alert('O WhatsApp deste link ainda não foi configurado.');
         return;
     }
-    const url = `https://web.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
+    const isMobileOuTablet = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const textoCodificado = encodeURIComponent(mensagem);
+    const url = isMobileOuTablet
+        ? `https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`
+        : `https://web.whatsapp.com/send?phone=${numeroWhatsApp}&text=${textoCodificado}`;
 
     const salesRecord = {
         seller_key: new URLSearchParams(window.location.search).get('destino') === 'vanderson' ? 'vanderson' : 'gabriel',
