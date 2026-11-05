@@ -332,11 +332,13 @@
         [1001, 89.90, "Inalador e Compressor Bioland (adultos e crianças)"],
         [1002, 275.00, "Protetor Labial Vedis Calêndula (Caixa com 50 unidades)", 5.50],
         [283, 22.90, "KIT CAPILAR BEBELO (Shampoo, Condicionador, Mascara e Spray)", 23.90],
-        [284, 7.39], [1003, 5.50, "Pomadas - (Caixa com 12 unidades) - Valor Caixa: 66,00"], [170, 89.90],
-        [291, 6.50], [286, 7.99], [248, 130.00, "Seringa de insulina de 1ml Medix com agulha 0,33x1,27 (Caixa com 100 unidades)"],
+        [284, 6.99], [1003, 5.25, "Pomadas - (Caixa com 12 unidades) - Valor Caixa: 63,00"], [170, 89.90],
+        [291, 5.99], [286, 7.99], [248, 130.00, "Seringa de insulina de 1ml Medix com agulha 0,33x1,27 (Caixa com 100 unidades)"],
         [1004, 149.90, "Seringa de insulina Sol-M 50UI com agulha 8mm x 0,3mm (Caixa com 100 unidades)"],
         [1005, 59.90, "Seringa para insulina 1ml com agulha 13 x 0,45mm (Unidade) SR"], [287, 5.99],
-        [1006, 149.90, "Seringa de insulina 1ml com agulha 8x0,30mm Tkl (Caixa com 100 unidades)"], [118, 29.90],
+        [1006, 119.90, "Seringa de insulina 1ml com agulha 8x0,30mm Tkl (Caixa com 100 unidades)"],
+        [1015, 129.90, "Seringa Insulina 1 mL Agulha Fixa 0,25 x 6mm 31G (Caixa com 100 unidades) - TKL"],
+        [1016, 149.90, "Seringa SR Insulina 0,5 ml Agulha Fixa 8x0,30mm (Caixa com 100 unidades)"], [118, 29.90],
         [252, 1.59], [266, 399.00], [265, 499.00], [117, 22.90],
         [154, 22.90, "Luvas latex de procedimento c/100 com pó (Marca: Talge)", 23.90],
         [158, 24.90, "Luva p/ Procedimento - Nitrilo - Black", 27.90],
@@ -371,6 +373,16 @@
         });
         promotion.originalPrice = promotion.originalPrice ?? promotion.promoPrice;
     });
+
+    // Itens de promoção que não constam na LISTA - VAREJINHO ficam inativos (sem preço) até o preço ser cadastrado no painel.
+    const notInVarejinhoIds = new Set([1001, 1002, 248, 1004, 1005, 1009, 1011, 1012, 1013, 1014,
+        9, 115, 151, 197, 256, 278, 293, 316, 336, 341]);
+    products.forEach(product => {
+        if (!notInVarejinhoIds.has(product.id)) return;
+        product.price = null;
+        delete product.promoPrice;
+    });
+    promotions.splice(0, promotions.length, ...promotions.filter(promotion => !notInVarejinhoIds.has(promotion.productId)));
     
     const duplicateBebeloProductIds = new Set([1000]);
     products.splice(0, products.length, ...products.filter(product => {

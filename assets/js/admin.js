@@ -18,7 +18,7 @@
     const catalogImportPreview = document.getElementById('catalog-import-preview');
     const catalogImportConfirmation = document.getElementById('catalog-import-delete-confirmation');
     const catalogImportConfirmButton = document.getElementById('catalog-import-confirm');
-    const pageSize = 30;
+    const pageSize = 10;
     const sheets = window.runTrainingSheets;
     let currentPage = 0;
     let resultCount = 0;
@@ -133,6 +133,7 @@
                         <div><span>Número do pedido</span><strong>${orderId}</strong></div>
                         <div><span>Data do envio</span><strong>${orderDate}</strong></div>
                         <div><span>CNPJ</span><strong>${cnpj}</strong></div>
+                        <div><span>Razão social</span><strong>${escapeHtml(sale.companyName || 'Não informada')}</strong></div>
                         <div><span>Condição de pagamento</span><strong>${paymentCondition}</strong></div>
                         <div><span>Administrador</span><strong>${adminName}</strong></div>
                     </section>
@@ -158,38 +159,160 @@
         mirrorWindow.addEventListener('load', () => URL.revokeObjectURL(mirrorUrl), { once: true });
     }
 
-    function parseMoneyInput(value) {
+    function parseDecimal(value) {
         const normalized = String(value).trim().replace(/[R$\s]/g, '');
         const amount = normalized.includes(',')
             ? Number(normalized.replace(/\./g, '').replace(',', '.'))
             : Number(normalized);
-        if (!Number.isFinite(amount) || amount < 300 || amount > 1000000000) return null;
-        return Math.round((amount + Number.EPSILON) * 100) / 100;
+        return Number.isFinite(amount) ? Math.round((amount + Number.EPSILON) * 100) / 100 : null;
     }
 
-    async function editSaleTotal(sale) {
-        const value = window.prompt(
-            `Informe o novo valor total do pedido ${sale.id} (mínimo R$ 300,00):`,
-            Number(sale.total).toFixed(2).replace('.', ',')
-        );
-        if (value === null) return;
+    const saleEditor = document.getElementById('sale-editor');
+    const saleEditorBody = document.getElementById('sale-editor-body');
+    const saleEditorTotal = document.getElementById('sale-editor-total');
+    const saleEditorMessage = document.getElementById('sale-editor-message');
+    const saleEditorSave = document.getElementById('sale-editor-save');
+    const saleEditorProducts = document.getElementById('sale-editor-products');
+    let editingSale = null;
 
-        const total = parseMoneyInput(value);
-        if (total === null) {
-            setMessage(dataMessage, 'Valor inválido. Informe um valor entre R$ 300,00 e R$ 1.000.000.000,00.', true);
+    function readEditorItems() {
+        return [...saleEditorBody.rows].map(row => ({
+            name: row.querySelector('[data-field="name"]').value.trim(),
+            variant: row.dataset.variant || null,
+            quantity: Number(row.querySelector('[data-field="quantity"]').value),
+            unit_price: parseDecimal(row.querySelector('[data-field="price"]').value)
+        }));
+    }
+
+    function updateEditorTotal() {
+        const total = readEditorItems().reduce((sum, item) => sum
+            + (Number.isFinite(item.quantity) && item.unit_price !== null ? item.quantity * item.unit_price : 0), 0);
+        saleEditorTotal.textContent = formatMoney(total);
+        return total;
+    }
+
+    function addEditorRow(item) {
+        const row = document.createElement('tr');
+        row.dataset.variant = item.variant || '';
+
+        const nameCell = document.createElement('td');
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.maxLength = 250;
+        nameInput.setAttribute('list', 'sale-editor-products');
+        nameInput.dataset.field = 'name';
+        nameInput.value = item.name;
+        nameInput.setAttribute('aria-label', 'Produto');
+        nameInput.addEventListener('change', () => {
+            const match = inventoryProducts.find(product => product.name === nameInput.value);
+            const priceInput = row.querySelector('[data-field="price"]');
+            if (match && match.hasPrice && !priceInput.value) {
+                priceInput.value = (match.promoPrice ?? match.price).toFixed(2);
+                updateEditorTotal();
+            }
+        });
+        nameCell.appendChild(nameInput);
+        if (item.variant) {
+            const variant = document.createElement('small');
+            variant.textContent = item.variant;
+            nameCell.appendChild(variant);
+        }
+
+        const quantityCell = document.createElement('td');
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.min = '1';
+        quantityInput.step = '1';
+        quantityInput.dataset.field = 'quantity';
+        quantityInput.value = item.quantity;
+        quantityInput.setAttribute('aria-label', 'Quantidade');
+        quantityCell.appendChild(quantityInput);
+
+        const priceCell = document.createElement('td');
+        const priceInput = document.createElement('input');
+        priceInput.type = 'number';
+        priceInput.min = '0';
+        priceInput.step = '0.01';
+        priceInput.dataset.field = 'price';
+        priceInput.value = item.unit_price === '' ? '' : Number(item.unit_price).toFixed(2);
+        priceInput.setAttribute('aria-label', 'Valor unitário');
+        priceCell.appendChild(priceInput);
+
+        const removeCell = document.createElement('td');
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'admin-danger-button';
+        removeButton.textContent = 'Remover';
+        removeButton.addEventListener('click', () => {
+            row.remove();
+            updateEditorTotal();
+        });
+        removeCell.appendChild(removeButton);
+
+        row.append(nameCell, quantityCell, priceCell, removeCell);
+        row.addEventListener('input', updateEditorTotal);
+        saleEditorBody.appendChild(row);
+    }
+
+    function openSaleEditor(sale) {
+        editingSale = sale;
+        document.getElementById('sale-editor-title').textContent = `Editar pedido · ${sale.companyName || sale.cnpj}`;
+        setMessage(saleEditorMessage, '', false);
+        saleEditorBody.replaceChildren();
+        saleEditorProducts.replaceChildren(...inventoryProducts.map(product => {
+            const option = document.createElement('option');
+            option.value = product.name;
+            return option;
+        }));
+        sale.items.forEach(item => addEditorRow({
+            name: item.name,
+            variant: item.variant,
+            quantity: item.quantity,
+            unit_price: item.unitPrice
+        }));
+        updateEditorTotal();
+        saleEditor.showModal();
+    }
+
+    async function saveSaleEditor() {
+        const items = readEditorItems();
+        if (items.length === 0) {
+            setMessage(saleEditorMessage, 'O pedido precisa ter ao menos um item.', true);
             return;
         }
-        if (total === Number(sale.total)) return;
-        if (!window.confirm(`Atualizar o pedido ${sale.id} de ${formatMoney(sale.total)} para ${formatMoney(total)}? A comissão de 5% também será recalculada.`)) return;
+        const invalid = items.findIndex(item => !item.name || !Number.isFinite(item.quantity) || item.quantity <= 0
+            || item.unit_price === null || item.unit_price < 0);
+        if (invalid !== -1) {
+            setMessage(saleEditorMessage, `Confira nome, quantidade e valor do item ${invalid + 1}.`, true);
+            return;
+        }
+        const total = updateEditorTotal();
+        if (total < 300) {
+            setMessage(saleEditorMessage, 'O valor total do pedido precisa ser de no mínimo R$ 300,00.', true);
+            return;
+        }
 
+        saleEditorSave.disabled = true;
+        setMessage(saleEditorMessage, 'Salvando pedido...', false);
         try {
-            await sheets.updateSaleTotal(sale.id, total);
+            await sheets.updateSale(editingSale.id, items);
+            saleEditor.close();
             await loadSales();
-            setMessage(dataMessage, 'Valor do pedido atualizado e comissão recalculada.', false);
+            setMessage(dataMessage, 'Pedido atualizado; valor e comissão de 5% recalculados.', false);
         } catch (error) {
-            setMessage(dataMessage, `Não foi possível atualizar o pedido: ${error.message}`, true);
+            setMessage(saleEditorMessage, `Não foi possível atualizar o pedido: ${error.message}`, true);
+        } finally {
+            saleEditorSave.disabled = false;
         }
     }
+
+    document.getElementById('sale-editor-add').addEventListener('click', () => {
+        addEditorRow({ name: '', variant: '', quantity: 1, unit_price: '' });
+        saleEditorBody.lastElementChild.querySelector('input').focus();
+    });
+    saleEditorSave.addEventListener('click', saveSaleEditor);
+    document.getElementById('sale-editor-cancel').addEventListener('click', () => saleEditor.close());
+    document.getElementById('new-product-form').addEventListener('submit', saveNewProduct);
 
     async function removeSale(sale) {
         if (!window.confirm(`Excluir permanentemente o pedido ${sale.id}, CNPJ ${sale.cnpj}, no valor de ${formatMoney(sale.total)}? Esta ação não pode ser desfeita.`)) return;
@@ -228,8 +351,12 @@
                 }));
             const result = await sheets.syncProductAvailability(catalogProducts);
             importedCatalogActive = result.imported === true;
+            const resolvePromo = (sheetPromo, original) => {
+                if (sheetPromo !== null && sheetPromo !== undefined) return Number(sheetPromo) > 0 ? Number(sheetPromo) : null;
+                return original && original.promoPrice != null ? Number(original.promoPrice) : null;
+            };
             if (importedCatalogActive) {
-                const productsById = new Map(catalogProducts.map(product => [product.id, product]));
+                const productsById = new Map(window.RUN_TRAINING_CATALOG.products.map(product => [product.id, product]));
                 inventoryProducts = result.catalog.map(product => {
                     const original = productsById.get(Number(product.id));
                     const price = Number(product.price);
@@ -240,12 +367,21 @@
                         image: original ? original.image : 'assets/images/branding/logo.png.jpg',
                         price: hasPrice ? price : null,
                         catalogPrice: hasPrice ? price : null,
+                        promoPrice: hasPrice ? resolvePromo(product.promoPrice, original) : null,
                         hasPrice,
                         available: product.available === true
                     };
                 });
             } else {
-                inventoryProducts = catalogProducts.map(product => {
+                const originals = new Map(window.RUN_TRAINING_CATALOG.products.map(product => [product.id, product]));
+                const extras = (result.extras || []).map(extra => ({
+                    id: Number(extra.id),
+                    name: extra.name,
+                    price: Number(extra.price) > 0 ? Number(extra.price) : null,
+                    image: 'assets/images/branding/logo.png.jpg',
+                    forceUnavailable: false
+                }));
+                inventoryProducts = [...catalogProducts, ...extras].map(product => {
                     const override = Number(result.prices[String(product.id)]);
                     const price = Number.isFinite(override) && override > 0 ? override : product.price;
                     const hasPrice = Number.isFinite(Number(price)) && Number(price) > 0;
@@ -253,6 +389,9 @@
                         ...product,
                         price: hasPrice ? Number(price) : null,
                         catalogPrice: hasPrice ? Number(price) : null,
+                        promoPrice: hasPrice
+                            ? resolvePromo(result.promoPrices ? result.promoPrices[String(product.id)] : null, originals.get(product.id))
+                            : null,
                         hasPrice,
                         available: result.availability[String(product.id)] !== false
                     };
@@ -307,27 +446,57 @@
 
             const actions = document.createElement('div');
             actions.className = 'inventory-product-actions';
-            if (product.catalogPrice == null) {
-                const priceField = document.createElement('label');
-                priceField.className = 'inventory-price-field';
-                priceField.textContent = 'Preço';
-                const priceInput = document.createElement('input');
-                priceInput.type = 'number';
-                priceInput.min = '0.01';
-                priceInput.step = '0.01';
-                priceInput.inputMode = 'decimal';
-                priceInput.placeholder = '0,00';
-                priceInput.value = product.hasPrice ? product.price.toFixed(2) : '';
-                priceInput.setAttribute('aria-label', `Preço de ${product.name}`);
-                priceField.appendChild(priceInput);
-                actions.appendChild(priceField);
+            const priceField = document.createElement('label');
+            priceField.className = 'inventory-price-field';
+            priceField.textContent = 'Preço';
+            const priceInput = document.createElement('input');
+            priceInput.type = 'number';
+            priceInput.min = '0.01';
+            priceInput.step = '0.01';
+            priceInput.inputMode = 'decimal';
+            priceInput.placeholder = '0,00';
+            priceInput.value = product.hasPrice ? product.price.toFixed(2) : '';
+            priceInput.setAttribute('aria-label', `Preço de ${product.name}`);
+            priceField.appendChild(priceInput);
+            actions.appendChild(priceField);
 
-                const savePriceButton = document.createElement('button');
-                savePriceButton.type = 'button';
-                savePriceButton.className = 'admin-primary-button inventory-toggle';
-                savePriceButton.textContent = product.hasPrice ? 'Salvar preço' : 'Salvar preço e ativar';
-                savePriceButton.addEventListener('click', () => saveProductPrice(product, priceInput, savePriceButton));
-                actions.appendChild(savePriceButton);
+            const savePriceButton = document.createElement('button');
+            savePriceButton.type = 'button';
+            savePriceButton.className = 'admin-primary-button inventory-toggle';
+            savePriceButton.textContent = product.hasPrice ? 'Salvar preço' : 'Salvar preço e ativar';
+            savePriceButton.addEventListener('click', () => saveProductPrice(product, priceInput, savePriceButton));
+            actions.appendChild(savePriceButton);
+
+            if (product.hasPrice) {
+                const promoField = document.createElement('label');
+                promoField.className = 'inventory-price-field';
+                promoField.textContent = 'Promoção';
+                const promoInput = document.createElement('input');
+                promoInput.type = 'number';
+                promoInput.min = '0.01';
+                promoInput.step = '0.01';
+                promoInput.inputMode = 'decimal';
+                promoInput.placeholder = '0,00';
+                promoInput.value = product.promoPrice != null ? product.promoPrice.toFixed(2) : '';
+                promoInput.setAttribute('aria-label', `Preço promocional de ${product.name}`);
+                promoField.appendChild(promoInput);
+                actions.appendChild(promoField);
+
+                const promoButton = document.createElement('button');
+                promoButton.type = 'button';
+                promoButton.className = 'admin-secondary-button inventory-toggle';
+                promoButton.textContent = product.promoPrice != null ? 'Atualizar promoção' : 'Colocar em promoção';
+                promoButton.addEventListener('click', () => saveProductPromotion(product, promoInput, promoButton));
+                actions.appendChild(promoButton);
+
+                if (product.promoPrice != null) {
+                    const removePromoButton = document.createElement('button');
+                    removePromoButton.type = 'button';
+                    removePromoButton.className = 'admin-danger-button inventory-toggle';
+                    removePromoButton.textContent = 'Remover promoção';
+                    removePromoButton.addEventListener('click', () => saveProductPromotion(product, null, removePromoButton));
+                    actions.appendChild(removePromoButton);
+                }
             }
 
             const status = document.createElement('span');
@@ -370,6 +539,10 @@
         }
 
         const shouldActivate = !product.hasPrice;
+        if (product.promoPrice != null && price <= product.promoPrice) {
+            setMessage(inventoryMessage, `O preço de ${product.name} precisa ser maior que a promoção atual (${formatMoney(product.promoPrice)}). Ajuste ou remova a promoção primeiro.`, true);
+            return;
+        }
         button.disabled = true;
         setMessage(inventoryMessage, 'Salvando preço...', false);
         try {
@@ -391,6 +564,60 @@
         } catch (error) {
             button.disabled = false;
             setMessage(inventoryMessage, `Não foi possível salvar o preço de ${product.name}: ${error.message}`, true);
+        }
+    }
+
+    async function saveProductPromotion(product, input, button) {
+        const removing = input === null;
+        const promoPrice = removing ? 0 : Number(input.value.replace(',', '.'));
+        if (!removing && (!Number.isFinite(promoPrice) || promoPrice <= 0 || promoPrice >= product.price)) {
+            setMessage(inventoryMessage, `Informe um preço promocional maior que zero e menor que ${formatMoney(product.price)}.`, true);
+            input.focus();
+            return;
+        }
+
+        button.disabled = true;
+        setMessage(inventoryMessage, 'Salvando promoção...', false);
+        try {
+            const result = await sheets.updateProductPromotion(product.id, promoPrice, product.price);
+            product.promoPrice = result.promoPrice > 0 ? result.promoPrice : null;
+            renderInventory();
+            setMessage(
+                inventoryMessage,
+                product.promoPrice != null
+                    ? `${product.name}: promoção de ${formatMoney(product.promoPrice)} salva.`
+                    : `${product.name}: promoção removida.`,
+                false
+            );
+        } catch (error) {
+            button.disabled = false;
+            setMessage(inventoryMessage, `Não foi possível salvar a promoção de ${product.name}: ${error.message}`, true);
+        }
+    }
+
+    async function saveNewProduct(event) {
+        event.preventDefault();
+        const nameInput = document.getElementById('new-product-name');
+        const priceInput = document.getElementById('new-product-price');
+        const button = document.getElementById('new-product-button');
+        const name = nameInput.value.trim();
+        const price = Number(priceInput.value.replace(',', '.'));
+        if (!name || !Number.isFinite(price) || price <= 0) {
+            setMessage(inventoryMessage, 'Informe o nome e um preço válido para o novo produto.', true);
+            return;
+        }
+
+        button.disabled = true;
+        setMessage(inventoryMessage, 'Adicionando produto...', false);
+        try {
+            await sheets.addProduct(name, price);
+            event.target.reset();
+            await loadInventory();
+            setMessage(inventoryMessage, `${name} adicionado ao catálogo.`, false);
+        } catch (error) {
+            setMessage(inventoryMessage, `Não foi possível adicionar o produto: ${error.message}`, true);
+        } finally {
+            button.disabled = false;
         }
     }
 
@@ -600,6 +827,7 @@
                 const row = document.createElement('tr');
                 appendCell(row, formatDate(sale.soldAt));
                 appendCell(row, sale.cnpj);
+                appendCell(row, sale.companyName || '—', 'admin-company-name');
                 appendCell(row, formatMoney(sale.total), 'admin-money');
                 appendCell(row, formatMoney(sale.commission), 'admin-money admin-commission-value');
                 const actionCell = document.createElement('td');
@@ -613,8 +841,8 @@
                 const editButton = document.createElement('button');
                 editButton.type = 'button';
                 editButton.className = 'admin-secondary-button admin-action-button';
-                editButton.textContent = 'Editar valor';
-                editButton.addEventListener('click', () => editSaleTotal(sale));
+                editButton.textContent = 'Editar pedido';
+                editButton.addEventListener('click', () => openSaleEditor(sale));
                 actionCell.appendChild(editButton);
 
                 const deleteButton = document.createElement('button');

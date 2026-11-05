@@ -16,7 +16,7 @@ function normalizeLineItems(items) {
                 line = { y, items: [] };
                 lines.push(line);
             }
-            line.items.push({ x: Number(item.transform[4]), text: item.str.trim() });
+            line.items.push({ x: Number(item.transform[4]), text: item.str.replace(/\u00a0/g, ' ').trim() });
         });
 
     return lines.map(line => ({
@@ -35,6 +35,27 @@ function parsePrice(text) {
     if (!match) return null;
     const value = Number(match[1].replace(/\./g, '').replace(',', '.'));
     return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function mergeSplitPrices(line) {
+    const merged = [];
+    for (let index = 0; index < line.items.length; index += 1) {
+        const item = line.items[index];
+        const next = line.items[index + 1];
+        if (/^R\$$/i.test(item.text) && next && /^\d[\d.]*,\d{2}$/.test(next.text)) {
+            merged.push({ x: item.x, text: `R$ ${next.text}` });
+            index += 1;
+        } else {
+            const inline = item.text.match(/^(.+?)\s+(R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}|R\$\s*\d+,\d{2})$/i);
+            if (inline && !parsePrice(item.text)) {
+                merged.push({ x: item.x, text: inline[1].trim() });
+                merged.push({ x: item.x + 1000, text: inline[2] });
+            } else {
+                merged.push(item);
+            }
+        }
+    }
+    line.items = merged;
 }
 
 function getProductName(priceLine, lines, priceItem) {
@@ -75,11 +96,9 @@ export async function extractCatalogPdf(file) {
     if (pdf.numPages > 30) throw new Error('O PDF excede o limite de 30 páginas.');
 
     const products = [];
-    let documentText = '';
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
         const page = await pdf.getPage(pageNumber);
         const content = await page.getTextContent();
-        documentText += ` ${content.items.map(item => item.str || '').join(' ')}`;
         const lines = normalizeLineItems(content.items);
         lines.forEach(line => {
             line.items.forEach(item => {
@@ -94,11 +113,9 @@ export async function extractCatalogPdf(file) {
         });
     }
 
-    if (!/LISTA\s+DE\s+VAREJINHO/i.test(documentText)) {
-        throw new Error('Este PDF não parece ser a lista de produtos esperada.');
-    }
-    if (products.length < 100 || products.some(product => !product.name)) {
+    const named = products.filter(product => product.name && !/^(PRE[ÇC]O|PRODUTOS?)$/i.test(product.name));
+    if (named.length < 20 || products.length - named.length > Math.max(3, products.length * 0.03)) {
         throw new Error('Não foi possível identificar com segurança todos os produtos e preços do PDF. Nenhuma alteração foi feita.');
     }
-    return products;
+    return named;
 }

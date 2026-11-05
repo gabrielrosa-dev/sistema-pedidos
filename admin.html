@@ -56,8 +56,8 @@
                     <input id="filter-end-date" type="date">
                 </label>
                 <label class="admin-search-filter">
-                    CNPJ
-                    <input id="filter-search" type="search" placeholder="Buscar por CNPJ..." autocomplete="off">
+                    CNPJ ou razão social
+                    <input id="filter-search" type="search" placeholder="Buscar por CNPJ ou razão social..." autocomplete="off">
                 </label>
                 <button class="admin-primary-button" type="submit">Filtrar</button>
                 <button class="admin-secondary-button" id="clear-filters-button" type="button">Limpar</button>
@@ -85,6 +85,7 @@
                         <tr>
                             <th>Data da venda</th>
                             <th>CNPJ</th>
+                            <th>Razão social</th>
                             <th>Valor</th>
                             <th>Comissão · 5%</th>
                             <th>Ações</th>
@@ -124,6 +125,17 @@
                         </select>
                     </label>
                 </div>
+                <form class="new-product-form" id="new-product-form">
+                    <label>
+                        Novo produto
+                        <input id="new-product-name" type="text" maxlength="250" placeholder="Nome do produto" required>
+                    </label>
+                    <label>
+                        Preço
+                        <input id="new-product-price" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required>
+                    </label>
+                    <button class="admin-primary-button" id="new-product-button" type="submit">Adicionar produto</button>
+                </form>
                 <p class="admin-message" id="inventory-message" role="status"></p>
                 <div class="inventory-list" id="inventory-list" role="list"></div>
                 <p class="admin-empty-state" id="inventory-empty-state" hidden>Nenhum produto encontrado. Abra o catálogo para sincronizar a lista de produtos.</p>
@@ -159,6 +171,26 @@
             </section>
         </section>
     </main>
+
+    <dialog class="sale-editor" id="sale-editor" aria-labelledby="sale-editor-title">
+        <h2 id="sale-editor-title">Editar pedido</h2>
+        <div class="sale-editor-table-wrap">
+            <table class="sale-editor-table">
+                <thead>
+                    <tr><th>Produto</th><th>Qtd.</th><th>Valor unitário</th><th></th></tr>
+                </thead>
+                <tbody id="sale-editor-body"></tbody>
+            </table>
+        </div>
+        <datalist id="sale-editor-products"></datalist>
+        <button class="admin-secondary-button" id="sale-editor-add" type="button">+ Adicionar item</button>
+        <p class="sale-editor-total">Total do pedido: <strong id="sale-editor-total">R$ 0,00</strong></p>
+        <p class="admin-message" id="sale-editor-message" role="status"></p>
+        <div class="sale-editor-actions">
+            <button class="admin-secondary-button" id="sale-editor-cancel" type="button">Cancelar</button>
+            <button class="admin-primary-button" id="sale-editor-save" type="button">Salvar pedido</button>
+        </div>
+    </dialog>
 
     <script src="assets/js/sheets-config.js"></script>
     <script src="assets/js/sheets-client.js"></script>

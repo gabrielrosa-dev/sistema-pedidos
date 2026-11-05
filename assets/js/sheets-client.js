@@ -60,7 +60,7 @@
             timeoutId = window.setTimeout(() => {
                 cleanUp();
                 reject(new Error('O Google Sheets não respondeu. Confira a URL publicada e tente novamente.'));
-            }, 20000);
+            }, 30000);
             document.body.append(frame, form);
             form.submit();
         });
@@ -110,6 +110,24 @@
             saleId,
             total
         }),
+        updateSale: (saleId, items, paymentCondition) => request('updateSale', {
+            token: getToken(),
+            saleId,
+            items,
+            paymentCondition
+        }),
+        addProduct: (name, price) => request('addProduct', {
+            token: getToken(),
+            name,
+            price
+        }),
+        updateProductPromotion: (productId, promoPrice, catalogPrice) => request('updateProductPromotion', {
+            token: getToken(),
+            productId,
+            promoPrice,
+            catalogPrice
+        }),
+        lookupCnpj: cnpj => request('lookupCnpj', { cnpj }),
         deleteSale: saleId => request('deleteSale', {
             token: getToken(),
             saleId

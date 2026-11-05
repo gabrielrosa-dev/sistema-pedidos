@@ -146,6 +146,11 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .original-price { color: #94a3b8; font-size: 0.82rem; font-weight: 700; }
 .promo-price { color: #dc2626; font-size: 1.2rem; font-weight: 900; }
 .promotion-notice { display: block; margin-top: 6px; color: #b45309; font-size: 0.72rem; font-weight: 800; line-height: 1.3; }
+.fixed-price { display: block; color: #0f172a; font-size: 1.35rem; font-weight: 900; line-height: 1.2; }
+.promo-tier { display: block; margin-top: 2px; color: #dc2626; font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
+.promo-tier b { font-size: 0.95rem; font-weight: 900; }
+.product-detail-price .fixed-price { font-size: 1.8rem; }
+.product-detail-price .promo-tier { font-size: 0.95rem; }
 .product-card--unavailable .product-price, .stock-status { color: var(--muted); font-size: 0.82rem; font-weight: 800; }
 .stock-status { white-space: nowrap; }
 .product-controls { display: flex; align-items: center; gap: 7px; }
@@ -238,6 +243,7 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .summary-label { display: block; margin-bottom: 4px; color: var(--muted); font-size: 0.76rem; font-weight: 700; }
 .total-text { font-size: 1.45rem; font-weight: 800; }
 .warning { margin-top: 4px; color: var(--warning); font-size: 0.78rem; font-weight: 700; }
+.cnpj-company { display: block; margin-top: 4px; color: #475569; font-size: 0.78rem; font-weight: 600; overflow-wrap: anywhere; }
 .payment-field { margin-bottom: 14px; }
 .payment-field .cnpj-input { max-width: none; }
 .btn-whatsapp { display: block; width: 100%; padding: 13px 18px; border: 0; border-radius: 9px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 800; transition: background 0.2s, transform 0.2s; }

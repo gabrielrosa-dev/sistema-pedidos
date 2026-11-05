@@ -264,19 +264,40 @@ function formatProductPrice(price) {
     return price == null ? 'Indisponível' : `R$ ${price.toFixed(2).replace('.', ',')}`;
 }
 
+const POMADA_PROMO_MIN_QUANTITY = 12;
+const POMADA_PROMO_IDS = new Set([284, 286, 287, 291]);
+// Itens reativados no catálogo que ficaram marcados como indisponíveis na planilha.
+const REACTIVATED_PRODUCT_IDS = new Set([1006]);
+
+function isPromoActive(product, quantity = 0) {
+    if (product.promoPrice == null || product.price == null || product.promoPrice >= product.price) return false;
+    return !POMADA_PROMO_IDS.has(product.id) || quantity >= POMADA_PROMO_MIN_QUANTITY;
+}
+
 function getProductPrice(product, quantity = 0) {
     if (product.id === 306) return quantity >= 24 ? 31.99 : 33.99;
-    return product.promoPrice ?? product.price;
+    return isPromoActive(product, quantity) ? product.promoPrice : product.price;
 }
 
 function formatVisibleProductPrice(product, quantity = 0) {
+    if (isPomadaPromoPending(product, quantity)) return formatPomadaPromoPending(product);
     if (product.promoPrice != null && product.price != null && product.promoPrice < product.price) {
         return formatPromotionPrice(product, quantity);
     }
     return formatProductPrice(getProductPrice(product, quantity));
 }
 
+function isPomadaPromoPending(product, quantity) {
+    return POMADA_PROMO_IDS.has(product.id) && product.promoPrice != null && product.price != null
+        && product.promoPrice < product.price && quantity < POMADA_PROMO_MIN_QUANTITY;
+}
+
+function formatPomadaPromoPending(product) {
+    return `<strong class="fixed-price">${formatProductPrice(product.price)}</strong><span class="promo-tier"><b>${formatProductPrice(product.promoPrice)}</b> a partir de ${POMADA_PROMO_MIN_QUANTITY} un.</span>`;
+}
+
 function formatPromotionPrice(product, quantity = 0) {
+    if (isPomadaPromoPending(product, quantity)) return formatPomadaPromoPending(product);
     const originalPrice = product.price;
     const promotionPrice = getProductPrice(product, quantity);
     if (promotionPrice == null) return formatProductPrice(originalPrice);
@@ -285,8 +306,8 @@ function formatPromotionPrice(product, quantity = 0) {
     return `<del class="original-price">${formatProductPrice(originalPrice)}</del><strong class="promo-price">${formatProductPrice(promotionPrice)}</strong>${quantityNote}`;
 }
 
-function getPromotionNotice(product) {
-    return product.id === 306 ? '<span class="promotion-notice">Compre 24 ou mais e ganhe desconto: R$ 31,99 cada.</span>' : '';
+function getPromotionNotice() {
+    return '';
 }
 
 function getSavedQuantities() {
@@ -330,7 +351,7 @@ function getSelectedProducts() {
                     variant: option,
                     variantLabel: variantConfig.label,
                     quantity: Number(savedVariants[product.id][option]),
-                    currentPrice: getProductPrice(product, Number(savedVariants[product.id][option]))
+                    currentPrice: getProductPrice(product, getProductQuantity(product.id))
                 }));
         }
         const quantity = Number(savedQuantities[product.id]) || 0;
@@ -354,6 +375,37 @@ function mascaraCNPJ(input) {
         input.value = valor.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
     }
     localStorage.setItem('saved_cnpj', input.value);
+    buscarRazaoSocial(input.value);
+}
+
+let razaoSocialAtual = '';
+let razaoSocialTimer = null;
+let razaoSocialConsulta = '';
+
+function buscarRazaoSocial(cnpjFormatado) {
+    const companyEl = document.getElementById('cnpj-company');
+    if (!companyEl) return;
+    const digits = cnpjFormatado.replace(/\D/g, '');
+    window.clearTimeout(razaoSocialTimer);
+    razaoSocialAtual = '';
+    razaoSocialConsulta = digits;
+    companyEl.hidden = true;
+    companyEl.textContent = '';
+    if (!validarCNPJ(digits) || !window.runTrainingSheets || !window.runTrainingSheets.isConfigured()) return;
+
+    razaoSocialTimer = window.setTimeout(async () => {
+        companyEl.textContent = 'Buscando razão social na Receita Federal...';
+        companyEl.hidden = false;
+        try {
+            const result = await window.runTrainingSheets.lookupCnpj(digits);
+            if (razaoSocialConsulta !== digits) return;
+            razaoSocialAtual = result && result.name ? result.name : '';
+            companyEl.textContent = razaoSocialAtual || 'Razão social não encontrada para este CNPJ.';
+        } catch (error) {
+            if (razaoSocialConsulta !== digits) return;
+            companyEl.textContent = 'Não foi possível consultar a razão social agora.';
+        }
+    }, 400);
 }
 
 function validarCNPJ(cnpj) {
@@ -532,12 +584,48 @@ async function loadProductAvailability() {
             hiddenCatalogProductIds.clear();
             excludedSoapIds.clear();
         }
+        if (!result.imported && Array.isArray(result.extras)) {
+            result.extras.forEach(extra => {
+                const extraId = Number(extra.id);
+                if (products.some(product => product.id === extraId)) return;
+                products.push({
+                    id: extraId,
+                    name: extra.name,
+                    price: Number(extra.price) > 0 ? Number(extra.price) : null,
+                    image: 'assets/images/branding/logo.png.jpg'
+                });
+            });
+        }
         products.forEach(product => {
             const availability = result.availability[String(product.id)];
             const priceOverride = Number(result.prices[String(product.id)]);
             if (Number.isFinite(priceOverride) && priceOverride > 0) product.price = priceOverride;
             product.available = typeof availability === 'boolean' ? availability : true;
+            if (REACTIVATED_PRODUCT_IDS.has(product.id)) product.available = true;
+            const promoOverride = result.promoPrices ? result.promoPrices[String(product.id)] : undefined;
+            if (promoOverride !== undefined) {
+                product.promoPrice = Number(promoOverride) > 0 ? Number(promoOverride) : null;
+            }
         });
+        const promotedProducts = products.filter(product => product.promoPrice != null
+            && product.price != null && product.promoPrice < product.price);
+        const promotedIds = new Set(promotedProducts.map(product => product.id));
+        const productsById = new Map(products.map(product => [product.id, product]));
+        const keptPromotions = promotions.filter(promotion => {
+            const product = productsById.get(promotion.productId);
+            return product && product.price != null && (promotedIds.has(promotion.productId) || product.promoPrice != null);
+        });
+        promotedProducts.forEach(product => {
+            if (!keptPromotions.some(promotion => promotion.productId === product.id)) {
+                keptPromotions.push({
+                    productId: product.id,
+                    promoPrice: product.promoPrice,
+                    name: product.name,
+                    originalPrice: product.price
+                });
+            }
+        });
+        promotions.splice(0, promotions.length, ...keptPromotions);
         if (stockSyncMessageEl) stockSyncMessageEl.hidden = true;
         renderProducts(productSearchEl ? productSearchEl.value : '');
     } catch (error) {
@@ -732,9 +820,9 @@ function renderOrderSummary() {
     }
 
     orderItemsEl.innerHTML = selectedProducts.map(product => {
-        const hasPromo = product.promoPrice != null && product.price != null && product.promoPrice < product.price;
+        const hasPromo = product.price != null && product.currentPrice != null && product.currentPrice < product.price;
         const promoLabel = hasPromo
-            ? `Preço unit.: <span class="order-price-current">${formatProductPrice(product.promoPrice)}</span> <span class="order-price-old">${formatProductPrice(product.price)}</span>`
+            ? `Preço unit.: <span class="order-price-current">${formatProductPrice(product.currentPrice)}</span> <span class="order-price-old">${formatProductPrice(product.price)}</span>`
             : `Preço unit.: ${formatProductPrice(product.currentPrice ?? product.price)}`;
 
         return `
@@ -911,13 +999,13 @@ async function enviarPedido() {
         return;
     }
 
-    let mensagem = `*NOVO PEDIDO - RUN TRAINING*\n\n*CNPJ:* ${cnpjValue}\n*Condição de Pagamento:* ${condicaoPagamento}\n\n*Itens do Pedido:*`;
+    let mensagem = `*NOVO PEDIDO - RUN TRAINING*\n\n*CNPJ:* ${cnpjValue}${razaoSocialAtual ? `\n*Razão Social:* ${razaoSocialAtual}` : ''}\n*Condição de Pagamento:* ${condicaoPagamento}\n\n*Itens do Pedido:*`;
     let itensCount = 0;
 
     getSelectedProducts().forEach(product => {
         const variantText = product.variant ? ` | ${product.variantLabel}: ${product.variant}` : '';
         const unitPrice = product.currentPrice ?? product.price ?? 0;
-        const isPromotion = product.price != null && product.promoPrice != null && product.promoPrice < product.price;
+        const isPromotion = product.price != null && product.currentPrice != null && product.currentPrice < product.price;
         const unidadeTexto = isPromotion
             ? ` | Unit.: *${formatMoney(unitPrice)}*`
             : ` | Unit.: ${formatMoney(unitPrice)}`;
@@ -1016,3 +1104,4 @@ document.addEventListener('keydown', event => {
 renderProducts();
 renderOrderSummary();
 loadProductAvailability();
+if (cnpjEl && cnpjEl.value) buscarRazaoSocial(cnpjEl.value);

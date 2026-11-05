@@ -1,10 +1,11 @@
 const SALES_SHEET_NAME = 'Vendas';
 const AVAILABILITY_SHEET_NAME = 'Disponibilidade';
 const LEGACY_AVAILABILITY_SHEET_NAME = 'Produtos';
-const AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço'];
+const AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço', 'Preço promocional'];
+const AVAILABILITY_BASE_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço'];
 const LEGACY_AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível'];
 const CATALOG_IMPORT_ACTIVE_PROPERTY = 'CATALOG_IMPORT_ACTIVE';
-const SALES_HEADERS = [
+const SALES_BASE_HEADERS = [
     'ID',
     'Administrador',
     'CNPJ',
@@ -14,6 +15,7 @@ const SALES_HEADERS = [
     'Condição de pagamento',
     'Itens do pedido (JSON)'
 ];
+const SALES_HEADERS = SALES_BASE_HEADERS.concat(['Razão social']);
 const LEGACY_SALES_HEADERS = [
     'ID',
     'Administrador',
@@ -132,6 +134,14 @@ function handleRequest(operation, payload) {
             return updateProductAvailability(payload);
         case 'importCatalog':
             return importCatalog(payload);
+        case 'addProduct':
+            return addProduct(payload);
+        case 'updateProductPromotion':
+            return updateProductPromotion(payload);
+        case 'updateSale':
+            return updateSale(payload);
+        case 'lookupCnpj':
+            return { name: lookupCompanyName(payload.cnpj) };
         default:
             throw new Error('Operação desconhecida.');
     }
@@ -169,11 +179,13 @@ function syncAvailability(products) {
         const rowById = new Map(existingRows.map(row => [Number(row[0]), {
             name: String(row[1] || ''),
             available: row[2] !== false,
-            price: normalizeAvailabilityPrice(row[3])
+            price: normalizeAvailabilityPrice(row[3]),
+            promoPrice: normalizePromoPrice(row[4])
         }]));
         const importedCatalogActive = PropertiesService.getScriptProperties()
             .getProperty(CATALOG_IMPORT_ACTIVE_PROPERTY) === 'true';
         const rows = [];
+        const extraRows = [];
         normalizedProducts.forEach(product => {
             const existing = rowById.get(product.id);
             if (importedCatalogActive && !existing) return;
@@ -186,13 +198,16 @@ function syncAvailability(products) {
                 product.id,
                 importedCatalogActive && existing.name ? existing.name : product.name,
                 available,
-                price
+                price,
+                existing ? existing.promoPrice : null
             ]);
         });
         existingRows.forEach(row => {
             const id = Number(row[0]);
             if (rowById.has(id)) {
-                rows.push([id, String(row[1]), row[2] !== false, normalizeAvailabilityPrice(row[3])]);
+                const kept = [id, String(row[1]), row[2] !== false, normalizeAvailabilityPrice(row[3]), normalizePromoPrice(row[4])];
+                rows.push(kept);
+                extraRows.push(kept);
                 rowById.delete(id);
             }
         });
@@ -202,17 +217,24 @@ function syncAvailability(products) {
         return {
             availability: Object.fromEntries(rows.map(row => [String(row[0]), row[2]])),
             prices: Object.fromEntries(rows.filter(row => row[3] !== null).map(row => [String(row[0]), row[3]])),
-            catalog: rows.map(row => ({
-                id: row[0],
-                name: row[1],
-                available: row[2],
-                price: normalizeAvailabilityPrice(row[3])
-            })),
+            promoPrices: Object.fromEntries(rows.filter(row => row[4] !== null).map(row => [String(row[0]), row[4]])),
+            catalog: rows.map(toCatalogEntry),
+            extras: extraRows.map(toCatalogEntry),
             imported: importedCatalogActive
         };
     } finally {
         lock.releaseLock();
     }
+}
+
+function toCatalogEntry(row) {
+    return {
+        id: row[0],
+        name: row[1],
+        available: row[2],
+        price: normalizeAvailabilityPrice(row[3]),
+        promoPrice: normalizePromoPrice(row[4])
+    };
 }
 
 function importCatalog(payload) {
@@ -253,13 +275,19 @@ function importCatalog(payload) {
     lock.waitLock(10000);
     try {
         const sheet = getAvailabilitySheet();
+        const previousPromos = new Map();
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) {
+            sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).getValues()
+                .forEach(row => previousPromos.set(Number(row[0]), normalizePromoPrice(row[4])));
+        }
         const rows = products.map(product => [
             product.id,
             product.name,
             product.available,
-            product.price
+            product.price,
+            previousPromos.has(product.id) ? previousPromos.get(product.id) : null
         ]);
-        const lastRow = sheet.getLastRow();
         if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).clearContent();
         sheet.getRange(2, 1, rows.length, AVAILABILITY_HEADERS.length).setValues(rows);
         PropertiesService.getScriptProperties().setProperty(CATALOG_IMPORT_ACTIVE_PROPERTY, 'true');
@@ -276,12 +304,7 @@ function listAvailability(token) {
     if (lastRow < 2) return [];
     return sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).getValues()
         .filter(row => Number.isSafeInteger(Number(row[0])) && String(row[1]).trim())
-        .map(row => ({
-            id: Number(row[0]),
-            name: String(row[1]),
-            available: row[2] !== false,
-            price: normalizeAvailabilityPrice(row[3])
-        }))
+        .map(row => toCatalogEntry([Number(row[0]), String(row[1]), row[2] !== false, row[3], row[4]]))
         .sort((first, second) => first.name.localeCompare(second.name, 'pt-BR'));
 }
 
@@ -344,15 +367,85 @@ function getAvailabilitySheet() {
         sheet.autoResizeColumns(1, AVAILABILITY_HEADERS.length);
     } else {
         const headers = sheet.getRange(1, 1, 1, AVAILABILITY_HEADERS.length).getDisplayValues()[0];
-        const hasCurrentHeaders = AVAILABILITY_HEADERS.every((header, index) => headers[index] === header);
+        const hasBaseHeaders = AVAILABILITY_BASE_HEADERS.every((header, index) => headers[index] === header);
         const hasLegacyHeaders = LEGACY_AVAILABILITY_HEADERS.every((header, index) => headers[index] === header);
         if (hasLegacyHeaders && !headers[3]) {
             sheet.getRange(1, 4).setValue(AVAILABILITY_HEADERS[3]);
-        } else if (!hasCurrentHeaders) {
+        } else if (!hasBaseHeaders) {
             throw new Error('Os cabeçalhos da aba Disponibilidade não correspondem ao formato esperado.');
         }
+        if (!headers[4]) sheet.getRange(1, 5).setValue(AVAILABILITY_HEADERS[4]);
     }
     return sheet;
+}
+
+// Vazio = usa a promoção padrão do catálogo; 0 = promoção removida; maior que zero = preço promocional.
+function normalizePromoPrice(value) {
+    if (value === null || value === undefined || String(value).trim() === '') return null;
+    const price = Number(value);
+    return Number.isFinite(price) && price >= 0 ? Math.round((price + Number.EPSILON) * 100) / 100 : null;
+}
+
+function updateProductPromotion(payload) {
+    getSessionAdminKey(payload.token);
+    const productId = Number(payload.productId);
+    const promoPrice = Number(payload.promoPrice);
+    if (!Number.isSafeInteger(productId) || productId < 1 || !Number.isFinite(promoPrice)
+        || promoPrice < 0 || promoPrice > 1000000000) {
+        throw new Error('O preço promocional informado é inválido.');
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+        const sheet = getAvailabilitySheet();
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) throw new Error('O catálogo ainda não foi sincronizado.');
+        const rows = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
+        const rowIndex = rows.findIndex(row => Number(row[0]) === productId);
+        if (rowIndex === -1) throw new Error('O produto não foi encontrado. Atualize o catálogo e tente novamente.');
+        const price = normalizeAvailabilityPrice(rows[rowIndex][3]);
+        const saved = Math.round((promoPrice + Number.EPSILON) * 100) / 100;
+        if (saved > 0 && payload.catalogPrice == null && price === null) {
+            throw new Error('Cadastre o preço do produto antes de criar a promoção.');
+        }
+        const basePrice = price !== null ? price : Number(payload.catalogPrice);
+        if (saved > 0 && (!Number.isFinite(basePrice) || saved >= basePrice)) {
+            throw new Error('O preço promocional precisa ser menor que o preço normal.');
+        }
+        sheet.getRange(rowIndex + 2, 5).setValue(saved);
+        return { productId: productId, promoPrice: saved };
+    } finally {
+        lock.releaseLock();
+    }
+}
+
+function addProduct(payload) {
+    getSessionAdminKey(payload.token);
+    const name = String(payload.name || '').trim();
+    const price = Number(payload.price);
+    if (!name || name.length > 250) throw new Error('Informe o nome do produto (até 250 caracteres).');
+    if (!Number.isFinite(price) || price <= 0 || price > 1000000000) throw new Error('Informe um preço válido maior que zero.');
+    const roundedPrice = Math.round((price + Number.EPSILON) * 100) / 100;
+    const normalizeName = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+        const sheet = getAvailabilitySheet();
+        const lastRow = sheet.getLastRow();
+        const rows = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, 2).getValues() : [];
+        if (rows.length >= 900) throw new Error('O catálogo atingiu o limite de produtos.');
+        if (rows.some(row => normalizeName(row[1]) === normalizeName(name))) {
+            throw new Error('Já existe um produto com esse nome.');
+        }
+        const id = Math.max(2000, ...rows.map(row => Number(row[0]) || 0)) + 1;
+        sheet.appendRow([id, name, true, roundedPrice, '']);
+        return { id: id, name: name, price: roundedPrice, available: true };
+    } finally {
+        lock.releaseLock();
+    }
 }
 
 function normalizeAvailabilityPrice(value) {
@@ -406,6 +499,12 @@ function recordSale(sale) {
 
     const now = new Date();
     const commission = Math.round((total + Number.EPSILON) * 5) / 100;
+    let companyName = '';
+    try {
+        companyName = lookupCompanyName(digits) || '';
+    } catch (error) {
+        companyName = '';
+    }
     const row = [
         Utilities.getUuid(),
         sellerKey,
@@ -414,7 +513,8 @@ function recordSale(sale) {
         total,
         commission,
         paymentCondition,
-        JSON.stringify(items)
+        JSON.stringify(items),
+        companyName
     ];
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
@@ -434,27 +534,35 @@ function listSales(payload) {
     if (endDate) endDate.setUTCDate(endDate.getUTCDate() + 1);
     const search = String(filters.search || '').trim();
     const searchDigits = search.replace(/\D/g, '');
-    const pageSize = Math.min(Math.max(Number(payload.pageSize) || 30, 1), 100);
+    const pageSize = Math.min(Math.max(Number(payload.pageSize) || 10, 1), 100);
     const page = Math.max(Number(payload.page) || 0, 0);
     const sheet = getSalesSheet();
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) return { saleCount: 0, grossTotal: 0, commissionTotal: 0, sales: [] };
 
     const rows = sheet.getRange(2, 1, lastRow - 1, SALES_HEADERS.length).getValues();
+    rows.forEach((row, index) => { row.rowNumber = index + 2; });
     const matches = rows.filter(row => {
         if (row[1] !== adminKey) return false;
         const soldAt = row[3] instanceof Date ? row[3] : new Date(row[3]);
         if (startDate && soldAt < startDate) return false;
         if (endDate && soldAt >= endDate) return false;
-        if (search && (!searchDigits || !String(row[2]).replace(/\D/g, '').includes(searchDigits))) return false;
+        if (search) {
+            const matchesCnpj = searchDigits && String(row[2]).replace(/\D/g, '').includes(searchDigits);
+            const matchesName = normalizeSearchText(row[8]).includes(normalizeSearchText(search));
+            if (!matchesCnpj && !matchesName) return false;
+        }
         return true;
     }).sort((left, right) => new Date(right[3]).getTime() - new Date(left[3]).getTime());
 
     const grossTotal = matches.reduce((sum, row) => sum + Number(row[4] || 0), 0);
     const commissionTotal = matches.reduce((sum, row) => sum + Number(row[5] || 0), 0);
-    const sales = matches.slice(page * pageSize, (page + 1) * pageSize).map(row => ({
+    const pageRows = matches.slice(page * pageSize, (page + 1) * pageSize);
+    fillMissingCompanyNames(sheet, rows, pageRows);
+    const sales = pageRows.map(row => ({
         id: String(row[0]),
         cnpj: String(row[2]),
+        companyName: String(row[8] || ''),
         soldAt: (row[3] instanceof Date ? row[3] : new Date(row[3])).toISOString(),
         total: Number(row[4]),
         commission: Number(row[5]),
@@ -467,6 +575,123 @@ function listSales(payload) {
         commissionTotal: Math.round((commissionTotal + Number.EPSILON) * 100) / 100,
         sales: sales
     };
+}
+
+function normalizeSearchText(value) {
+    return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+function lookupCompanyName(cnpj) {
+    const digits = String(cnpj || '').replace(/\D/g, '');
+    if (digits.length !== 14) throw new Error('O CNPJ precisa conter 14 dígitos.');
+    const cache = CacheService.getScriptCache();
+    const hitKey = 'cnpj-name-' + digits;
+    const cached = cache.get(hitKey);
+    if (cached) return cached;
+    if (cache.get('cnpj-miss-' + digits)) return '';
+
+    const sources = [
+        { url: 'https://brasilapi.com.br/api/cnpj/v1/' + digits, field: 'razao_social' },
+        { url: 'https://receitaws.com.br/v1/cnpj/' + digits, field: 'nome' }
+    ];
+    for (let index = 0; index < sources.length; index += 1) {
+        try {
+            const response = UrlFetchApp.fetch(sources[index].url, { muteHttpExceptions: true });
+            if (response.getResponseCode() !== 200) continue;
+            const name = String(JSON.parse(response.getContentText())[sources[index].field] || '').trim();
+            if (name) {
+                cache.put(hitKey, name.slice(0, 250), 21600);
+                return name.slice(0, 250);
+            }
+        } catch (error) {
+            // tenta a próxima fonte
+        }
+    }
+    cache.put('cnpj-miss-' + digits, '1', 600);
+    return '';
+}
+
+function fillMissingCompanyNames(sheet, allRows, pageRows) {
+    const knownNames = new Map();
+    allRows.forEach(row => {
+        const digits = String(row[2]).replace(/\D/g, '');
+        if (row[8] && digits) knownNames.set(digits, String(row[8]));
+    });
+    const startedAt = Date.now();
+    pageRows.forEach(row => {
+        if (row[8]) return;
+        const digits = String(row[2]).replace(/\D/g, '');
+        if (digits.length !== 14) return;
+        let name = knownNames.get(digits) || '';
+        if (!name && Date.now() - startedAt < 20000) {
+            try {
+                name = lookupCompanyName(digits);
+            } catch (error) {
+                name = '';
+            }
+        }
+        if (!name) return;
+        knownNames.set(digits, name);
+        const lock = LockService.getScriptLock();
+        lock.waitLock(10000);
+        try {
+            if (String(sheet.getRange(row.rowNumber, 1).getValue()) === String(row[0])) {
+                sheet.getRange(row.rowNumber, 9).setValue(name);
+                row[8] = name;
+            }
+        } finally {
+            lock.releaseLock();
+        }
+    });
+}
+
+function updateSale(payload) {
+    const adminKey = getSessionAdminKey(payload.token);
+    const saleId = String(payload.saleId || '').trim();
+    if (!saleId) throw new Error('Pedido inválido.');
+    if (!Array.isArray(payload.items) || payload.items.length === 0 || payload.items.length > 500) {
+        throw new Error('O pedido precisa ter entre 1 e 500 itens.');
+    }
+    const items = payload.items.map((item, index) => {
+        const name = String(item && item.name || '').trim();
+        const quantity = Number(item && item.quantity);
+        const unitPrice = Number(item && item.unit_price);
+        if (!name || name.length > 250 || !Number.isFinite(quantity) || quantity <= 0 || quantity > 1000000
+            || !Number.isFinite(unitPrice) || unitPrice < 0 || unitPrice > 1000000000) {
+            throw new Error('O item ' + (index + 1) + ' contém dados inválidos.');
+        }
+        return {
+            name: name,
+            quantity: quantity,
+            unit_price: Math.round((unitPrice + Number.EPSILON) * 100) / 100,
+            variant: item.variant ? String(item.variant).slice(0, 250) : null
+        };
+    });
+    const rawTotal = items.reduce((sum, item) => sum + item.quantity * item.unit_price, 0);
+    const total = Math.round((rawTotal + Number.EPSILON) * 100) / 100;
+    if (total < 300 || total > 1000000000) {
+        throw new Error('O valor do pedido precisa estar entre R$ 300,00 e R$ 1.000.000.000,00.');
+    }
+    const paymentCondition = payload.paymentCondition === undefined
+        ? null
+        : String(payload.paymentCondition).trim();
+    if (paymentCondition !== null && (!paymentCondition || paymentCondition.length > 80)) {
+        throw new Error('Condição de pagamento inválida.');
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+        const sheet = getSalesSheet();
+        const rowNumber = findAdminSaleRow(sheet, saleId, adminKey);
+        const commission = Math.round((total + Number.EPSILON) * 5) / 100;
+        sheet.getRange(rowNumber, 5, 1, 2).setValues([[total, commission]]);
+        if (paymentCondition !== null) sheet.getRange(rowNumber, 7).setValue(paymentCondition);
+        sheet.getRange(rowNumber, 8).setValue(JSON.stringify(items));
+    } finally {
+        lock.releaseLock();
+    }
+    return { updated: true, total: total, commission: Math.round((total + Number.EPSILON) * 5) / 100 };
 }
 
 function updateSaleTotal(payload) {
@@ -556,7 +781,7 @@ function ensureSalesSheetSchema(sheet) {
         sheet.getRange(1, 1, 1, SALES_HEADERS.length).setValues([SALES_HEADERS]);
     } else {
         const headers = sheet.getRange(1, 1, 1, LEGACY_SALES_HEADERS.length).getDisplayValues()[0];
-        const currentHeadersMatch = SALES_HEADERS.every((header, index) => headers[index] === header);
+        const currentHeadersMatch = SALES_BASE_HEADERS.every((header, index) => headers[index] === header);
         const legacyHeadersMatch = LEGACY_SALES_HEADERS.every((header, index) => headers[index] === header);
 
         if (legacyHeadersMatch) {
@@ -566,6 +791,9 @@ function ensureSalesSheetSchema(sheet) {
         }
     }
 
+    if (sheet.getMaxColumns() < SALES_HEADERS.length) {
+        sheet.insertColumnsAfter(sheet.getMaxColumns(), SALES_HEADERS.length - sheet.getMaxColumns());
+    }
     sheet.getRange(1, 1, 1, SALES_HEADERS.length).setValues([SALES_HEADERS]);
     sheet.setFrozenRows(1);
     sheet.autoResizeColumns(1, SALES_HEADERS.length);

@@ -13,3 +13,10 @@ Para ativar a função, copie o conteúdo atualizado de `google-apps-script/Code
 No painel administrativo, use **Importar lista de produtos em PDF** para selecionar a lista de preços digital (PDF com texto selecionável). A prévia mostra os produtos reconhecidos, nomes/preços alterados, novos itens e os produtos que serão removidos. A importação só acontece depois da confirmação explícita; itens ausentes no PDF são excluídos do catálogo. A correspondência é pelo nome normalizado, produtos novos recebem uma imagem genérica e os produtos correspondentes mantêm a disponibilidade atual (itens sem preço que passam a ter preço são ativados). As promoções atuais também são mantidas até nova orientação; os preços promocionais existentes continuam aplicados aos produtos correspondentes.
 
 Esta operação torna o catálogo importado a fonte oficial compartilhada com todos os clientes. Antes de usar, atualize `google-apps-script/Code.gs` no projeto Apps Script e publique uma nova versão do Web App. PDF protegido, digitalização sem texto ou lista incompleta é rejeitado sem atualizar a planilha.
+
+## Pedidos, clientes e catálogo (painel admin)
+
+- **Editar pedido enviado:** o botão *Editar pedido* abre um editor para alterar quantidades e valores, remover ou adicionar itens; o total e a comissão de 5% são recalculados (mínimo R$ 300,00).
+- **Razão social:** ao digitar um CNPJ válido o catálogo consulta BrasilAPI/ReceitaWS (via Apps Script), mostra a razão social e a inclui no pedido. O histórico exibe a razão social (coluna `Razão social`, criada automaticamente na aba `Vendas`; pedidos antigos são preenchidos ao serem listados) e é paginado de 10 em 10.
+- **Catálogo:** é possível adicionar produtos, editar o preço de qualquer item e colocar/remover promoções (coluna `Preço promocional` da aba `Disponibilidade`).
+- Reimplante o `google-apps-script/Code.gs` e publique uma nova versão do Web App; autorize a nova permissão de acesso externo (`UrlFetchApp`).
