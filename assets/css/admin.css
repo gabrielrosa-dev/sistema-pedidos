@@ -27,6 +27,15 @@
 .admin-dashboard-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
 .admin-dashboard-heading .admin-intro { margin: 0; }
 .admin-user-area { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; color: #475569; font-size: .86rem; font-weight: 800; }
+.sales-periods { margin-bottom: 22px; }
+.sales-periods h2, .sales-history-title { margin: 0 0 8px; color: #17243a; font-size: 1.2rem; }
+.sales-periods .admin-intro { margin-bottom: 12px; font-size: .86rem; }
+.sales-period-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.sales-period-button { display: grid; gap: 6px; padding: 14px; border: 1px solid #dbe3ee; border-radius: 12px; background: #fff; color: #334155; text-align: left; cursor: pointer; font-size: .82rem; }
+.sales-period-button:hover, .sales-period-button[aria-pressed="true"] { border-color: #2f6fed; background: #eff6ff; }
+.sales-period-button strong { color: #172554; font-size: 1rem; text-transform: capitalize; }
+.sales-period-button small { color: #64748b; font-size: .74rem; }
+.sales-history-title { margin-top: 20px; }
 .admin-filters { display: grid; grid-template-columns: 1fr 1fr minmax(220px, 2fr) auto auto; align-items: end; gap: 12px; margin-bottom: 18px; padding: 17px; border: 1px solid #e0e7f1; border-radius: 14px; background: #fff; box-shadow: 0 8px 24px rgba(15,23,42,.04); }
 .admin-filters label { min-width: 0; }
 .admin-filters input { display: block; margin: 6px 0 0; }

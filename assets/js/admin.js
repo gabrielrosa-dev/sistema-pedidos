@@ -9,6 +9,8 @@
     const enableNotificationsButton = document.getElementById('enable-notifications-button');
     const notificationSetupMessage = document.getElementById('notification-setup-message');
     const filterForm = document.getElementById('sales-filter-form');
+    const salesPeriodList = document.getElementById('sales-period-list');
+    const salesHistoryPeriod = document.getElementById('sales-history-period');
     const tableBody = document.getElementById('sales-table-body');
     const emptyState = document.getElementById('sales-empty-state');
     const inventoryList = document.getElementById('inventory-list');
@@ -28,6 +30,8 @@
     let inventoryProducts = [];
     let catalogImportPlan = null;
     let importedCatalogActive = false;
+    let selectedPeriod = currentSalesPeriod();
+    let salesRequestId = 0;
 
     function setMessage(element, message, isError) {
         element.textContent = message;
@@ -45,6 +49,65 @@
             timeStyle: 'short',
             timeZone: 'America/Sao_Paulo'
         }).format(new Date(value));
+    }
+
+    function currentSalesPeriod() {
+        const parts = new Intl.DateTimeFormat('en-CA', {
+            year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Sao_Paulo'
+        }).formatToParts(new Date()).reduce((result, part) => {
+            result[part.type] = part.value;
+            return result;
+        }, {});
+        const date = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1 + (Number(parts.day) >= 11 ? 1 : 0), 1));
+        return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
+    }
+
+    function salesPeriodDetails(key) {
+        const [year, month] = key.split('-').map(Number);
+        const start = new Date(Date.UTC(year, month - 2, 11));
+        const end = new Date(Date.UTC(year, month - 1, 10));
+        const dateKey = date => date.toISOString().slice(0, 10);
+        const dateLabel = date => new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(date);
+        const monthLabel = new Intl.DateTimeFormat('pt-BR', {
+            month: 'long', year: 'numeric', timeZone: 'UTC'
+        }).format(end);
+        return {
+            startDate: dateKey(start),
+            endDate: dateKey(end),
+            label: monthLabel,
+            range: `${dateLabel(start)} a ${dateLabel(end)}`
+        };
+    }
+
+    function renderSalesPeriods(periods) {
+        const summaries = new Map(periods.map(period => [period.key, period]));
+        [currentSalesPeriod(), selectedPeriod].forEach(key => {
+            if (!summaries.has(key)) summaries.set(key, { key, grossTotal: 0, commissionTotal: 0 });
+        });
+        salesPeriodList.replaceChildren();
+        Array.from(summaries.values()).sort((a, b) => b.key.localeCompare(a.key)).forEach(period => {
+            const details = salesPeriodDetails(period.key);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'sales-period-button';
+            button.setAttribute('aria-pressed', String(period.key === selectedPeriod));
+            const heading = document.createElement('strong');
+            heading.textContent = details.label;
+            const range = document.createElement('small');
+            range.textContent = details.range;
+            const total = document.createElement('span');
+            total.textContent = `Vendas: ${formatMoney(period.grossTotal)}`;
+            const commission = document.createElement('span');
+            commission.textContent = `Comissão: ${formatMoney(period.commissionTotal)}`;
+            button.append(heading, range, total, commission);
+            button.addEventListener('click', () => {
+                selectedPeriod = period.key;
+                currentPage = 0;
+                filterForm.reset();
+                loadSales();
+            });
+            salesPeriodList.appendChild(button);
+        });
     }
 
     function appendCell(row, value, className) {
@@ -333,6 +396,9 @@
     function showDashboard(profile) {
         loginPanel.hidden = true;
         dashboard.hidden = false;
+        selectedPeriod = currentSalesPeriod();
+        currentPage = 0;
+        filterForm.reset();
         document.getElementById('admin-display-name').textContent = profile.displayName;
         notificationSetup.hidden = profile.adminKey !== 'gabriel';
         loadInventory();
@@ -858,6 +924,9 @@
     });
 
     async function loadSales() {
+        const requestId = ++salesRequestId;
+        const period = salesPeriodDetails(selectedPeriod);
+        salesHistoryPeriod.textContent = `Histórico: ${period.range}`;
         setMessage(dataMessage, 'Carregando vendas...', false);
         tableBody.replaceChildren();
         emptyState.hidden = true;
@@ -865,14 +934,21 @@
         const filters = {
             startDate: document.getElementById('filter-start-date').value || '',
             endDate: document.getElementById('filter-end-date').value || '',
+            periodStart: period.startDate,
+            periodEnd: period.endDate,
             search: document.getElementById('filter-search').value.trim()
         };
 
         try {
             const result = await sheets.fetchSales(filters, currentPage, pageSize);
-            document.getElementById('summary-count').textContent = Number(result.saleCount).toLocaleString('pt-BR');
-            document.getElementById('summary-total').textContent = formatMoney(result.grossTotal);
-            document.getElementById('summary-commission').textContent = formatMoney(result.commissionTotal);
+            if (requestId !== salesRequestId) return;
+            if (!result.overall || !Array.isArray(result.periods)) {
+                throw new Error('Atualize e publique a nova versão do Apps Script para carregar os períodos.');
+            }
+            document.getElementById('summary-count').textContent = Number(result.overall.saleCount).toLocaleString('pt-BR');
+            document.getElementById('summary-total').textContent = formatMoney(result.overall.grossTotal);
+            document.getElementById('summary-commission').textContent = formatMoney(result.overall.commissionTotal);
+            renderSalesPeriods(result.periods);
             resultCount = result.saleCount;
             result.sales.forEach(sale => {
                 const row = document.createElement('tr');
@@ -909,6 +985,11 @@
             setMessage(dataMessage, '', false);
             updatePagination();
         } catch (error) {
+            if (requestId !== salesRequestId) return;
+            salesPeriodList.replaceChildren();
+            document.getElementById('summary-count').textContent = '—';
+            document.getElementById('summary-total').textContent = '—';
+            document.getElementById('summary-commission').textContent = '—';
             setMessage(dataMessage, `Erro ao carregar o histórico: ${error.message}`, true);
             document.getElementById('next-page-button').disabled = true;
         }
@@ -968,6 +1049,7 @@
     document.getElementById('admin-logout-button').addEventListener('click', async () => {
         try {
             await sheets.logout();
+            salesRequestId += 1;
             dashboard.hidden = true;
             loginPanel.hidden = false;
             setMessage(loginMessage, 'Você saiu do painel.', false);

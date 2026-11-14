@@ -640,21 +640,48 @@ function listSales(payload) {
     const startDate = filters.startDate ? new Date(String(filters.startDate) + 'T00:00:00-03:00') : null;
     const endDate = filters.endDate ? new Date(String(filters.endDate) + 'T00:00:00-03:00') : null;
     if (endDate) endDate.setUTCDate(endDate.getUTCDate() + 1);
+    const periodStart = filters.periodStart ? new Date(String(filters.periodStart) + 'T00:00:00-03:00') : null;
+    const periodEnd = filters.periodEnd ? new Date(String(filters.periodEnd) + 'T00:00:00-03:00') : null;
+    if (periodEnd) periodEnd.setUTCDate(periodEnd.getUTCDate() + 1);
     const search = String(filters.search || '').trim();
     const searchDigits = search.replace(/\D/g, '');
     const pageSize = Math.min(Math.max(Number(payload.pageSize) || 10, 1), 100);
     const page = Math.max(Number(payload.page) || 0, 0);
     const sheet = getSalesSheet();
     const lastRow = sheet.getLastRow();
-    if (lastRow < 2) return { saleCount: 0, grossTotal: 0, commissionTotal: 0, sales: [] };
+    if (lastRow < 2) return {
+        saleCount: 0, grossTotal: 0, commissionTotal: 0, sales: [],
+        overall: { saleCount: 0, grossTotal: 0, commissionTotal: 0 },
+        periods: []
+    };
 
     const rows = sheet.getRange(2, 1, lastRow - 1, SALES_HEADERS.length).getValues();
     rows.forEach((row, index) => { row.rowNumber = index + 2; });
-    const matches = rows.filter(row => {
-        if (row[1] !== adminKey) return false;
+    const adminRows = rows.filter(row => row[1] === adminKey);
+    const overall = { saleCount: 0, grossTotal: 0, commissionTotal: 0 };
+    const periods = new Map();
+    adminRows.forEach(row => {
+        const soldAt = row[3] instanceof Date ? row[3] : new Date(row[3]);
+        if (isNaN(soldAt.getTime())) throw new Error('Uma venda possui uma data inválida no histórico.');
+        const dateParts = Utilities.formatDate(soldAt, 'America/Sao_Paulo', 'yyyy-MM-dd').split('-').map(Number);
+        const periodDate = new Date(Date.UTC(dateParts[0], dateParts[1] - 1 + (dateParts[2] >= 11 ? 1 : 0), 1));
+        const key = periodDate.getUTCFullYear() + '-' + String(periodDate.getUTCMonth() + 1).padStart(2, '0');
+        if (!periods.has(key)) periods.set(key, { key: key, saleCount: 0, grossTotal: 0, commissionTotal: 0 });
+        const period = periods.get(key);
+        const total = Number(row[4] || 0);
+        const commission = Number(row[5] || 0);
+        [overall, period].forEach(summary => {
+            summary.saleCount += 1;
+            summary.grossTotal += total;
+            summary.commissionTotal += commission;
+        });
+    });
+    const matches = adminRows.filter(row => {
         const soldAt = row[3] instanceof Date ? row[3] : new Date(row[3]);
         if (startDate && soldAt < startDate) return false;
         if (endDate && soldAt >= endDate) return false;
+        if (periodStart && soldAt < periodStart) return false;
+        if (periodEnd && soldAt >= periodEnd) return false;
         if (search) {
             const matchesCnpj = searchDigits && String(row[2]).replace(/\D/g, '').includes(searchDigits);
             const matchesName = normalizeSearchText(row[8]).includes(normalizeSearchText(search));
@@ -681,6 +708,8 @@ function listSales(payload) {
         saleCount: matches.length,
         grossTotal: Math.round((grossTotal + Number.EPSILON) * 100) / 100,
         commissionTotal: Math.round((commissionTotal + Number.EPSILON) * 100) / 100,
+        overall: overall,
+        periods: Array.from(periods.values()).sort((left, right) => right.key.localeCompare(left.key)),
         sales: sales
     };
 }

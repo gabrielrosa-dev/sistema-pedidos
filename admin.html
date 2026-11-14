@@ -58,6 +58,13 @@
                 <p class="admin-message" id="notification-setup-message" role="status"></p>
             </section>
 
+            <section class="sales-periods" aria-labelledby="sales-periods-title">
+                <h2 id="sales-periods-title">Vendas por período</h2>
+                <p class="admin-intro">Cada período vai do dia 11 ao dia 10 do mês seguinte. Selecione um mês para ver os pedidos.</p>
+                <div class="sales-period-list" id="sales-period-list"></div>
+            </section>
+
+            <h2 class="sales-history-title" id="sales-history-period"></h2>
             <form class="admin-filters" id="sales-filter-form">
                 <label>
                     Data inicial
@@ -77,11 +84,11 @@
 
             <div class="admin-summary-grid">
                 <article class="admin-summary-card">
-                    <span>Vendas no período</span>
+                    <span>Vendas totais</span>
                     <strong id="summary-count">0</strong>
                 </article>
                 <article class="admin-summary-card">
-                    <span>Valor vendido</span>
+                    <span>Valor vendido total</span>
                     <strong id="summary-total">R$ 0,00</strong>
                 </article>
                 <article class="admin-summary-card admin-commission-card">
