@@ -46,6 +46,18 @@
                 </div>
             </div>
 
+            <section class="admin-notification-setup admin-inventory" id="notification-setup" hidden>
+                <div class="admin-section-heading">
+                    <div>
+                        <p class="eyebrow">Acompanhamento de vendas</p>
+                        <h2>Notificações neste celular</h2>
+                        <p class="admin-intro">Ative neste aparelho privado para receber a razão social e o valor das vendas do Gabriel, mesmo com o painel fechado.</p>
+                    </div>
+                    <button class="admin-primary-button" id="enable-notifications-button" type="button">Ativar notificações</button>
+                </div>
+                <p class="admin-message" id="notification-setup-message" role="status"></p>
+            </section>
+
             <form class="admin-filters" id="sales-filter-form">
                 <label>
                     Data inicial
@@ -195,6 +207,8 @@
     <script src="assets/js/sheets-config.js"></script>
     <script src="assets/js/sheets-client.js"></script>
     <script src="assets/js/catalog-data.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
     <script src="assets/js/admin.js"></script>
 </body>
 </html>

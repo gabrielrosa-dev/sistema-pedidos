@@ -5,6 +5,7 @@ const AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço', 'Preço 
 const AVAILABILITY_BASE_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço'];
 const LEGACY_AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível'];
 const CATALOG_IMPORT_ACTIVE_PROPERTY = 'CATALOG_IMPORT_ACTIVE';
+const GABRIEL_FCM_TOKEN_PROPERTY = 'GABRIEL_FCM_DEVICE_TOKEN';
 const SALES_BASE_HEADERS = [
     'ID',
     'Administrador',
@@ -142,6 +143,8 @@ function handleRequest(operation, payload) {
             return updateSale(payload);
         case 'lookupCnpj':
             return { name: lookupCompanyName(payload.cnpj) };
+        case 'registerNotificationDevice':
+            return registerNotificationDevice(payload);
         default:
             throw new Error('Operação desconhecida.');
     }
@@ -497,14 +500,13 @@ function recordSale(sale) {
     if (!paymentCondition || paymentCondition.length > 80) throw new Error('Condição de pagamento inválida.');
     if (!items || items.length === 0 || items.length > 500) throw new Error('Os itens do pedido são inválidos.');
 
+    const companyName = lookupCompanyName(digits);
+    if (!companyName) {
+        throw new Error('Não foi possível carregar a razão social deste CNPJ. Confira o número e tente novamente mais tarde.');
+    }
+
     const now = new Date();
     const commission = Math.round((total + Number.EPSILON) * 5) / 100;
-    let companyName = '';
-    try {
-        companyName = lookupCompanyName(digits) || '';
-    } catch (error) {
-        companyName = '';
-    }
     const row = [
         Utilities.getUuid(),
         sellerKey,
@@ -523,7 +525,113 @@ function recordSale(sale) {
     } finally {
         lock.releaseLock();
     }
-    return { saved: true };
+
+    if (sellerKey !== 'gabriel') return { saved: true, notificationSent: false };
+    try {
+        sendGabrielSaleNotification(companyName, total);
+        return { saved: true, notificationSent: true };
+    } catch (error) {
+        return {
+            saved: true,
+            notificationSent: false,
+            notificationError: error && error.message ? error.message : 'Falha ao enviar a notificação push.'
+        };
+    }
+}
+
+function registerNotificationDevice(payload) {
+    if (getSessionAdminKey(payload.token) !== 'gabriel') {
+        throw new Error('Somente o administrador Gabriel pode registrar o aparelho das notificações.');
+    }
+    const token = String(payload.deviceToken || '').trim();
+    if (token.length < 50 || token.length > 4096) {
+        throw new Error('O token de notificações deste aparelho é inválido.');
+    }
+    PropertiesService.getScriptProperties().setProperty(GABRIEL_FCM_TOKEN_PROPERTY, token);
+    return { registered: true };
+}
+
+function sendGabrielSaleNotification(companyName, total) {
+    const properties = PropertiesService.getScriptProperties();
+    const projectId = properties.getProperty('FCM_PROJECT_ID');
+    const deviceToken = properties.getProperty(GABRIEL_FCM_TOKEN_PROPERTY);
+    if (!projectId || !deviceToken) {
+        throw new Error('Notificação não configurada: registre o aparelho privado no painel do Gabriel e configure o Firebase. Consulte o README.');
+    }
+
+    const accessToken = getFirebaseAccessToken(properties);
+    const amount = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total);
+    const response = UrlFetchApp.fetch(
+        'https://fcm.googleapis.com/v1/projects/' + encodeURIComponent(projectId) + '/messages:send',
+        {
+            method: 'post',
+            contentType: 'application/json',
+            headers: { Authorization: 'Bearer ' + accessToken },
+            payload: JSON.stringify({
+                message: {
+                    token: deviceToken,
+                    notification: {
+                        title: 'Nova venda do Gabriel',
+                        body: String(companyName) + ' • ' + amount
+                    },
+                    data: { companyName: String(companyName), total: String(total) }
+                }
+            }),
+            muteHttpExceptions: true
+        }
+    );
+    if (response.getResponseCode() !== 200) {
+        throw new Error('O Firebase não aceitou a notificação (HTTP ' + response.getResponseCode() + '). Verifique a configuração do projeto e do aparelho.');
+    }
+}
+
+function getFirebaseAccessToken(properties) {
+    const cache = CacheService.getScriptCache();
+    const cachedToken = cache.get('firebase-access-token');
+    if (cachedToken) return cachedToken;
+
+    const clientEmail = properties.getProperty('FCM_SERVICE_ACCOUNT_EMAIL');
+    const privateKey = String(properties.getProperty('FCM_SERVICE_ACCOUNT_PRIVATE_KEY') || '').replace(/\\n/g, '\n');
+    if (!clientEmail || !privateKey) {
+        throw new Error('Notificação não configurada: informe o e-mail e a chave privada da conta de serviço Firebase nas propriedades do Apps Script.');
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const encode = value => Utilities.base64EncodeWebSafe(value).replace(/=+$/g, '');
+    const unsignedToken = [
+        encode(JSON.stringify({ alg: 'RS256', typ: 'JWT' })),
+        encode(JSON.stringify({
+            iss: clientEmail,
+            scope: 'https://www.googleapis.com/auth/firebase.messaging',
+            aud: 'https://oauth2.googleapis.com/token',
+            iat: now,
+            exp: now + 3600
+        }))
+    ].join('.');
+    const signature = Utilities.computeRsaSignature(
+        Utilities.RsaAlgorithm.SHA_256,
+        unsignedToken,
+        privateKey
+    );
+    const assertion = unsignedToken + '.' + encode(signature);
+    const response = UrlFetchApp.fetch('https://oauth2.googleapis.com/token', {
+        method: 'post',
+        payload: {
+            grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            assertion: assertion
+        },
+        muteHttpExceptions: true
+    });
+    if (response.getResponseCode() !== 200) {
+        throw new Error('Não foi possível autenticar no Firebase. Confira as credenciais da conta de serviço.');
+    }
+
+    const result = JSON.parse(response.getContentText());
+    if (!result.access_token || !Number(result.expires_in)) {
+        throw new Error('O Firebase retornou uma credencial de acesso inválida.');
+    }
+    cache.put('firebase-access-token', result.access_token, Math.max(1, Math.min(Number(result.expires_in) - 60, 3500)));
+    return result.access_token;
 }
 
 function listSales(payload) {

@@ -128,6 +128,10 @@
             catalogPrice
         }),
         lookupCnpj: cnpj => request('lookupCnpj', { cnpj }),
+        registerNotificationDevice: deviceToken => request('registerNotificationDevice', {
+            token: getToken(),
+            deviceToken
+        }),
         deleteSale: saleId => request('deleteSale', {
             token: getToken(),
             saleId
@@ -146,7 +150,11 @@
         if (!config.webAppUrl) {
             return { saved: false, reason: 'A integração com Google Sheets ainda não está configurada.' };
         }
-        await request('recordSale', sale);
-        return { saved: true };
+        const result = await request('recordSale', sale);
+        return {
+            saved: true,
+            notificationSent: result.notificationSent === true,
+            notificationError: result.notificationError || ''
+        };
     };
 }());

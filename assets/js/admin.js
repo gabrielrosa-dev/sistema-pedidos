@@ -5,6 +5,9 @@
     const loginMessage = document.getElementById('admin-login-message');
     const dashboard = document.getElementById('admin-dashboard');
     const dataMessage = document.getElementById('admin-data-message');
+    const notificationSetup = document.getElementById('notification-setup');
+    const enableNotificationsButton = document.getElementById('enable-notifications-button');
+    const notificationSetupMessage = document.getElementById('notification-setup-message');
     const filterForm = document.getElementById('sales-filter-form');
     const tableBody = document.getElementById('sales-table-body');
     const emptyState = document.getElementById('sales-empty-state');
@@ -331,9 +334,57 @@
         loginPanel.hidden = true;
         dashboard.hidden = false;
         document.getElementById('admin-display-name').textContent = profile.displayName;
+        notificationSetup.hidden = profile.adminKey !== 'gabriel';
         loadInventory();
         loadSales();
     }
+
+    enableNotificationsButton.addEventListener('click', async () => {
+        enableNotificationsButton.disabled = true;
+        setMessage(notificationSetupMessage, 'Preparando notificações neste aparelho...', false);
+        try {
+            const firebaseConfig = window.RUN_TRAINING_SHEETS_CONFIG.firebase;
+            if (!firebaseConfig
+                || !firebaseConfig.apiKey
+                || !firebaseConfig.projectId
+                || !firebaseConfig.messagingSenderId
+                || !firebaseConfig.appId
+                || !firebaseConfig.vapidKey) {
+                throw new Error('Preencha a configuração Firebase em assets/js/sheets-config.js antes de ativar.');
+            }
+            if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+                throw new Error('Este navegador não oferece suporte a notificações push.');
+            }
+            if (!window.firebase) {
+                throw new Error('Não foi possível carregar o Firebase. Verifique a conexão e tente novamente.');
+            }
+            if (!await firebase.messaging.isSupported()) {
+                throw new Error('Este navegador ou aparelho não oferece suporte a notificações Firebase.');
+            }
+
+            const permission = Notification.permission === 'granted'
+                ? 'granted'
+                : await Notification.requestPermission();
+            if (permission !== 'granted') {
+                throw new Error('Permissão de notificações não concedida neste aparelho.');
+            }
+
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const registration = await navigator.serviceWorker.register('./service-worker.js');
+            const messaging = firebase.messaging();
+            const deviceToken = await messaging.getToken({
+                vapidKey: firebaseConfig.vapidKey,
+                serviceWorkerRegistration: registration
+            });
+            if (!deviceToken) throw new Error('O Firebase não retornou um token para este aparelho.');
+            await sheets.registerNotificationDevice(deviceToken);
+            setMessage(notificationSetupMessage, 'Notificações ativadas neste aparelho. Os próximos pedidos do Gabriel serão enviados para cá.', false);
+        } catch (error) {
+            setMessage(notificationSetupMessage, `Não foi possível ativar as notificações: ${error.message}`, true);
+        } finally {
+            enableNotificationsButton.disabled = false;
+        }
+    });
 
     async function loadInventory() {
         inventoryList.replaceChildren();

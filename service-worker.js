@@ -1,4 +1,4 @@
-const CACHE_NAME = 'run-training-v37';
+const CACHE_NAME = 'run-training-v38';
 const APP_SHELL = [
     './',
     './index.html',
@@ -42,4 +42,42 @@ self.addEventListener('fetch', event => {
             })
             .catch(() => caches.match(event.request))
     );
+});
+
+self.addEventListener('push', event => {
+    if (!event.data) return;
+    let payload;
+    try {
+        payload = event.data.json();
+    } catch (error) {
+        console.error('Payload de notificação push inválido.', error);
+        return;
+    }
+    if (!payload || typeof payload !== 'object') {
+        console.error('Payload de notificação push sem conteúdo válido.');
+        return;
+    }
+
+    const notification = payload.notification || {};
+    const data = payload.data || {};
+    const body = notification.body
+        || [data.companyName, data.total].filter(Boolean).join(' • ');
+    event.waitUntil(self.registration.showNotification(notification.title || 'Nova venda do Gabriel', {
+        body: body,
+        icon: './assets/pwa/pwa-icon-192.png',
+        badge: './assets/pwa/pwa-icon-192.png',
+        data: { url: './admin.html' }
+    }));
+});
+
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    const targetUrl = new URL('./admin.html', self.registration.scope).href;
+    event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+        const existingClient = windowClients.find(client => new URL(client.url).origin === self.location.origin);
+        if (existingClient) {
+            return existingClient.navigate(targetUrl).then(() => existingClient.focus());
+        }
+        return clients.openWindow(targetUrl);
+    }));
 });

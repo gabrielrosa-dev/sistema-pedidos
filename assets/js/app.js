@@ -132,6 +132,7 @@ const productListEl = document.getElementById('product-list');
 const totalValEl = document.getElementById('total-val');
 const minWarningEl = document.getElementById('min-warning');
 const cnpjEl = document.getElementById('cnpj');
+const sendOrderButtonEl = document.querySelector('.btn-whatsapp');
 const condicaoPagamentoEl = document.getElementById('condicao-pagamento');
 const checkoutBoxEl = document.querySelector('.checkout-box');
 const productSearchEl = document.getElementById('product-search');
@@ -391,7 +392,13 @@ function buscarRazaoSocial(cnpjFormatado) {
     razaoSocialConsulta = digits;
     companyEl.hidden = true;
     companyEl.textContent = '';
-    if (!validarCNPJ(digits) || !window.runTrainingSheets || !window.runTrainingSheets.isConfigured()) return;
+    atualizarDisponibilidadeEnvio();
+    if (!validarCNPJ(digits)) return;
+    if (!window.runTrainingSheets || !window.runTrainingSheets.isConfigured()) {
+        companyEl.textContent = 'A integração necessária para consultar a razão social não está configurada.';
+        companyEl.hidden = false;
+        return;
+    }
 
     razaoSocialTimer = window.setTimeout(async () => {
         companyEl.textContent = 'Buscando razão social na Receita Federal...';
@@ -401,11 +408,25 @@ function buscarRazaoSocial(cnpjFormatado) {
             if (razaoSocialConsulta !== digits) return;
             razaoSocialAtual = result && result.name ? result.name : '';
             companyEl.textContent = razaoSocialAtual || 'Razão social não encontrada para este CNPJ.';
+            atualizarDisponibilidadeEnvio();
         } catch (error) {
             if (razaoSocialConsulta !== digits) return;
             companyEl.textContent = 'Não foi possível consultar a razão social agora.';
+            atualizarDisponibilidadeEnvio();
         }
     }, 400);
+}
+
+function atualizarDisponibilidadeEnvio() {
+    if (!sendOrderButtonEl) return;
+    const digits = cnpjEl.value.replace(/\D/g, '');
+    const companyNameLoaded = Boolean(razaoSocialAtual)
+        && razaoSocialConsulta === digits
+        && validarCNPJ(digits);
+    sendOrderButtonEl.disabled = !companyNameLoaded;
+    sendOrderButtonEl.title = companyNameLoaded
+        ? ''
+        : 'Informe um CNPJ válido e aguarde carregar a razão social para liberar o envio.';
 }
 
 function validarCNPJ(cnpj) {
@@ -987,6 +1008,11 @@ async function enviarPedido() {
         return;
     }
 
+    if (!razaoSocialAtual || razaoSocialConsulta !== cnpjValue.replace(/\D/g, '')) {
+        alert('Aguarde carregar a razão social do comprador antes de enviar o pedido.');
+        return;
+    }
+
     const total = calculateTotal();
     if (total < 300.00) {
         alert('O valor mínimo para o pedido é de R$ 300,00.');
@@ -1070,6 +1096,9 @@ async function enviarPedido() {
 
         if (!saveResult.saved) throw new Error(saveResult.reason);
         saleSaved = true;
+        if (salesRecord.seller_key === 'gabriel' && saveResult.notificationError) {
+            alert(`Pedido registrado, mas a notificação push não foi enviada: ${saveResult.notificationError}`);
+        }
     } catch (error) {
         const message = error && error.message ? error.message : 'Erro desconhecido ao salvar o pedido.';
         const destination = whatsappWindow
@@ -1104,4 +1133,5 @@ document.addEventListener('keydown', event => {
 renderProducts();
 renderOrderSummary();
 loadProductAvailability();
+atualizarDisponibilidadeEnvio();
 if (cnpjEl && cnpjEl.value) buscarRazaoSocial(cnpjEl.value);
