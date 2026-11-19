@@ -609,7 +609,7 @@ function getFirebaseAccessToken(properties) {
         }))
     ].join('.');
     const signature = Utilities.computeRsaSignature(
-        Utilities.RsaAlgorithm.SHA_256,
+        Utilities.RsaAlgorithm.RSA_SHA_256,
         unsignedToken,
         privateKey
     );
