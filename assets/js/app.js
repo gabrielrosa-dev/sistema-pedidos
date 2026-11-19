@@ -1076,11 +1076,11 @@ async function enviarPedido() {
         }))
     };
 
-    // Deep links devem ser abertos durante o clique para o navegador permitir a troca para o app.
+    // Reserve a janela no clique e navegue após salvar, evitando interromper a requisição do pedido.
     let whatsappWindow = null;
     if (isMobileOuTablet) {
-        window.location.href = url;
-        whatsappWindow = true;
+        whatsappWindow = window.open('about:blank', '_blank');
+        if (whatsappWindow) whatsappWindow.opener = null;
     } else {
         whatsappWindow = window.open(url, '_blank');
         if (whatsappWindow) whatsappWindow.opener = null;
@@ -1101,16 +1101,20 @@ async function enviarPedido() {
         }
     } catch (error) {
         const message = error && error.message ? error.message : 'Erro desconhecido ao salvar o pedido.';
-        const destination = whatsappWindow
+        const destination = whatsappWindow && !isMobileOuTablet
             ? 'O WhatsApp foi aberto'
-            : 'O WhatsApp será aberto nesta aba porque o navegador bloqueou a nova aba';
+            : 'O WhatsApp será aberto após esta mensagem';
         alert(`${destination}, mas o pedido não foi registrado no histórico: ${message}`);
     } finally {
         window.enviandoPedido = false;
     }
 
     if (saleSaved) limparPedido();
-    if (!whatsappWindow) window.location.href = url;
+    if (isMobileOuTablet && whatsappWindow) {
+        whatsappWindow.location.href = url;
+    } else if (!whatsappWindow) {
+        window.location.href = url;
+    }
 }
 
 if (viewOrderButtonEl) viewOrderButtonEl.addEventListener('click', abrirPedido);
