@@ -401,13 +401,24 @@
         filterForm.reset();
         document.getElementById('admin-display-name').textContent = profile.displayName;
         notificationSetup.hidden = profile.adminKey !== 'gabriel';
+        if (profile.adminKey === 'gabriel') {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                setupNotificationDevice(false);
+            } else if ('Notification' in window && Notification.permission === 'denied') {
+                setMessage(notificationSetupMessage, 'As notificações estão bloqueadas nas permissões do navegador. Libere-as para este site e entre novamente no painel.', true);
+            } else {
+                setMessage(notificationSetupMessage, 'Na primeira vez, toque em “Ativar notificações” e permita o acesso. Depois, o aparelho será atualizado automaticamente ao entrar no painel.', false);
+            }
+        }
         loadInventory();
         loadSales();
     }
 
-    enableNotificationsButton.addEventListener('click', async () => {
+    async function setupNotificationDevice(requestPermission) {
         enableNotificationsButton.disabled = true;
-        setMessage(notificationSetupMessage, 'Preparando notificações neste aparelho...', false);
+        setMessage(notificationSetupMessage, requestPermission
+            ? 'Preparando notificações neste aparelho...'
+            : 'Atualizando o registro de notificações neste aparelho...', false);
         try {
             const firebaseConfig = window.RUN_TRAINING_SHEETS_CONFIG.firebase;
             if (!firebaseConfig
@@ -428,11 +439,16 @@
                 throw new Error('Este navegador ou aparelho não oferece suporte a notificações Firebase.');
             }
 
-            const permission = Notification.permission === 'granted'
-                ? 'granted'
-                : await Notification.requestPermission();
+            let permission = Notification.permission;
+            if (permission !== 'granted' && requestPermission) {
+                permission = await Notification.requestPermission();
+            }
             if (permission !== 'granted') {
-                throw new Error('Permissão de notificações não concedida neste aparelho.');
+                if (!requestPermission && permission === 'default') {
+                    setMessage(notificationSetupMessage, 'Na primeira vez, toque em “Ativar notificações” e permita o acesso. Depois, o aparelho será atualizado automaticamente ao entrar no painel.', false);
+                    return;
+                }
+                throw new Error('Permissão de notificações não concedida. Verifique as permissões deste site no navegador.');
             }
 
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -450,6 +466,10 @@
         } finally {
             enableNotificationsButton.disabled = false;
         }
+    }
+
+    enableNotificationsButton.addEventListener('click', () => {
+        setupNotificationDevice(true);
     });
 
     async function loadInventory() {
