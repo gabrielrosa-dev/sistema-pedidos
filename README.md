@@ -16,6 +16,7 @@ Esta operação torna o catálogo importado a fonte oficial compartilhada com to
 
 ## Pedidos, clientes e catálogo (painel admin)
 
+- **Envio pelo WhatsApp:** no Android e no iPhone/iPad, o catálogo tenta abrir o aplicativo WhatsApp diretamente; no computador, abre o WhatsApp Web em outra janela. O navegador pode solicitar autorização para abrir o aplicativo ou bloquear janelas pop-up. Se o aplicativo não abrir, confira a instalação e as permissões de abertura de links do aparelho.
 - **Histórico por período:** os resumos agrupam as vendas do dia 11 ao dia 10 do mês seguinte, identificados pelo mês de encerramento. Selecione um resumo para consultar seus pedidos; os totais gerais continuam abrangendo todas as vendas da conta. Datas e períodos usam o horário de São Paulo.
 - **Editar pedido enviado:** o botão *Editar pedido* abre um editor para alterar quantidades e valores, remover ou adicionar itens; o total e a comissão de 5% são recalculados (mínimo R$ 300,00).
 - **Razão social obrigatória:** o botão de envio só é liberado depois que a razão social for carregada para o CNPJ informado. O Apps Script também valida esse requisito antes de registrar qualquer pedido. O histórico exibe a razão social (coluna `Razão social`, criada automaticamente na aba `Vendas`; pedidos antigos são preenchidos ao serem listados) e é paginado de 10 em 10.

@@ -1052,16 +1052,11 @@ async function enviarPedido() {
         alert('O WhatsApp deste link ainda não foi configurado.');
         return;
     }
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const isMobileOuTablet = isAndroid || isIOS || navigator.maxTouchPoints > 1
-        || window.matchMedia('(pointer: coarse)').matches;
+    const isMobileOuTablet = /Android/i.test(navigator.userAgent) || isIOS;
     const textoCodificado = encodeURIComponent(mensagem);
-    const linkWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`;
-    const url = isAndroid
-        ? `intent://send?phone=${numeroWhatsApp}&text=${textoCodificado}#Intent;scheme=whatsapp;S.browser_fallback_url=${encodeURIComponent(linkWhatsApp)};end`
-        : isMobileOuTablet
-            ? `whatsapp://send?phone=${numeroWhatsApp}&text=${textoCodificado}`
-            : `https://web.whatsapp.com/send?phone=${numeroWhatsApp}&text=${textoCodificado}`;
+    const url = isMobileOuTablet
+        ? `whatsapp://send?phone=${numeroWhatsApp}&text=${textoCodificado}`
+        : `https://web.whatsapp.com/send?phone=${numeroWhatsApp}&text=${textoCodificado}`;
 
     const salesRecord = {
         seller_key: new URLSearchParams(window.location.search).get('destino') === 'vanderson' ? 'vanderson' : 'gabriel',
@@ -1076,23 +1071,34 @@ async function enviarPedido() {
         }))
     };
 
-    // Reserve a janela no clique e navegue após salvar, evitando interromper a requisição do pedido.
-    let whatsappWindow = null;
-    if (isMobileOuTablet) {
-        whatsappWindow = window.open('about:blank', '_blank');
-        if (whatsappWindow) whatsappWindow.opener = null;
-    } else {
-        whatsappWindow = window.open(url, '_blank');
-        if (whatsappWindow) whatsappWindow.opener = null;
+    if (!isMobileOuTablet) {
+        const whatsappWindow = window.open(url, '_blank');
+        if (!whatsappWindow) {
+            alert('Não foi possível abrir o WhatsApp Web. Permita janelas pop-up e tente novamente.');
+            return;
+        }
+        whatsappWindow.opener = null;
     }
 
     window.enviandoPedido = true;
     let saleSaved = false;
+    let openError = null;
 
     try {
-        const saveResult = typeof window.recordAdminSale === 'function'
-            ? await window.recordAdminSale(salesRecord)
-            : { saved: false, reason: 'A integração com o banco de vendas ainda não foi configurada.' };
+        const savePromise = typeof window.recordAdminSale === 'function'
+            ? window.recordAdminSale(salesRecord)
+            : Promise.resolve({ saved: false, reason: 'A integração com o banco de vendas ainda não foi configurada.' });
+
+        // A abertura deve ocorrer no clique, sem esperar a resposta da planilha.
+        if (isMobileOuTablet) {
+            try {
+                window.location.href = url;
+            } catch (error) {
+                openError = error;
+            }
+        }
+
+        const saveResult = await savePromise;
 
         if (!saveResult.saved) throw new Error(saveResult.reason);
         saleSaved = true;
@@ -1101,20 +1107,15 @@ async function enviarPedido() {
         }
     } catch (error) {
         const message = error && error.message ? error.message : 'Erro desconhecido ao salvar o pedido.';
-        const destination = whatsappWindow && !isMobileOuTablet
-            ? 'O WhatsApp foi aberto'
-            : 'O WhatsApp será aberto após esta mensagem';
-        alert(`${destination}, mas o pedido não foi registrado no histórico: ${message}`);
+        alert(`O pedido não foi registrado no histórico: ${message}. Confira o WhatsApp antes de tentar novamente.`);
     } finally {
         window.enviandoPedido = false;
     }
 
-    if (saleSaved) limparPedido();
-    if (isMobileOuTablet && whatsappWindow) {
-        whatsappWindow.location.href = url;
-    } else if (!whatsappWindow) {
-        window.location.href = url;
+    if (openError) {
+        alert(`Não foi possível abrir o WhatsApp. ${saleSaved ? 'O pedido foi registrado no histórico.' : 'O pedido continua no catálogo.'} Verifique a instalação e as permissões do aparelho.`);
     }
+    if (saleSaved && !openError) limparPedido();
 }
 
 if (viewOrderButtonEl) viewOrderButtonEl.addEventListener('click', abrirPedido);
