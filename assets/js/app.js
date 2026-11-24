@@ -164,6 +164,7 @@ let activeSort = 'name-asc';
 let promotionsOnly = false;
 let promotionCarouselIndex = 0;
 let promotionCarouselTimer = null;
+let promotionCarouselProductId = null;
 const orderPanelEl = document.getElementById('order-panel');
 const orderItemsEl = document.getElementById('order-items');
 const orderItemCountEl = document.getElementById('order-item-count');
@@ -322,9 +323,11 @@ function showPromotionCarouselSlide(items, index, attempts = 0) {
 
     promotionCarouselIndex = index;
     const { product, promotion } = item;
+    promotionCarouselProductId = product.id;
     const promoQuantity = getPromotionMinimumQuantity(product);
     const promoPrice = getProductPrice(product, promoQuantity);
     promotionCarouselNameEl.textContent = promotion.name || product.name;
+    promotionCarouselEl.setAttribute('aria-label', `Ver detalhes de ${promotion.name || product.name} e adicionar ao pedido`);
     promotionCarouselPriceEl.textContent = `De ${formatMoney(product.price)} por ${formatMoney(promoPrice)}${promoQuantity > 1 ? ` · a partir de ${promoQuantity} unidades` : ''}`;
     promotionCarouselImageEl.alt = promotion.name || product.name;
     promotionCarouselImageEl.hidden = false;
@@ -344,6 +347,7 @@ function renderPromotionCarousel() {
     window.clearInterval(promotionCarouselTimer);
     const items = getPromotionCarouselItems();
     if (items.length === 0) {
+        promotionCarouselProductId = null;
         promotionCarouselEl.hidden = true;
         return;
     }
@@ -1028,6 +1032,9 @@ function fecharPromocoes() {
 }
 
 if (openPromotionsButtonEl) openPromotionsButtonEl.addEventListener('click', abrirPromocoes);
+if (promotionCarouselEl) promotionCarouselEl.addEventListener('click', () => {
+    if (promotionCarouselProductId !== null) abrirDetalhesProduto(promotionCarouselProductId);
+});
 if (backToCatalogButtonEl) backToCatalogButtonEl.addEventListener('click', fecharPromocoes);
 
 if (productSortEl) {

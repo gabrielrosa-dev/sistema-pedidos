@@ -41,13 +41,16 @@ main { padding-top: 30px; }
 .promotion-banner h2 { margin-bottom: 5px; color: #9a3412; }
 .promotion-banner p:not(.eyebrow) { margin-bottom: 0; color: #92400e; font-size: 0.9rem; }
 .promotion-banner .eyebrow { color: #c2410c; }
-.promotion-carousel { display: flex; align-items: center; gap: 18px; min-width: 0; min-height: 160px; }
+.promotion-carousel { display: flex; align-items: center; gap: 18px; min-width: 0; min-height: 160px; padding: 0; border: 0; border-radius: 14px; background: transparent; text-align: left; cursor: pointer; }
+.promotion-carousel:hover .promotion-carousel-action { text-decoration: underline; }
 .promotion-carousel-image { width: 144px; height: 144px; flex: 0 0 auto; border-radius: 14px; background: #fff; object-fit: contain; }
 .promotion-carousel-copy { min-width: 0; }
 .promotion-carousel-label { display: inline-block; margin-bottom: 7px; color: #c2410c; font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
-.promotion-carousel-copy h3 { margin: 0 0 7px; color: #7c2d12; font-size: 1.05rem; line-height: 1.35; }
-.promotion-carousel-copy p { color: #92400e; font-size: 0.88rem; font-weight: 800; line-height: 1.4; }
-.promotion-banner-button { position: sticky; top: 0; z-index: 19; display: flex; align-items: center; justify-content: center; gap: 18px; width: 100%; min-height: 52px; padding: 7px 16px; border: 0; background: linear-gradient(110deg, #a83500, #ff920e); color: #fff; cursor: pointer; box-shadow: 0 3px 12px rgba(124, 45, 18, 0.2); }
+.promotion-carousel-name { display: block; margin: 0 0 7px; color: #7c2d12; font-size: 1.05rem; font-weight: 800; line-height: 1.35; }
+.promotion-carousel-price { display: block; color: #92400e; font-size: 0.88rem; font-weight: 800; line-height: 1.4; }
+.promotion-carousel-action { display: block; margin-top: 8px; color: #c2410c; font-size: 0.78rem; font-weight: 800; }
+.promotion-button-container { margin-top: 12px; }
+.promotion-banner-button { display: flex; align-items: center; justify-content: center; gap: 18px; width: 100%; min-height: 52px; padding: 7px 16px; border: 0; border-radius: 10px; background: linear-gradient(110deg, #a83500, #ff920e); color: #fff; cursor: pointer; box-shadow: 0 3px 12px rgba(124, 45, 18, 0.2); }
 .promotion-banner-button:hover { background: linear-gradient(110deg, #8f2d00, #ea7900); }
 .promotion-banner-button strong { font-size: 0.95rem; letter-spacing: 0.04em; text-transform: uppercase; }
 .promotion-button-description { font-size: 0.78rem; }
@@ -100,7 +103,7 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 
 .app-install-banner {
     position: sticky;
-    top: 52px;
+    top: 0;
     z-index: 18;
     display: flex;
     align-items: center;

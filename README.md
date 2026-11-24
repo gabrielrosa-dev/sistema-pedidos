@@ -8,6 +8,10 @@ O painel administrativo permite buscar produtos e alternar entre “Disponível�
 
 Para ativar a função, copie o conteúdo atualizado de `google-apps-script/Code.gs` para o projeto Apps Script conectado à planilha e publique uma nova versão do Web App. O catálogo de produtos é carregado pelo painel admin e a aba `Disponibilidade` será criada automaticamente. Se existir a aba antiga `Produtos`, ela será renomeada para `Disponibilidade` para preservar os status já salvos.
 
+## Promoções no catálogo
+
+Clique no produto em destaque no banner para abrir seus detalhes, escolher as opções e a quantidade e adicioná-lo ao pedido. O botão abaixo do banner exibe todas as promoções do mês.
+
 ## Importar catálogo em PDF
 
 No painel administrativo, use **Importar lista de produtos em PDF** para selecionar a lista de preços digital (PDF com texto selecionável). A prévia mostra os produtos reconhecidos, nomes/preços alterados, novos itens e os produtos que serão removidos. A importação só acontece depois da confirmação explícita; itens ausentes no PDF são excluídos do catálogo. A correspondência é pelo nome normalizado, produtos novos recebem uma imagem genérica e os produtos correspondentes mantêm a disponibilidade atual (itens sem preço que passam a ter preço são ativados). As promoções atuais também são mantidas até nova orientação; os preços promocionais existentes continuam aplicados aos produtos correspondentes.
