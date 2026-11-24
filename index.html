@@ -152,6 +152,7 @@
                     <label for="cnpj">CNPJ da empresa</label>
                     <input type="text" id="cnpj" class="cnpj-input" placeholder="00.000.000/0000-00" maxlength="18" oninput="mascaraCNPJ(this)">
                     <small id="cnpj-company" class="cnpj-company" role="status" aria-live="polite" hidden></small>
+                    <button class="cnpj-retry" id="cnpj-retry" type="button" hidden>Tentar consultar novamente</button>
                 </div>
                 <div class="total-summary">
                     <span class="summary-label">Resumo do pedido</span>
@@ -167,7 +168,8 @@
                 </select>
             </div>
 
-            <button class="btn-whatsapp" onclick="enviarPedido()"><span aria-hidden="true">↗</span> Enviar pedido pelo WhatsApp</button>
+            <button class="btn-whatsapp" onclick="enviarPedido()" aria-describedby="send-order-status"><span aria-hidden="true">↗</span> Enviar pedido pelo WhatsApp</button>
+            <small id="send-order-status" class="send-order-status" role="status" hidden></small>
         </div>
     </div>
 

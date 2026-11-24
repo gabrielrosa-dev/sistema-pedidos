@@ -10,7 +10,7 @@ Para ativar a função, copie o conteúdo atualizado de `google-apps-script/Code
 
 ## Promoções no catálogo
 
-Clique no produto em destaque no banner para abrir seus detalhes, escolher as opções e a quantidade e adicioná-lo ao pedido. O botão abaixo do banner exibe todas as promoções do mês.
+Clique no produto em destaque no banner para abrir seus detalhes, escolher as opções e a quantidade e adicioná-lo ao pedido. O botão abaixo do banner exibe todas as promoções do mês e permanece no topo ao rolar a página.
 
 ## Importar catálogo em PDF
 
@@ -25,6 +25,7 @@ Esta operação torna o catálogo importado a fonte oficial compartilhada com to
 - **Histórico por período:** os resumos agrupam as vendas do dia 11 ao dia 10 do mês seguinte, identificados pelo mês de encerramento. Selecione um resumo para consultar seus pedidos; os totais gerais continuam abrangendo todas as vendas da conta. Datas e períodos usam o horário de São Paulo.
 - **Editar pedido enviado:** o botão *Editar pedido* abre um editor para alterar quantidades e valores, remover ou adicionar itens; o total e a comissão de 5% são recalculados (mínimo R$ 300,00).
 - **Razão social obrigatória:** o botão de envio só é liberado depois que a razão social for carregada para o CNPJ informado. O Apps Script também valida esse requisito antes de registrar qualquer pedido. O histórico exibe a razão social (coluna `Razão social`, criada automaticamente na aba `Vendas`; pedidos antigos são preenchidos ao serem listados) e é paginado de 10 em 10.
+- **Consulta da razão social:** se a integração aparecer como incompatível, confirme primeiro qual é o projeto Apps Script conectado à planilha e faça um backup do código existente. No projeto correto, atualize `Code.gs` com o conteúdo de `google-apps-script/Code.gs` e reimplante o Web App, executando como proprietário e permitindo acesso aos clientes. Autorize as permissões solicitadas e confira se `assets/js/sheets-config.js` aponta para a URL dessa implantação. Depois, use **Tentar consultar novamente** no catálogo.
 - **Notificações no celular do Gabriel:** as vendas enviadas pelo Gabriel podem gerar uma notificação push com a razão social e o valor. Para ativar:
   1. Crie um projeto no Firebase, adicione um app Web e habilite o Firebase Cloud Messaging (API HTTP v1).
   2. Copie `apiKey`, `projectId`, `messagingSenderId` e `appId` para `firebase` em `assets/js/sheets-config.js`. Gere uma chave Web Push (VAPID) nas configurações do Cloud Messaging e copie a chave pública para `vapidKey`.

@@ -49,7 +49,7 @@ main { padding-top: 30px; }
 .promotion-carousel-name { display: block; margin: 0 0 7px; color: #7c2d12; font-size: 1.05rem; font-weight: 800; line-height: 1.35; }
 .promotion-carousel-price { display: block; color: #92400e; font-size: 0.88rem; font-weight: 800; line-height: 1.4; }
 .promotion-carousel-action { display: block; margin-top: 8px; color: #c2410c; font-size: 0.78rem; font-weight: 800; }
-.promotion-button-container { margin-top: 12px; }
+.promotion-button-container { position: sticky; top: 0; z-index: 19; margin-top: 12px; }
 .promotion-banner-button { display: flex; align-items: center; justify-content: center; gap: 18px; width: 100%; min-height: 52px; padding: 7px 16px; border: 0; border-radius: 10px; background: linear-gradient(110deg, #a83500, #ff920e); color: #fff; cursor: pointer; box-shadow: 0 3px 12px rgba(124, 45, 18, 0.2); }
 .promotion-banner-button:hover { background: linear-gradient(110deg, #8f2d00, #ea7900); }
 .promotion-banner-button strong { font-size: 0.95rem; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -103,7 +103,7 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 
 .app-install-banner {
     position: sticky;
-    top: 0;
+    top: 52px;
     z-index: 18;
     display: flex;
     align-items: center;
@@ -255,11 +255,14 @@ h2 { margin-bottom: 0; font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -
 .total-text { font-size: 1.45rem; font-weight: 800; }
 .warning { margin-top: 4px; color: var(--warning); font-size: 0.78rem; font-weight: 700; }
 .cnpj-company { display: block; margin-top: 4px; color: #475569; font-size: 0.78rem; font-weight: 600; overflow-wrap: anywhere; }
+.cnpj-retry { margin-top: 6px; padding: 4px 0; border: 0; background: transparent; color: var(--accent-dark); cursor: pointer; font-size: 0.78rem; font-weight: 800; text-decoration: underline; }
 .payment-field { margin-bottom: 14px; }
 .payment-field .cnpj-input { max-width: none; }
 .btn-whatsapp { display: block; width: 100%; padding: 13px 18px; border: 0; border-radius: 9px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 800; transition: background 0.2s, transform 0.2s; }
 .btn-whatsapp:hover { background: var(--accent-dark); transform: translateY(-1px); }
+.btn-whatsapp:disabled { background: #64748b; cursor: not-allowed; transform: none; }
 .btn-whatsapp span { margin-right: 6px; font-size: 1.15rem; }
+.send-order-status { display: block; margin-top: 6px; color: #475569; font-size: 0.78rem; }
 .site-footer { padding-top: 22px; padding-bottom: 24px; text-align: center; }
 .site-footer a { color: var(--muted); font-size: 0.8rem; font-weight: 700; text-decoration: none; }
 .site-footer a:hover { color: var(--accent-dark); text-decoration: underline; }

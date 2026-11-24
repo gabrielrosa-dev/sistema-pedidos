@@ -467,6 +467,7 @@ let razaoSocialConsulta = '';
 
 function buscarRazaoSocial(cnpjFormatado) {
     const companyEl = document.getElementById('cnpj-company');
+    const retryEl = document.getElementById('cnpj-retry');
     if (!companyEl) return;
     const digits = cnpjFormatado.replace(/\D/g, '');
     window.clearTimeout(razaoSocialTimer);
@@ -474,11 +475,19 @@ function buscarRazaoSocial(cnpjFormatado) {
     razaoSocialConsulta = digits;
     companyEl.hidden = true;
     companyEl.textContent = '';
+    if (retryEl) retryEl.hidden = true;
     atualizarDisponibilidadeEnvio();
-    if (!validarCNPJ(digits)) return;
+    if (!validarCNPJ(digits)) {
+        if (digits.length === 14) {
+            companyEl.textContent = 'CNPJ inválido. Confira os números informados.';
+            companyEl.hidden = false;
+        }
+        return;
+    }
     if (!window.runTrainingSheets || !window.runTrainingSheets.isConfigured()) {
         companyEl.textContent = 'A integração necessária para consultar a razão social não está configurada.';
         companyEl.hidden = false;
+        if (retryEl) retryEl.hidden = false;
         return;
     }
 
@@ -490,10 +499,12 @@ function buscarRazaoSocial(cnpjFormatado) {
             if (razaoSocialConsulta !== digits) return;
             razaoSocialAtual = result && result.name ? result.name : '';
             companyEl.textContent = razaoSocialAtual || 'Razão social não encontrada para este CNPJ.';
+            if (retryEl) retryEl.hidden = Boolean(razaoSocialAtual);
             atualizarDisponibilidadeEnvio();
         } catch (error) {
             if (razaoSocialConsulta !== digits) return;
-            companyEl.textContent = 'Não foi possível consultar a razão social agora.';
+            companyEl.textContent = `Não foi possível consultar a razão social: ${(error && error.message) || 'erro desconhecido.'}`;
+            if (retryEl) retryEl.hidden = false;
             atualizarDisponibilidadeEnvio();
         }
     }, 400);
@@ -509,7 +520,15 @@ function atualizarDisponibilidadeEnvio() {
     sendOrderButtonEl.title = companyNameLoaded
         ? ''
         : 'Informe um CNPJ válido e aguarde carregar a razão social para liberar o envio.';
+    const statusEl = document.getElementById('send-order-status');
+    if (statusEl) {
+        statusEl.hidden = companyNameLoaded;
+        statusEl.textContent = companyNameLoaded ? '' : sendOrderButtonEl.title;
+    }
 }
+
+const retryCnpjButtonEl = document.getElementById('cnpj-retry');
+if (retryCnpjButtonEl) retryCnpjButtonEl.addEventListener('click', () => buscarRazaoSocial(cnpjEl.value));
 
 function validarCNPJ(cnpj) {
     cnpj = cnpj.replace(/[^\d]+/g,'');

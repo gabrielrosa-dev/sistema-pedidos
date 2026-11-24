@@ -25,6 +25,7 @@
             const fields = {
                 operation,
                 requestId,
+                nonce: requestId,
                 payload: JSON.stringify(payload || {})
             };
             Object.entries(fields).forEach(([name, value]) => {
@@ -44,10 +45,13 @@
             const onMessage = event => {
                 const isAppsScriptOrigin = event.origin === 'https://script.google.com'
                     || event.origin.endsWith('.googleusercontent.com');
-                if (!isAppsScriptOrigin
-                    || !event.data
-                    || event.data.channel !== 'run-training-sheets'
-                    || event.data.requestId !== requestId) return;
+                if (!isAppsScriptOrigin || !event.data) return;
+                if (event.data.nonce === requestId && typeof event.data.ok === 'boolean') {
+                    cleanUp();
+                    reject(new Error('A integração de vendas publicada é incompatível com o catálogo. Atualize e reimplante o Web App do Google Apps Script.'));
+                    return;
+                }
+                if (event.data.channel !== 'run-training-sheets' || event.data.requestId !== requestId) return;
                 cleanUp();
                 if (!event.data.response || !event.data.response.ok) {
                     reject(new Error(event.data.response?.error || 'O serviço de planilhas retornou uma resposta inválida.'));
