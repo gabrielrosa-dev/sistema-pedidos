@@ -16,6 +16,12 @@
 </head>
 <body>
 
+    <button class="promotion-banner-button" type="button" id="open-promotions-button">
+        <strong>Promoções do mês</strong>
+        <span class="promotion-button-description">Preços especiais para seu pedido</span>
+        <span class="promotion-button-action">Ver ofertas <span aria-hidden="true">↓</span></span>
+    </button>
+
     <div class="app-install-banner" id="app-install-banner" hidden>
         <img class="app-install-logo" src="assets/images/branding/logo.png.jpg" alt="Logo da Run Training">
         <div class="app-install-copy">
@@ -39,12 +45,19 @@
     </header>
 
     <section class="promotion-banner container" aria-labelledby="promotion-banner-title">
-        <div>
+        <div class="promotion-banner-intro">
             <p class="eyebrow">Ofertas especiais</p>
             <h2 id="promotion-banner-title">Promoções do Mês</h2>
             <p>Produtos selecionados com preço especial por tempo limitado.</p>
         </div>
-        <button class="promotion-banner-button" type="button" id="open-promotions-button">Ver promoções <span aria-hidden="true">→</span></button>
+        <div class="promotion-carousel" id="promotion-carousel" role="region" aria-label="Produtos em promoção" aria-live="off">
+            <img class="promotion-carousel-image" id="promotion-carousel-image" src="assets/images/branding/logo.png.jpg" alt="">
+            <div class="promotion-carousel-copy">
+                <span class="promotion-carousel-label">Oferta em destaque</span>
+                <h3 id="promotion-carousel-name">Carregando promoções...</h3>
+                <p id="promotion-carousel-price"></p>
+            </div>
+        </div>
     </section>
 
     <main>

@@ -5,9 +5,45 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'app.js'), 'utf8');
+const sellerStart = source.indexOf('const whatsappDestinatarios = {');
+const sellerEnd = source.indexOf('\nconst appInstallBannerEl', sellerStart);
 const start = source.indexOf('async function enviarPedido()');
 const end = source.indexOf("\nif (viewOrderButtonEl)", start);
+assert.ok(sellerStart >= 0 && sellerEnd > sellerStart);
 assert.ok(start >= 0 && end > start);
+
+function createSellerProfile(search = '', savedSeller = '') {
+    const values = new Map(savedSeller ? [['run-training-order-seller', savedSeller]] : []);
+    const context = {
+        window: { location: { search } },
+        URLSearchParams,
+        localStorage: {
+            getItem: key => values.get(key) || null,
+            setItem: (key, value) => values.set(key, value)
+        }
+    };
+    vm.createContext(context);
+    vm.runInContext(source.slice(sellerStart, sellerEnd), context);
+    return { context, values };
+}
+
+test('links de cada vendedor direcionam e salvam o perfil para o aplicativo instalado', () => {
+    const gabriel = createSellerProfile('?destino=gabriel');
+    assert.equal(gabriel.values.get('run-training-order-seller'), 'gabriel');
+    assert.equal(gabriel.context.getWhatsAppDestinatario(), '5541995922369');
+
+    const vanderson = createSellerProfile('?destino=vanderson');
+    assert.equal(vanderson.values.get('run-training-order-seller'), 'vanderson');
+    assert.equal(vanderson.context.getWhatsAppDestinatario(), '554188604367');
+
+    const installedApp = createSellerProfile('', vanderson.values.get('run-training-order-seller'));
+    assert.equal(installedApp.context.getWhatsAppDestinatario(), '554188604367');
+});
+
+test('sem perfil salvo, mantém Gabriel como destino padrão', () => {
+    const profile = createSellerProfile();
+    assert.equal(profile.context.getWhatsAppDestinatario(), '5541995922369');
+});
 
 function createCheckout({ userAgent, ios = false, destino = '', popupBlocked = false, openFails = false }) {
     const events = [];
@@ -42,7 +78,8 @@ function createCheckout({ userAgent, ios = false, destino = '', popupBlocked = f
         condicaoPagamentoEl: { value: 'Pix' },
         getSelectedProducts: () => [{ name: 'Produto', quantity: 2, price: 150 }],
         formatMoney: value => `R$ ${value}`,
-        getWhatsAppDestinatario: () => destino === 'vanderson' ? '5541988604367' : '5541995922369',
+        getWhatsAppDestinatario: () => destino === 'vanderson' ? '554188604367' : '5541995922369',
+        getSellerKey: () => destino === 'vanderson' ? 'vanderson' : 'gabriel',
         alert: message => alerts.push(message),
         limparPedido: () => events.push(['clear'])
     };
@@ -61,7 +98,7 @@ for (const [name, userAgent, ios, destino] of [
         assert.deepEqual(checkout.events.map(event => event[0]), ['save', 'navigate']);
         const url = new URL(checkout.events[1][1]);
         assert.equal(url.protocol, 'whatsapp:');
-        assert.equal(url.searchParams.get('phone'), destino ? '5541988604367' : '5541995922369');
+        assert.equal(url.searchParams.get('phone'), destino ? '554188604367' : '5541995922369');
         assert.match(url.searchParams.get('text'), /Empresa & Filhos/);
         assert.equal(checkout.events[0][1].seller_key, destino || 'gabriel');
         checkout.finishSave({ saved: true });

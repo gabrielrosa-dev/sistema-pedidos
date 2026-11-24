@@ -20,9 +20,10 @@ const condicoesPagamento = [
 ];
 
 const whatsappDestinatarios = {
-    padrao: '5541995922369',
-    vanderson: '5541988604367'
+    gabriel: '5541995922369',
+    vanderson: '554188604367'
 };
+const sellerStorageKey = 'run-training-order-seller';
 
 const productVariants = {
     65: { label: 'Cor', options: ['Preto', 'Azul', 'Verde', 'Amarelo', 'Rosa'] },
@@ -53,9 +54,20 @@ const productVariants = {
 };
 
 function getWhatsAppDestinatario() {
-    const destino = new URLSearchParams(window.location.search).get('destino');
-    return whatsappDestinatarios[destino] || whatsappDestinatarios.padrao;
+    return whatsappDestinatarios[getSellerKey()];
 }
+
+function getSellerKey() {
+    const requestedSeller = new URLSearchParams(window.location.search).get('destino');
+    if (requestedSeller === 'gabriel' || requestedSeller === 'vanderson') {
+        localStorage.setItem(sellerStorageKey, requestedSeller);
+        return requestedSeller;
+    }
+
+    return localStorage.getItem(sellerStorageKey) === 'vanderson' ? 'vanderson' : 'gabriel';
+}
+
+getSellerKey();
 
 const appInstallBannerEl = document.getElementById('app-install-banner');
 const installAppButtonEl = document.getElementById('install-app-button');
@@ -142,10 +154,16 @@ const stockSyncMessageEl = document.getElementById('stock-sync-message');
 const categoryFilterEls = document.querySelectorAll('.category-filter');
 const catalogTitleEl = document.getElementById('catalog-title');
 const openPromotionsButtonEl = document.getElementById('open-promotions-button');
+const promotionCarouselEl = document.getElementById('promotion-carousel');
+const promotionCarouselImageEl = document.getElementById('promotion-carousel-image');
+const promotionCarouselNameEl = document.getElementById('promotion-carousel-name');
+const promotionCarouselPriceEl = document.getElementById('promotion-carousel-price');
 const backToCatalogButtonEl = document.getElementById('back-to-catalog-button');
 let activeCategory = 'todos';
 let activeSort = 'name-asc';
 let promotionsOnly = false;
+let promotionCarouselIndex = 0;
+let promotionCarouselTimer = null;
 const orderPanelEl = document.getElementById('order-panel');
 const orderItemsEl = document.getElementById('order-items');
 const orderItemCountEl = document.getElementById('order-item-count');
@@ -278,6 +296,66 @@ function isPromoActive(product, quantity = 0) {
 function getProductPrice(product, quantity = 0) {
     if (product.id === 306) return quantity >= 24 ? 31.99 : 33.99;
     return isPromoActive(product, quantity) ? product.promoPrice : product.price;
+}
+
+function getPromotionMinimumQuantity(product) {
+    if (POMADA_PROMO_IDS.has(product.id)) return POMADA_PROMO_MIN_QUANTITY;
+    return product.id === 306 ? 24 : 1;
+}
+
+function getPromotionCarouselItems() {
+    const productsById = new Map(products.map(product => [product.id, product]));
+    return promotions.map(promotion => ({
+        promotion,
+        product: productsById.get(promotion.productId)
+    })).filter(({ product }) => {
+        if (!product || hiddenCatalogProductIds.has(product.id) || product.available === false) return false;
+        if (!product.image || product.image.includes('/branding/')) return false;
+        const quantity = getPromotionMinimumQuantity(product);
+        return product.price != null && isPromoActive(product, quantity);
+    });
+}
+
+function showPromotionCarouselSlide(items, index, attempts = 0) {
+    const item = items[index];
+    if (!item) return;
+
+    promotionCarouselIndex = index;
+    const { product, promotion } = item;
+    const promoQuantity = getPromotionMinimumQuantity(product);
+    const promoPrice = getProductPrice(product, promoQuantity);
+    promotionCarouselNameEl.textContent = promotion.name || product.name;
+    promotionCarouselPriceEl.textContent = `De ${formatMoney(product.price)} por ${formatMoney(promoPrice)}${promoQuantity > 1 ? ` · a partir de ${promoQuantity} unidades` : ''}`;
+    promotionCarouselImageEl.alt = promotion.name || product.name;
+    promotionCarouselImageEl.hidden = false;
+    promotionCarouselImageEl.onerror = () => {
+        if (attempts + 1 >= items.length) {
+            promotionCarouselImageEl.hidden = true;
+            return;
+        }
+        showPromotionCarouselSlide(items, (index + 1) % items.length, attempts + 1);
+    };
+    promotionCarouselImageEl.src = product.image;
+}
+
+function renderPromotionCarousel() {
+    if (!promotionCarouselEl || !promotionCarouselImageEl || !promotionCarouselNameEl || !promotionCarouselPriceEl) return;
+
+    window.clearInterval(promotionCarouselTimer);
+    const items = getPromotionCarouselItems();
+    if (items.length === 0) {
+        promotionCarouselEl.hidden = true;
+        return;
+    }
+
+    promotionCarouselEl.hidden = false;
+    promotionCarouselIndex %= items.length;
+    showPromotionCarouselSlide(items, promotionCarouselIndex);
+    if (items.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        promotionCarouselTimer = window.setInterval(() => {
+            showPromotionCarouselSlide(items, (promotionCarouselIndex + 1) % items.length);
+        }, 4500);
+    }
 }
 
 function formatVisibleProductPrice(product, quantity = 0) {
@@ -648,6 +726,7 @@ async function loadProductAvailability() {
         });
         promotions.splice(0, promotions.length, ...keptPromotions);
         if (stockSyncMessageEl) stockSyncMessageEl.hidden = true;
+        renderPromotionCarousel();
         renderProducts(productSearchEl ? productSearchEl.value : '');
     } catch (error) {
         if (stockSyncMessageEl) {
@@ -1059,7 +1138,7 @@ async function enviarPedido() {
         : `https://web.whatsapp.com/send?phone=${numeroWhatsApp}&text=${textoCodificado}`;
 
     const salesRecord = {
-        seller_key: new URLSearchParams(window.location.search).get('destino') === 'vanderson' ? 'vanderson' : 'gabriel',
+        seller_key: getSellerKey(),
         cnpj: cnpjValue,
         total: Math.round(total * 100) / 100,
         payment_condition: condicaoPagamento,
@@ -1136,6 +1215,7 @@ document.addEventListener('keydown', event => {
 });
 
 renderProducts();
+renderPromotionCarousel();
 renderOrderSummary();
 loadProductAvailability();
 atualizarDisponibilidadeEnvio();
