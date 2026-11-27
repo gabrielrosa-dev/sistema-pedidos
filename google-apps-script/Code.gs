@@ -1,7 +1,7 @@
 const SALES_SHEET_NAME = 'Vendas';
 const AVAILABILITY_SHEET_NAME = 'Disponibilidade';
 const LEGACY_AVAILABILITY_SHEET_NAME = 'Produtos';
-const AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço', 'Preço promocional'];
+const AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço', 'Preço promocional', 'Descrição'];
 const AVAILABILITY_BASE_HEADERS = ['ID', 'Produto', 'Disponível', 'Preço'];
 const LEGACY_AVAILABILITY_HEADERS = ['ID', 'Produto', 'Disponível'];
 const CATALOG_IMPORT_ACTIVE_PROPERTY = 'CATALOG_IMPORT_ACTIVE';
@@ -133,6 +133,8 @@ function handleRequest(operation, payload) {
             return listAvailability(payload.token);
         case 'updateProductAvailability':
             return updateProductAvailability(payload);
+        case 'updateProductDescription':
+            return updateProductDescription(payload);
         case 'importCatalog':
             return importCatalog(payload);
         case 'addProduct':
@@ -183,7 +185,8 @@ function syncAvailability(products) {
             name: String(row[1] || ''),
             available: row[2] !== false,
             price: normalizeAvailabilityPrice(row[3]),
-            promoPrice: normalizePromoPrice(row[4])
+            promoPrice: normalizePromoPrice(row[4]),
+            description: String(row[5] || '')
         }]));
         const importedCatalogActive = PropertiesService.getScriptProperties()
             .getProperty(CATALOG_IMPORT_ACTIVE_PROPERTY) === 'true';
@@ -202,13 +205,21 @@ function syncAvailability(products) {
                 importedCatalogActive && existing.name ? existing.name : product.name,
                 available,
                 price,
-                existing ? existing.promoPrice : null
+                existing ? existing.promoPrice : null,
+                existing ? existing.description : ''
             ]);
         });
         existingRows.forEach(row => {
             const id = Number(row[0]);
             if (rowById.has(id)) {
-                const kept = [id, String(row[1]), row[2] !== false, normalizeAvailabilityPrice(row[3]), normalizePromoPrice(row[4])];
+                const kept = [
+                    id,
+                    String(row[1]),
+                    row[2] !== false,
+                    normalizeAvailabilityPrice(row[3]),
+                    normalizePromoPrice(row[4]),
+                    String(row[5] || '')
+                ];
                 rows.push(kept);
                 extraRows.push(kept);
                 rowById.delete(id);
@@ -221,6 +232,7 @@ function syncAvailability(products) {
             availability: Object.fromEntries(rows.map(row => [String(row[0]), row[2]])),
             prices: Object.fromEntries(rows.filter(row => row[3] !== null).map(row => [String(row[0]), row[3]])),
             promoPrices: Object.fromEntries(rows.filter(row => row[4] !== null).map(row => [String(row[0]), row[4]])),
+            descriptions: Object.fromEntries(rows.map(row => [String(row[0]), String(row[5] || '')])),
             catalog: rows.map(toCatalogEntry),
             extras: extraRows.map(toCatalogEntry),
             imported: importedCatalogActive
@@ -236,7 +248,8 @@ function toCatalogEntry(row) {
         name: row[1],
         available: row[2],
         price: normalizeAvailabilityPrice(row[3]),
-        promoPrice: normalizePromoPrice(row[4])
+        promoPrice: normalizePromoPrice(row[4]),
+        description: String(row[5] || '')
     };
 }
 
@@ -279,17 +292,22 @@ function importCatalog(payload) {
     try {
         const sheet = getAvailabilitySheet();
         const previousPromos = new Map();
+        const previousDescriptions = new Map();
         const lastRow = sheet.getLastRow();
         if (lastRow > 1) {
             sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).getValues()
-                .forEach(row => previousPromos.set(Number(row[0]), normalizePromoPrice(row[4])));
+                .forEach(row => {
+                    previousPromos.set(Number(row[0]), normalizePromoPrice(row[4]));
+                    previousDescriptions.set(Number(row[0]), String(row[5] || ''));
+                });
         }
         const rows = products.map(product => [
             product.id,
             product.name,
             product.available,
             product.price,
-            previousPromos.has(product.id) ? previousPromos.get(product.id) : null
+            previousPromos.has(product.id) ? previousPromos.get(product.id) : null,
+            previousDescriptions.get(product.id) || ''
         ]);
         if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).clearContent();
         sheet.getRange(2, 1, rows.length, AVAILABILITY_HEADERS.length).setValues(rows);
@@ -307,7 +325,7 @@ function listAvailability(token) {
     if (lastRow < 2) return [];
     return sheet.getRange(2, 1, lastRow - 1, AVAILABILITY_HEADERS.length).getValues()
         .filter(row => Number.isSafeInteger(Number(row[0])) && String(row[1]).trim())
-        .map(row => toCatalogEntry([Number(row[0]), String(row[1]), row[2] !== false, row[3], row[4]]))
+        .map(row => toCatalogEntry([Number(row[0]), String(row[1]), row[2] !== false, row[3], row[4], row[5]]))
         .sort((first, second) => first.name.localeCompare(second.name, 'pt-BR'));
 }
 
@@ -351,6 +369,30 @@ function updateProductAvailability(payload) {
     }
 }
 
+function updateProductDescription(payload) {
+    getSessionAdminKey(payload.token);
+    const productId = Number(payload.productId);
+    const description = String(payload.description || '').trim();
+    if (!Number.isSafeInteger(productId) || productId < 1 || description.length > 1000) {
+        throw new Error('A descrição do produto é inválida (máximo de 1000 caracteres).');
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+        const sheet = getAvailabilitySheet();
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) throw new Error('O catálogo ainda não foi sincronizado.');
+        const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+        const rowIndex = ids.findIndex(row => Number(row[0]) === productId);
+        if (rowIndex === -1) throw new Error('O produto não foi encontrado. Atualize o catálogo e tente novamente.');
+        sheet.getRange(rowIndex + 2, 6).setValue(description);
+        return { productId: productId, description: description };
+    } finally {
+        lock.releaseLock();
+    }
+}
+
 function getAvailabilitySheet() {
     const spreadsheetId = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
     if (!spreadsheetId) throw new Error('Configure primeiro a planilha de vendas.');
@@ -378,6 +420,7 @@ function getAvailabilitySheet() {
             throw new Error('Os cabeçalhos da aba Disponibilidade não correspondem ao formato esperado.');
         }
         if (!headers[4]) sheet.getRange(1, 5).setValue(AVAILABILITY_HEADERS[4]);
+        if (!headers[5]) sheet.getRange(1, 6).setValue(AVAILABILITY_HEADERS[5]);
     }
     return sheet;
 }
@@ -444,7 +487,7 @@ function addProduct(payload) {
             throw new Error('Já existe um produto com esse nome.');
         }
         const id = Math.max(2000, ...rows.map(row => Number(row[0]) || 0)) + 1;
-        sheet.appendRow([id, name, true, roundedPrice, '']);
+        sheet.appendRow([id, name, true, roundedPrice, '', '']);
         return { id: id, name: name, price: roundedPrice, available: true };
     } finally {
         lock.releaseLock();

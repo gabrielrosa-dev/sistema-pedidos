@@ -27,7 +27,10 @@
                 <label for="admin-email">E-mail</label>
                 <input id="admin-email" name="email" type="email" autocomplete="username" required>
                 <label for="admin-password">Senha</label>
-                <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+                <div class="admin-password-field">
+                    <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+                    <button class="admin-secondary-button admin-password-toggle" id="admin-password-visibility" type="button" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+                </div>
                 <button class="admin-primary-button" type="submit" id="admin-login-button">Entrar</button>
             </form>
             <p class="admin-message" id="admin-login-message" role="alert"></p>
@@ -126,7 +129,7 @@
                     <div>
                         <p class="eyebrow">Catálogo</p>
                         <h2 id="inventory-title">Disponibilidade dos produtos</h2>
-                        <p class="admin-intro">Altere a disponibilidade e cadastre o preço dos produtos que ainda não têm valor no catálogo.</p>
+                        <p class="admin-intro">Altere a disponibilidade, descrição e preço dos produtos do catálogo.</p>
                     </div>
                     <div class="inventory-summary" id="inventory-summary" aria-live="polite"></div>
                 </div>

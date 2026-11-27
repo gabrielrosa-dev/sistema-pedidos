@@ -8,15 +8,19 @@ const condicoesPagamento = [
     { nome: "21", boletos: 1 },
     { nome: "28", boletos: 1 },
     { nome: "35", boletos: 1 },
+    { nome: "42", boletos: 1 },
     { nome: "7/14", boletos: 2 },
     { nome: "14/21", boletos: 2 },
     { nome: "21/28", boletos: 2 },
     { nome: "28/35", boletos: 2 },
+    { nome: "35/42", boletos: 2 },
     { nome: "7/14/21", boletos: 3 },
     { nome: "14/21/28", boletos: 3 },
     { nome: "21/28/35", boletos: 3 },
+    { nome: "28/35/42", boletos: 3 },
     { nome: "7/14/21/28", boletos: 4 },
-    { nome: "14/21/28/35", boletos: 4 }
+    { nome: "14/21/28/35", boletos: 4 },
+    { nome: "21/28/35/42", boletos: 4 }
 ];
 
 const whatsappDestinatarios = {
@@ -266,6 +270,10 @@ if (checkoutBoxEl && 'ResizeObserver' in window) {
 }
 
 function getProductDescription(product) {
+    if (typeof product.description === 'string' && product.description.trim()) {
+        return product.description;
+    }
+
     const name = product.name.toLocaleLowerCase();
     if (/sabonete|desodorante íntimo/.test(name)) return 'Produto de higiene e cuidado pessoal para uso diário. Confira a fragrância e a apresentação no nome do item.';
     if (/capilar|shampoo|condicionante|mary life|bio instinto|body splash|óleo|oleo|manteiga|creme/.test(name)) return 'Produto para cuidados pessoais, com apresentação e características descritas no nome do item.';
@@ -698,6 +706,7 @@ async function loadProductAvailability() {
                     name: product.name,
                     price: Number(product.price) > 0 ? Number(product.price) : null,
                     available: product.available === true,
+                    description: product.description || '',
                     image: original && original.image
                         ? original.image
                         : 'assets/images/branding/logo.png.jpg'
@@ -720,6 +729,9 @@ async function loadProductAvailability() {
         }
         products.forEach(product => {
             const availability = result.availability[String(product.id)];
+            if (result.descriptions && typeof result.descriptions[String(product.id)] === 'string') {
+                product.description = result.descriptions[String(product.id)];
+            }
             const priceOverride = Number(result.prices[String(product.id)]);
             if (Number.isFinite(priceOverride) && priceOverride > 0) product.price = priceOverride;
             product.available = typeof availability === 'boolean' ? availability : true;

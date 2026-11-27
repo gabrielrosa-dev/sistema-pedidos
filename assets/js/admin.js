@@ -505,6 +505,7 @@
                         price: hasPrice ? price : null,
                         catalogPrice: hasPrice ? price : null,
                         promoPrice: hasPrice ? resolvePromo(product.promoPrice, original) : null,
+                        description: product.description || '',
                         hasPrice,
                         available: product.available === true
                     };
@@ -524,6 +525,9 @@
                     const hasPrice = Number.isFinite(Number(price)) && Number(price) > 0;
                     return {
                         ...product,
+                        description: result.descriptions
+                            ? result.descriptions[String(product.id)] || ''
+                            : product.description || '',
                         price: hasPrice ? Number(price) : null,
                         catalogPrice: hasPrice ? Number(price) : null,
                         promoPrice: hasPrice
@@ -580,6 +584,16 @@
             id.className = 'inventory-product-id';
             id.textContent = `Código ${product.id}`;
             info.append(name, id);
+            const descriptionField = document.createElement('label');
+            descriptionField.className = 'inventory-description-field';
+            descriptionField.textContent = 'Descrição do produto';
+            const descriptionInput = document.createElement('textarea');
+            descriptionInput.maxLength = 1000;
+            descriptionInput.rows = 2;
+            descriptionInput.value = product.description || '';
+            descriptionInput.setAttribute('aria-label', `Descrição de ${product.name}`);
+            descriptionField.appendChild(descriptionInput);
+            info.appendChild(descriptionField);
 
             const actions = document.createElement('div');
             actions.className = 'inventory-product-actions';
@@ -603,6 +617,13 @@
             savePriceButton.textContent = product.hasPrice ? 'Salvar preço' : 'Salvar preço e ativar';
             savePriceButton.addEventListener('click', () => saveProductPrice(product, priceInput, savePriceButton));
             actions.appendChild(savePriceButton);
+
+            const saveDescriptionButton = document.createElement('button');
+            saveDescriptionButton.type = 'button';
+            saveDescriptionButton.className = 'admin-secondary-button inventory-toggle';
+            saveDescriptionButton.textContent = 'Salvar descrição';
+            saveDescriptionButton.addEventListener('click', () => saveProductDescription(product, descriptionInput, saveDescriptionButton));
+            actions.appendChild(saveDescriptionButton);
 
             if (product.hasPrice) {
                 const promoField = document.createElement('label');
@@ -701,6 +722,21 @@
         } catch (error) {
             button.disabled = false;
             setMessage(inventoryMessage, `Não foi possível salvar o preço de ${product.name}: ${error.message}`, true);
+        }
+    }
+
+    async function saveProductDescription(product, input, button) {
+        const description = input.value.trim();
+        button.disabled = true;
+        setMessage(inventoryMessage, 'Salvando descrição...', false);
+        try {
+            await sheets.updateProductDescription(product.id, description);
+            product.description = description;
+            setMessage(inventoryMessage, `Descrição de ${product.name} salva.`, false);
+        } catch (error) {
+            setMessage(inventoryMessage, `Não foi possível salvar a descrição de ${product.name}: ${error.message}`, true);
+        } finally {
+            button.disabled = false;
         }
     }
 
@@ -1038,6 +1074,16 @@
             loginButton.disabled = false;
             loginButton.textContent = 'Entrar';
         }
+    });
+
+    const adminPasswordInput = document.getElementById('admin-password');
+    const passwordVisibilityButton = document.getElementById('admin-password-visibility');
+    passwordVisibilityButton.addEventListener('click', () => {
+        const isVisible = adminPasswordInput.type === 'text';
+        adminPasswordInput.type = isVisible ? 'password' : 'text';
+        passwordVisibilityButton.textContent = isVisible ? 'Mostrar' : 'Ocultar';
+        passwordVisibilityButton.setAttribute('aria-label', isVisible ? 'Mostrar senha' : 'Ocultar senha');
+        passwordVisibilityButton.setAttribute('aria-pressed', String(!isVisible));
     });
 
     filterForm.addEventListener('submit', event => {

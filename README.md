@@ -4,9 +4,13 @@
 
 ## Disponibilidade dos produtos
 
-O painel administrativo permite buscar produtos e alternar entre “Disponível” e “Indisponível”. Para produtos sem preço, informe o preço no painel; ao salvar, o produto é ativado. O preço e o status são compartilhados com o catálogo pela aba `Disponibilidade`. Não há quantidades, movimentações ou controle de estoque. O cabeçalho `Preço` é adicionado automaticamente ao formato já existente da aba.
+O painel administrativo permite buscar produtos, editar sua descrição e alternar entre “Disponível” e “Indisponível”. Para produtos sem preço, informe o preço no painel; ao salvar, o produto é ativado. O preço, a descrição e o status são compartilhados com o catálogo pela aba `Disponibilidade`. Não há quantidades, movimentações ou controle de estoque. Os cabeçalhos `Preço`, `Preço promocional` e `Descrição` são adicionados automaticamente ao formato já existente da aba.
 
 Para ativar a função, copie o conteúdo atualizado de `google-apps-script/Code.gs` para o projeto Apps Script conectado à planilha e publique uma nova versão do Web App. O catálogo de produtos é carregado pelo painel admin e a aba `Disponibilidade` será criada automaticamente. Se existir a aba antiga `Produtos`, ela será renomeada para `Disponibilidade` para preservar os status já salvos.
+
+## Condições de pagamento
+
+Pedidos que atingirem o mínimo de R$ 300,00 podem selecionar pagamento em até 42 dias. As opções parceladas também incluem combinações com vencimento final em 42 dias, respeitando o número de boletos permitido pelo valor do pedido.
 
 ## Promoções no catálogo
 
