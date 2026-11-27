@@ -60,20 +60,20 @@ test('informa imediatamente quando o Web App publicado usa outro protocolo', asy
     await assert.rejects(result, /incompatível.*reimplante/);
 });
 
-test('envia atualização da descrição do produto com o identificador e a sessão', async () => {
+test('envia atualização do nome do produto com o identificador e a sessão', async () => {
     const client = createClient();
-    const result = client.client.updateProductDescription(17, 'Descrição atualizada');
+    const result = client.client.updateProductName(17, 'Nome atualizado');
     const fields = client.getFields();
-    assert.equal(fields.operation, 'updateProductDescription');
+    assert.equal(fields.operation, 'updateProductName');
     assert.deepEqual(JSON.parse(fields.payload), {
         token: 'test-session-token',
         productId: 17,
-        description: 'Descrição atualizada'
+        name: 'Nome atualizado'
     });
     client.respond('https://script.google.com', {
         channel: 'run-training-sheets',
         requestId: fields.requestId,
-        response: { ok: true, data: { productId: 17, description: 'Descrição atualizada' } }
+        response: { ok: true, data: { productId: 17, name: 'Nome atualizado' } }
     });
-    assert.equal((await result).description, 'Descrição atualizada');
+    assert.equal((await result).name, 'Nome atualizado');
 });

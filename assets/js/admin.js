@@ -525,6 +525,7 @@
                     const hasPrice = Number.isFinite(Number(price)) && Number(price) > 0;
                     return {
                         ...product,
+                        name: result.names && result.names[String(product.id)] || product.name,
                         description: result.descriptions
                             ? result.descriptions[String(product.id)] || ''
                             : product.description || '',
@@ -584,16 +585,16 @@
             id.className = 'inventory-product-id';
             id.textContent = `Código ${product.id}`;
             info.append(name, id);
-            const descriptionField = document.createElement('label');
-            descriptionField.className = 'inventory-description-field';
-            descriptionField.textContent = 'Descrição do produto';
-            const descriptionInput = document.createElement('textarea');
-            descriptionInput.maxLength = 1000;
-            descriptionInput.rows = 2;
-            descriptionInput.value = product.description || '';
-            descriptionInput.setAttribute('aria-label', `Descrição de ${product.name}`);
-            descriptionField.appendChild(descriptionInput);
-            info.appendChild(descriptionField);
+            const nameField = document.createElement('label');
+            nameField.className = 'inventory-name-field';
+            nameField.textContent = 'Nome do produto';
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.maxLength = 250;
+            nameInput.value = product.name;
+            nameInput.setAttribute('aria-label', `Nome de ${product.name}`);
+            nameField.appendChild(nameInput);
+            info.appendChild(nameField);
 
             const actions = document.createElement('div');
             actions.className = 'inventory-product-actions';
@@ -618,12 +619,12 @@
             savePriceButton.addEventListener('click', () => saveProductPrice(product, priceInput, savePriceButton));
             actions.appendChild(savePriceButton);
 
-            const saveDescriptionButton = document.createElement('button');
-            saveDescriptionButton.type = 'button';
-            saveDescriptionButton.className = 'admin-secondary-button inventory-toggle';
-            saveDescriptionButton.textContent = 'Salvar descrição';
-            saveDescriptionButton.addEventListener('click', () => saveProductDescription(product, descriptionInput, saveDescriptionButton));
-            actions.appendChild(saveDescriptionButton);
+            const saveNameButton = document.createElement('button');
+            saveNameButton.type = 'button';
+            saveNameButton.className = 'admin-secondary-button inventory-toggle';
+            saveNameButton.textContent = 'Salvar nome';
+            saveNameButton.addEventListener('click', () => saveProductName(product, nameInput, saveNameButton));
+            actions.appendChild(saveNameButton);
 
             if (product.hasPrice) {
                 const promoField = document.createElement('label');
@@ -725,16 +726,22 @@
         }
     }
 
-    async function saveProductDescription(product, input, button) {
-        const description = input.value.trim();
+    async function saveProductName(product, input, button) {
+        const name = input.value.trim();
+        if (!name || name.startsWith('=')) {
+            setMessage(inventoryMessage, 'Informe um nome válido que não comece com =.', true);
+            input.focus();
+            return;
+        }
         button.disabled = true;
-        setMessage(inventoryMessage, 'Salvando descrição...', false);
+        setMessage(inventoryMessage, 'Salvando nome...', false);
         try {
-            await sheets.updateProductDescription(product.id, description);
-            product.description = description;
-            setMessage(inventoryMessage, `Descrição de ${product.name} salva.`, false);
+            const result = await sheets.updateProductName(product.id, name);
+            product.name = result.name;
+            renderInventory();
+            setMessage(inventoryMessage, `Nome do produto atualizado para ${product.name}.`, false);
         } catch (error) {
-            setMessage(inventoryMessage, `Não foi possível salvar a descrição de ${product.name}: ${error.message}`, true);
+            setMessage(inventoryMessage, `Não foi possível salvar o nome de ${product.name}: ${error.message}`, true);
         } finally {
             button.disabled = false;
         }

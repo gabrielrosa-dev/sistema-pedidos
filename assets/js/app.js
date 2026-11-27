@@ -687,6 +687,7 @@ async function loadProductAvailability() {
     }
 
     try {
+        const previousNames = new Map(products.map(product => [product.id, product.name]));
         const result = await window.runTrainingSheets.syncProductAvailability(
             products
                 .filter(product => !hiddenCatalogProductIds.has(product.id))
@@ -729,6 +730,12 @@ async function loadProductAvailability() {
         }
         products.forEach(product => {
             const availability = result.availability[String(product.id)];
+            const savedName = result.names && result.names[String(product.id)];
+            if (savedName) product.name = savedName;
+            if (previousNames.has(product.id) && previousNames.get(product.id) !== product.name) {
+                promotions.filter(promotion => promotion.productId === product.id)
+                    .forEach(promotion => { promotion.name = product.name; });
+            }
             if (result.descriptions && typeof result.descriptions[String(product.id)] === 'string') {
                 product.description = result.descriptions[String(product.id)];
             }

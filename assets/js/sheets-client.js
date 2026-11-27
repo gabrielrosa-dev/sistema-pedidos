@@ -109,10 +109,10 @@
             available,
             price
         }),
-        updateProductDescription: (productId, description) => request('updateProductDescription', {
+        updateProductName: (productId, name) => request('updateProductName', {
             token: getToken(),
             productId,
-            description
+            name
         }),
         updateSaleTotal: (saleId, total) => request('updateSaleTotal', {
             token: getToken(),
